@@ -160,11 +160,11 @@ public struct FoodForm: View {
     }
     
     func foodFormData(shouldPublish: Bool) -> FoodFormOutput? {
-        guard let rawData = FoodFormFieldsAndSources(fields: fields, sources: sources) else {
+        guard let fieldsAndSources = FoodFormFieldsAndSources(fields: fields, sources: sources) else {
             return nil
         }
         return FoodFormOutput(
-            rawData: rawData,
+            fieldsAndSources: fieldsAndSources,
             images: images,
             shouldPublish: shouldPublish
         )
