@@ -5,9 +5,6 @@ extension FoodForm.Fields {
 
     func prefill(_ food: MFPProcessedFood) {
         
-        /// This is used for mock data
-        Task(priority: .low) { food.saveToJson() }
-
         prefillDetails(from: food)
         
         /// Create sizes first as we might have one as the amount or serving unit
