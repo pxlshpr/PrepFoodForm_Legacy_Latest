@@ -621,8 +621,7 @@ extension ScanResult {
     }
 }
 
-extension ImageViewModel {
-    
+extension ImageViewModel {    
     func writeImage(to directoryUrl: URL) async throws {
         guard let imageData else { return }
         let imageUrl = directoryUrl.appending(component: "\(id).jpg")
