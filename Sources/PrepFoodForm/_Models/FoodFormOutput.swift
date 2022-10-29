@@ -1,20 +1,26 @@
 import SwiftUI
 import PrepDataTypes
 
-public struct FoodFormData {
+/**
+ Encompasses all the data output by the `FoodForm`.
+ */
+public struct FoodFormOutput {
     
     public let images: [UUID: UIImage]
     public let data: Data
     public let shouldPublish: Bool
     public let createForm: UserFoodCreateForm
     
-    init?(rawData: FoodFormRawData, images: [UUID : UIImage], shouldPublish: Bool) {
-        guard let createForm = rawData.createForm
+    init?(fieldsAndSources: FoodFormFieldsAndSources,
+          images: [UUID : UIImage],
+          shouldPublish: Bool
+    ) {
+        guard let createForm = fieldsAndSources.createForm
         else {
             return nil
         }
         self.images = images
-        self.data = try! JSONEncoder().encode(rawData)
+        self.data = try! JSONEncoder().encode(fieldsAndSources)
         self.shouldPublish = shouldPublish
         self.createForm = createForm
     }

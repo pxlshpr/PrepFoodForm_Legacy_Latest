@@ -8,7 +8,7 @@ public struct FoodForm: View {
     
     @Environment(\.dismiss) var dismiss
     
-    let didSave: (FoodFormData) -> ()
+    let didSave: (FoodFormOutput) -> ()
     
     /// ViewModels
     @StateObject var fields: Fields
@@ -39,7 +39,7 @@ public struct FoodForm: View {
     @State var showingWizardOverlay = true
     @State var formDisabled = false
 
-    public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormData) -> ()) {
+    public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
         Sources.shared = Sources()
         _fields = StateObject(wrappedValue: Fields.shared)
@@ -49,7 +49,7 @@ public struct FoodForm: View {
         _shouldShowWizard = State(initialValue: false)
     }
     
-    public init(didSave: @escaping (FoodFormData) -> ()) {
+    public init(didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
         Sources.shared = Sources()
         _fields = StateObject(wrappedValue: Fields.shared)
@@ -159,11 +159,11 @@ public struct FoodForm: View {
         [:]
     }
     
-    func foodFormData(shouldPublish: Bool) -> FoodFormData? {
-        guard let rawData = FoodFormRawData(fields: fields, sources: sources) else {
+    func foodFormData(shouldPublish: Bool) -> FoodFormOutput? {
+        guard let rawData = FoodFormFieldsAndSources(fields: fields, sources: sources) else {
             return nil
         }
-        return FoodFormData(
+        return FoodFormOutput(
             rawData: rawData,
             images: images,
             shouldPublish: shouldPublish
