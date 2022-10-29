@@ -4,9 +4,6 @@ import FoodLabelScanner
 import PhotosUI
 import MFPScraper
 
-public struct FoodFormData {
-    
-}
 public struct FoodForm: View {
     
     @Environment(\.dismiss) var dismiss
@@ -198,6 +195,7 @@ public struct FoodForm: View {
             Button {
                 dismiss()
             } label: {
+                
                 Text("Cancel")
             }
         }
