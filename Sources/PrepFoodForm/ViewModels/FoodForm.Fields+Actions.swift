@@ -3,9 +3,11 @@ import SwiftUI
 extension FoodForm.Fields {
     
     func updateFormState() {
-        updateCanBeSaved()
         updateShouldShowDensity()
         updateShouldShowFoodLabel()
+        
+        /// Should be called after setting `shouldShowFoodLabel`, as it depends on it
+        updateCanBeSaved()
     }
     
     func updateCanBeSaved() {
