@@ -155,31 +155,11 @@ public struct FoodForm: View {
             .transition(.move(edge: .bottom))
         }
     }
-    
-    var imagesDict: [UUID: UIImage] {
-        [:]
-    }
-    
-    func foodFormData(shouldPublish: Bool) -> FoodFormOutput? {
-        guard
-            let fieldsAndSources = FoodFormFieldsAndSources(fields: fields, sources: sources),
-            let createForm = fieldsAndSources.createForm,
-            let jsonData = try? JSONEncoder().encode(fieldsAndSources)
-        else {
-            return nil
-        }
-        
-        return FoodFormOutput(
-            createForm: createForm,
-            fieldsAndSourcesJSONData: jsonData,
-            images: imagesDict,
-            shouldPublish: shouldPublish)
-    }
 
     var saveButtons: some View {
         var publicButton: some View {
             FormPrimaryButton(title: "Add to Public Database") {
-                guard let data = foodFormData(shouldPublish: true) else {
+                guard let data = foodFormOutput(shouldPublish: true) else {
                     return
                 }
                 didSave(data)
@@ -189,7 +169,7 @@ public struct FoodForm: View {
         
         var privateButton: some View {
             FormSecondaryButton(title: "Add to Private Database") {
-                guard let data = foodFormData(shouldPublish: false) else {
+                guard let data = foodFormOutput(shouldPublish: false) else {
                     return
                 }
                 didSave(data)
