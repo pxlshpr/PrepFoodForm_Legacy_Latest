@@ -3,6 +3,7 @@ import SwiftUISugar
 import FoodLabelScanner
 import PhotosUI
 import MFPScraper
+import PrepDataTypes
 
 public struct FoodForm: View {
     
@@ -155,19 +156,24 @@ public struct FoodForm: View {
         }
     }
     
-    var images: [UUID: UIImage] {
+    var imagesDict: [UUID: UIImage] {
         [:]
     }
     
     func foodFormData(shouldPublish: Bool) -> FoodFormOutput? {
-        guard let fieldsAndSources = FoodFormFieldsAndSources(fields: fields, sources: sources) else {
+        guard
+            let fieldsAndSources = FoodFormFieldsAndSources(fields: fields, sources: sources),
+            let createForm = fieldsAndSources.createForm,
+            let jsonData = try? JSONEncoder().encode(fieldsAndSources)
+        else {
             return nil
         }
+        
         return FoodFormOutput(
-            fieldsAndSources: fieldsAndSources,
-            images: images,
-            shouldPublish: shouldPublish
-        )
+            createForm: createForm,
+            fieldsAndSourcesJSONData: jsonData,
+            images: imagesDict,
+            shouldPublish: shouldPublish)
     }
 
     var saveButtons: some View {
