@@ -59,7 +59,7 @@ public struct FoodForm: View {
     }
     
     public var body: some View {
-        let _ = Self._printChanges()
+//        let _ = Self._printChanges()
         return NavigationView {
             content
                 .navigationTitle("New Food")
