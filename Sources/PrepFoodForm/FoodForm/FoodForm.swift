@@ -155,17 +155,38 @@ public struct FoodForm: View {
         }
     }
     
+    var images: [UUID: UIImage] {
+        [:]
+    }
+    
+    func foodFormData(shouldPublish: Bool) -> FoodFormData? {
+        guard let rawData = FoodFormRawData(fields: fields, sources: sources) else {
+            return nil
+        }
+        return FoodFormData(
+            rawData: rawData,
+            images: images,
+            shouldPublish: shouldPublish
+        )
+    }
+
     var saveButtons: some View {
         var publicButton: some View {
             FormPrimaryButton(title: "Add to Public Database") {
-//                didSave(foodFormDataPublic)
+                guard let data = foodFormData(shouldPublish: true) else {
+                    return
+                }
+                didSave(data)
                 dismiss()
             }
         }
         
         var privateButton: some View {
             FormSecondaryButton(title: "Add to Private Database") {
-//                didSave(foodFormDataPrivate)
+                guard let data = foodFormData(shouldPublish: false) else {
+                    return
+                }
+                didSave(data)
                 dismiss()
             }
         }
