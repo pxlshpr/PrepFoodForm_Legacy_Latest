@@ -14,7 +14,7 @@ extension FoodFormFieldsAndSources {
             emoji: emoji,
             detail: detail,
             brand: brand,
-            status: .notPublished,
+            publishStatus: .hidden,
             info: info
         )
     }
@@ -42,7 +42,7 @@ extension FoodFormFieldsAndSources {
             imageIds: images.map { $0.id },
             barcodes: foodBarcodes,
             spawnedUserFoodId: nil,
-            spawnedDatabaseFoodId: nil,
+            spawnedPresetFoodId: nil,
             cloudKitId: ""
         )
     }
