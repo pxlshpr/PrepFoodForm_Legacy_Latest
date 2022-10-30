@@ -43,7 +43,7 @@ extension FoodFormFieldsAndSources {
             barcodes: foodBarcodes,
             spawnedUserFoodId: nil,
             spawnedDatabaseFoodId: nil,
-            userId: UUID(uuidString: "951917ab-594a-4424-88e5-012223e8dfaf")!
+            cloudKitId: ""
         )
     }
     
