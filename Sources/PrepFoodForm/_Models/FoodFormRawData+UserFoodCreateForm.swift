@@ -9,6 +9,7 @@ extension FoodFormFieldsAndSources {
             return nil
         }
         return UserFoodCreateForm(
+            id: UUID(),
             name: name,
             emoji: emoji,
             detail: detail,
