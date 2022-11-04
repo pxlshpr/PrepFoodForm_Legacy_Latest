@@ -60,6 +60,12 @@ public struct FoodForm: View {
         self.didSave = didSave
     }
     
+    public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
+        self.init(didSave: didSave)
+        sources.add(image, with: scanResult)
+        NotificationCenter.default.post(name: .didScanFoodLabel, object: nil)
+    }
+    
     public var body: some View {
 //        let _ = Self._printChanges()
         return NavigationView {
