@@ -4,6 +4,31 @@ import SwiftHaptics
 
 extension FoodForm {
     
+    var addBarcodeTitle: String {
+        "Add a Barcode"
+    }
+    
+    var addBarcodeActions: some View {
+        Group {
+            TextField("012345678912", text: $barcodePayload)
+                .textInputAutocapitalization(.never)
+                .keyboardType(.decimalPad)
+                .submitLabel(.done)
+            Button("Add", action: {
+                Haptics.successFeedback()
+                withAnimation {
+                    handleTypedOutBarcode(barcodePayload)
+                }
+                barcodePayload = ""
+            })
+            Button("Cancel", role: .cancel, action: {})
+        }
+    }
+    
+    var addBarcodeMessage: some View {
+        Text("Please enter the barcode number for this food.")
+    }
+    
     var barcodesSection: some View {
         var header: some View {
             Text("Barcodes")
