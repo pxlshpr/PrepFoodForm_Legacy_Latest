@@ -48,34 +48,33 @@ public struct FoodForm: View {
     public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
         Sources.shared = Sources()
+        self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
-        self.didSave = didSave
-        
+        _initialScanResult = State(initialValue: nil)
+        _initialScanImage = State(initialValue: nil)
         _shouldShowWizard = State(initialValue: false)
-        self.initialScanImage = nil
-        self.initialScanResult = nil
     }
     
     public init(didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
         Sources.shared = Sources()
+        self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
-        self.didSave = didSave
-        self.initialScanImage = nil
-        self.initialScanResult = nil
+        _initialScanResult = State(initialValue: nil)
+        _initialScanImage = State(initialValue: nil)
     }
     
     public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
         Sources.shared = Sources()
+        self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
         _shouldShowWizard = State(initialValue: false)
-        self.didSave = didSave
-        self.initialScanImage = image
-        self.initialScanResult = scanResult
+        _initialScanResult = State(initialValue: scanResult)
+        _initialScanImage = State(initialValue: image)
     }
     
     public var body: some View {
