@@ -62,8 +62,9 @@ public struct FoodForm: View {
     
     public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
         self.init(didSave: didSave)
+        _shouldShowWizard = State(initialValue: false)
         sources.add(image, with: scanResult)
-        NotificationCenter.default.post(name: .didScanFoodLabel, object: nil)
+        extractFieldsOrShowColumnSelectionInfo()
     }
     
     public var body: some View {
