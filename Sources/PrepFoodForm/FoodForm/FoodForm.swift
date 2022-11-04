@@ -102,7 +102,7 @@ public struct FoodForm: View {
 //        .bottomMenu(isPresented: $showingSourcesMenu, menu: sourcesMenu)
 //        .bottomMenu(isPresented: $showingAddLinkMenu, menu: addLinkMenu)
 //        .bottomMenu(isPresented: $showingPhotosMenu, menu: photosMenu)
-        .bottomMenu(isPresented: $showingConfirmRemoveLinkMenu, menu: confirmRemoveLinkMenu)
+//        .bottomMenu(isPresented: $showingConfirmRemoveLinkMenu, menu: confirmRemoveLinkMenu)
     }
     
     var addBarcodeTitle: String {

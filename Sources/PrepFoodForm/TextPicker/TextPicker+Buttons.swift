@@ -95,28 +95,6 @@ extension TextPicker {
                 .contentShape(Rectangle())
         }
     }
-    
-    var topMenuButton: some View {
-        Button {
-            Haptics.feedback(style: .soft)
-            textPickerViewModel.showingMenu = true
-        } label: {
-            Image(systemName: "ellipsis")
-                .frame(width: 40, height: 40)
-                .foregroundColor(.primary)
-                .background(
-                    Circle()
-                        .foregroundColor(.clear)
-                        .background(.ultraThinMaterial)
-                        .frame(width: 40, height: 40)
-                )
-                .clipShape(Circle())
-                .shadow(radius: 3, x: 0, y: 3)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                .contentShape(Rectangle())
-        }
-    }
 
     func selectedTextButton(for column: TextColumn) -> some View {
         Button {

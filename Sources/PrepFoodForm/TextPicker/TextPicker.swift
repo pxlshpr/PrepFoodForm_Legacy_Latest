@@ -6,6 +6,9 @@ struct TextPicker: View {
     @StateObject var textPickerViewModel: TextPickerViewModel
     @State var pickedColumn: Int = 1
     
+    @State var showingAutoFillConfirmation = false
+    @State var showingDeleteConfirmation = false
+
     init(imageViewModels: [ImageViewModel], mode: TextPickerMode) {
         let viewModel = TextPickerViewModel(
             imageViewModels: imageViewModels,

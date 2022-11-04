@@ -8,7 +8,7 @@ extension FoodForm {
         @EnvironmentObject var fields: FoodForm.Fields
         @EnvironmentObject var sources: FoodForm.Sources
 
-        @State var showingMenu = false
+//        @State var showingMenu = false
         @State var showingMicronutrientsPicker = false
 
         @State var showingImages = true
@@ -23,7 +23,7 @@ extension FoodForm.NutrientsList {
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingMicronutrientsPicker) { micronutrientsPicker }
-            .bottomMenu(isPresented: $showingMenu, menu: bottomMenu)
+//            .bottomMenu(isPresented: $showingMenu, menu: bottomMenu)
     }
     
     var scrollView: some View {

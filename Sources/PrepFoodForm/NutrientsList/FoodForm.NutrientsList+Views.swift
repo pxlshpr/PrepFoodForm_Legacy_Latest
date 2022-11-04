@@ -25,8 +25,17 @@ extension FoodForm.NutrientsList {
     @ViewBuilder
     var menuButton: some View {
         if fields.containsFieldWithFillImage {
-            Button {
-                showingMenu = true
+            Menu {
+                Button {
+                    withAnimation {
+                        showingImages.toggle()
+                    }
+                } label: {
+                    Label(
+                        "\(showingImages ? "Hide" : "Show") Images",
+                        systemImage: "eye\(showingImages ? ".slash" : "")"
+                    )
+                }
             } label: {
                 Image(systemName: "ellipsis")
                     .padding(.vertical)

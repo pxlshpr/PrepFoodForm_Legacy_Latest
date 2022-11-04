@@ -21,7 +21,7 @@ extension TextPicker {
                 Spacer()
                 if textPickerViewModel.shouldShowMenuInTopBar {
                     topMenuButton
-                        .transition(.move(edge: .trailing))
+//                        .transition(.move(edge: .trailing))
                 }
 //                else {
 //                    doneButton
