@@ -32,6 +32,8 @@ extension FoodForm {
         
         if let initialScanImage, let initialScanResult {
             didReceiveScanFromFoodLabelCamera(initialScanResult, image: initialScanImage)
+            self.initialScanImage = nil
+            self.initialScanResult = nil
         }
     }
     
