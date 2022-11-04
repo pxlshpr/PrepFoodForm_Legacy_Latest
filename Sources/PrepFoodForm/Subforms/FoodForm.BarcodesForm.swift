@@ -8,8 +8,9 @@ extension FoodForm {
     struct BarcodesForm: View {
         @Binding var barcodeValues: [FieldValue]
         @Binding var shouldShowFillIcon: Bool
-        @Binding var showingAddBarcodeMenu: Bool
-        
+        @Binding var showingAddBarcodeAlert: Bool
+        @Binding var showingBarcodeScanner: Bool
+
         let deleteBarcodes: (IndexSet) -> ()
     }
 }
@@ -24,7 +25,7 @@ extension FoodForm.BarcodesForm {
             .onDelete(perform: deleteBarcodes)
         }
         .toolbar { navigationTrailingContent }
-//        .bottomMenu(isPresented: $showingAddBarcodeMenu, menu: barcodeMenu)
+        .toolbar { bottomBar }
     }
     
     @ViewBuilder
@@ -57,25 +58,47 @@ extension FoodForm.BarcodesForm {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            addButton
             EditButton()
         }
     }
     
+    var bottomBar: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            HStack {
+                addButton
+                Spacer()
+            }
+        }
+    }
+    
     var addButton: some View {
-        Button {
-            tappedAdd()
+        Menu {
+            Button {
+                showingBarcodeScanner = true
+            } label: {
+                Label("Scan a Barcode", systemImage: "barcode.viewfinder")
+            }
+            
+            Button {
+                showingAddBarcodeAlert = true
+            } label: {
+                Label("Enter Manually", systemImage: "123.rectangle")
+            }
+            
         } label: {
             Image(systemName: "plus")
                 .padding(.vertical)
         }
-        .buttonStyle(.borderless)
+        .contentShape(Rectangle())
+        .simultaneousGesture(TapGesture().onEnded {
+            Haptics.feedback(style: .soft)
+        })
     }
     
     //MARK: - Actions
 
     func tappedAdd() {
-        showingAddBarcodeMenu = true
+        showingAddBarcodeAlert = true
     }
     
     //MARK: To remove

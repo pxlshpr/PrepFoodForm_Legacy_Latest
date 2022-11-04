@@ -65,15 +65,15 @@ extension FoodForm {
     }
     
     func deleteBarcodes(at offsets: IndexSet) {
-//        let indices = Array(offsets)
-//        for i in indices {
-//            let barcodeViewModel = viewModel.barcodeViewModels[i]
-//            guard let payloadString = barcodeViewModel.barcodeValue?.payloadString else {
-//                continue
-//            }
-//            viewModel.removeBarcodePayload(payloadString)
-//        }
-//        viewModel.barcodeViewModels.remove(atOffsets: offsets)
+        let indices = Array(offsets)
+        for i in indices {
+            let field = fields.barcodes[i]
+            guard let payload = field.barcodeValue?.payloadString else {
+                continue
+            }
+            sources.removeBarcodePayload(payload)
+        }
+        fields.barcodes.remove(atOffsets: offsets)
     }
 
     func didDismissColumnPicker() {

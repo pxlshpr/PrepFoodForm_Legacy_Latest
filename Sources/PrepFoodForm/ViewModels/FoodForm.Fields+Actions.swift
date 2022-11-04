@@ -36,6 +36,18 @@ extension FoodForm.Fields {
         }
     }
     
+    func resetFillsForFieldsUsingImage(with id: UUID) {
+        /// Selectively reset fills for fields that are using this image
+        for field in allFields {
+            field.registerDiscardScanIfUsingImage(withId: id)
+        }
+
+        /// Now remove the saved scanned field values that are also using this image
+        extractedFieldValues = extractedFieldValues.filter {
+            !$0.fill.usesImage(with: id)
+        }
+    }
+    
     //TODO: AmountPerForm Test if this ever gets called
     func amountChanged() {
         updateFormState()

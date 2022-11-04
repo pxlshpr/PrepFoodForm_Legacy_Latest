@@ -7,34 +7,41 @@ let LabelSpacing: CGFloat = 10
 let LabelImageWidth: CGFloat = 20
 
 extension FoodForm {
-//    enum SourcesAction {
-//        case removeLink
-//        case addLink
-//        case showPhotosMenu
-//        case removeImage(index: Int)
-//    }
-
+    //    enum SourcesAction {
+    //        case removeLink
+    //        case addLink
+    //        case showPhotosMenu
+    //        case removeImage(index: Int)
+    //    }
+    
     struct SourcesForm: View {
         @ObservedObject var sources: Sources
         @State var showingRemoveAllImagesConfirmation = false
         @State var showingPhotosPicker = false
         @State var showingTextPicker: Bool = false
-//        var actionHandler: ((SourcesAction) -> Void)
+        
+        @State var showingRemoveLinkDialog = false
+        @State var showingAddLinkAlert = false
+        @State var linkIsInvalid = false
+        @State var link: String = ""
+        
+        //        var actionHandler: ((SourcesAction) -> Void)
     }
 }
 extension FoodForm.SourcesForm {
-
+    
     var body: some View {
         form
-        .navigationTitle("Sources")
-        .navigationBarTitleDisplayMode(.large)
-        .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
-        .photosPicker(
-            isPresented: $showingPhotosPicker,
-            selection: $sources.selectedPhotos,
-            maxSelectionCount: sources.availableImagesCount,
-            matching: .images
-        )
+            .navigationTitle("Sources")
+            .navigationBarTitleDisplayMode(.large)
+            .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
+            .alert(addLinkTitle, isPresented: $showingAddLinkAlert, actions: { addLinkActions }, message: { addLinkMessage })
+            .photosPicker(
+                isPresented: $showingPhotosPicker,
+                selection: $sources.selectedPhotos,
+                maxSelectionCount: sources.availableImagesCount,
+                matching: .images
+            )
     }
     
     var form: some View {
@@ -73,14 +80,22 @@ extension FoodForm.SourcesForm {
     
     var removeLinkButton: some View {
         Button(role: .destructive) {
-//            actionHandler(.removeLink)
+            showingRemoveLinkDialog = true
         } label: {
             HStack(spacing: LabelSpacing) {
-                Image(systemName: "trash")
+                Image(systemName: "minus.circle")
                     .frame(width: LabelImageWidth)
                 Text("Remove Link")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .confirmationDialog("", isPresented: $showingRemoveLinkDialog, titleVisibility: .hidden) {
+            Button("Remove Link", role: .destructive) {
+                withAnimation {
+                    Haptics.successFeedback()
+                    sources.removeLink()
+                }
+            }
         }
     }
     
@@ -90,7 +105,7 @@ extension FoodForm.SourcesForm {
             verticalPadding: 15
         ) {
             Button {
-//                actionHandler(.addLink)
+                showingAddLinkAlert = true
             } label: {
                 Label("Add a Link", systemImage: "link")
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -125,7 +140,7 @@ extension FoodForm.SourcesForm {
             mode: .imageViewer(
                 initialImageIndex: sources.presentingImageIndex,
                 deleteHandler: { deletedImageIndex in
-//                    actionHandler(.removeImage(index: deletedImageIndex))
+                    removeImage(at: deletedImageIndex)
                 },
                 columnSelectionHandler: { selectedColumn, scanResult in
                     sources.autoFillHandler?(selectedColumn, scanResult)
@@ -154,7 +169,7 @@ extension FoodForm.SourcesForm {
     
     var addImagesButton: some View {
         Button {
-//            actionHandler(.showPhotosMenu)
+            showingPhotosPicker = true
         } label: {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "plus")
@@ -165,13 +180,55 @@ extension FoodForm.SourcesForm {
             .contentShape(Rectangle())
         }
     }
-
+    
     //MARK: - Actions
     func removeImage(at index: Int) {
         Haptics.feedback(style: .rigid)
-        withAnimation {
-//            actionHandler(.removeImage(index: index))
+        guard let id = sources.id(forImageAtIndex: index) else {
+            return
         }
+        withAnimation {
+            sources.removeImage(at: index)
+        }
+        FoodForm.Fields.shared.resetFillsForFieldsUsingImage(with: id)
     }
 }
 
+//MARK: - Add Link Alert (Duplicated in FoodForm.SourcesSummaryCell)
+
+extension FoodForm.SourcesForm {
+    
+    var addLinkTitle: String {
+        linkIsInvalid ? "Invalid link" : "Add a Link"
+    }
+    
+    var addLinkActions: some View {
+        Group {
+            TextField("Enter a URL", text: $link)
+                .textInputAutocapitalization(.never)
+                .keyboardType(.URL)
+                .submitLabel(.done)
+            Button("Add", action: {
+                guard link.isValidUrl, let linkInfo = LinkInfo(link) else {
+                    Haptics.errorFeedback()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        linkIsInvalid = true
+                        showingAddLinkAlert = true
+                    }
+                    return
+                }
+                linkIsInvalid = false
+                link = ""
+                withAnimation {
+                    sources.addLink(linkInfo)
+                }
+            })
+            Button("Cancel", role: .cancel, action: {})
+        }
+    }
+    
+    var addLinkMessage: some View {
+        Text(linkIsInvalid ? "Please enter a valid URL." : "Please enter a link that verifies the nutrition facts of this food.")
+    }
+    
+}

@@ -3,14 +3,18 @@ import ActivityIndicatorView
 import PhotosUI
 import SwiftHaptics
 import SwiftUISugar
+import Camera
+import FoodLabelCamera
 
 extension FoodForm {
     struct SourcesSummaryCell: View {
         @ObservedObject var sources: FoodForm.Sources
         
         @State var showingPhotosPicker = false
-        @State var showingAddLinkMenu = false
+        @State var showingCamera = false
+        @State var showingFoodLabelCamera = false
         
+        @State var showingAddLinkAlert = false
         @State var linkIsInvalid = false
         @State var link: String = ""
     }
@@ -26,9 +30,10 @@ extension FoodForm.SourcesSummaryCell {
                 content
             }
         }
-        .alert(addLinkTitle, isPresented: $showingAddLinkMenu, actions: { addLinkActions }, message: { addLinkMessage })
+        .alert(addLinkTitle, isPresented: $showingAddLinkAlert, actions: { addLinkActions }, message: { addLinkMessage })
         .photosPicker(isPresented: $showingPhotosPicker, selection: $sources.selectedPhotos, maxSelectionCount: sources.availableImagesCount, matching: .images)
-
+        .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
+        .sheet(isPresented: $showingCamera) { camera }
     }
     
     var emptyContent: some View {
@@ -133,7 +138,7 @@ extension FoodForm.SourcesSummaryCell {
         Menu {
             
             Button {
-                showingAddLinkMenu = true
+                showingAddLinkAlert = true
             } label: {
                 Label("Add a Link", systemImage: "link")
             }
@@ -147,11 +152,13 @@ extension FoodForm.SourcesSummaryCell {
             }
             
             Button {
+                showingCamera = true
             } label: {
                 Label("Take Photo\(sources.pluralS)", systemImage: "camera")
             }
 
             Button {
+                showingFoodLabelCamera = true
             } label: {
                 Label("Scan a Food Label", systemImage: "text.viewfinder")
             }
@@ -165,10 +172,29 @@ extension FoodForm.SourcesSummaryCell {
             Haptics.feedback(style: .soft)
         })
     }
+    
+    //MARK: - Sheets
+    var camera: some View {
+        Camera { image in
+            sources.addImageViewModel(ImageViewModel(image))
+        }
+    }
+    var foodLabelCamera: some View {
+        FoodLabelCamera { scanResult, image in
+            sources.add(image, with: scanResult)
+            NotificationCenter.default.post(name: .didScanFoodLabel, object: nil)
+        }
+    }
 }
 
-//MARK: - Add Link Alert
+extension Notification.Name {
+    public static var didScanFoodLabel: Notification.Name { return .init("didScanFoodLabel") }
+}
+
+//MARK: - Add Link Alert (Duplicated in FoodForm.SourcesForm)
+
 extension FoodForm.SourcesSummaryCell {
+    
     var addLinkTitle: String {
         linkIsInvalid ? "Invalid link" : "Add a Link"
     }
@@ -184,7 +210,7 @@ extension FoodForm.SourcesSummaryCell {
                     Haptics.errorFeedback()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         linkIsInvalid = true
-                        showingAddLinkMenu = true
+                        showingAddLinkAlert = true
                     }
                     return
                 }

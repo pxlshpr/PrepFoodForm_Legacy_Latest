@@ -146,6 +146,13 @@ extension FoodForm.Sources {
 //MARK: - Convenience
 extension FoodForm.Sources {
     
+    func id(forImageAtIndex index: Int) -> UUID? {
+        guard imageViewModels.indices.contains(index) else {
+            return nil
+        }
+        return imageViewModels[index].id
+    }
+    
     func imageViewModels(for columnSelectionInfo: ColumnSelectionInfo) -> [ImageViewModel] {
         imageViewModels.containingTexts(in: columnSelectionInfo)
     }

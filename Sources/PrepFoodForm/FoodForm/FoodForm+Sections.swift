@@ -112,10 +112,8 @@ extension FoodForm {
                     get: { fields.hasNonUserInputFills },
                     set: { _ in }
                 ),
-                showingAddBarcodeMenu: Binding<Bool>(
-                    get: { showingAddBarcodeMenu },
-                    set: { newValue in showingAddBarcodeMenu = newValue }
-                ),
+                showingAddBarcodeAlert: $showingAddBarcodeAlert,
+                showingBarcodeScanner: $showingBarcodeScanner,
                 deleteBarcodes: deleteBarcodes)
         }
         
@@ -137,11 +135,13 @@ extension FoodForm {
                 HStack {
                     Menu {
                         Button {
+                            showingBarcodeScanner = true
                         } label: {
                             Label("Scan a Barcode", systemImage: "barcode.viewfinder")
                         }
                         
                         Button {
+                            showingAddBarcodeAlert = true
                         } label: {
                             Label("Enter Manually", systemImage: "123.rectangle")
                         }
