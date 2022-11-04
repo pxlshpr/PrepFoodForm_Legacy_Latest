@@ -29,6 +29,10 @@ extension FoodForm {
             showingWizardOverlay = false
             formDisabled = false
         }
+        
+        if let initialScanImage, let initialScanResult {
+            didReceiveScanFromFoodLabelCamera(initialScanResult, image: initialScanImage)
+        }
     }
     
     func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {

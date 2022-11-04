@@ -42,6 +42,9 @@ public struct FoodForm: View {
     
     let didScanFoodLabel = NotificationCenter.default.publisher(for: .didScanFoodLabel)
     
+    let initialScanResult: ScanResult?
+    let initialScanImage: UIImage?
+    
     public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
         Sources.shared = Sources()
@@ -50,6 +53,8 @@ public struct FoodForm: View {
         self.didSave = didSave
         
         _shouldShowWizard = State(initialValue: false)
+        self.initialScanImage = nil
+        self.initialScanResult = nil
     }
     
     public init(didSave: @escaping (FoodFormOutput) -> ()) {
@@ -58,13 +63,19 @@ public struct FoodForm: View {
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
         self.didSave = didSave
+        self.initialScanImage = nil
+        self.initialScanResult = nil
     }
     
     public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
-        self.init(didSave: didSave)
+        Fields.shared = Fields()
+        Sources.shared = Sources()
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
         _shouldShowWizard = State(initialValue: false)
-        sources.add(image, with: scanResult)
-        extractFieldsOrShowColumnSelectionInfo()
+        self.didSave = didSave
+        self.initialScanImage = image
+        self.initialScanResult = scanResult
     }
     
     public var body: some View {
