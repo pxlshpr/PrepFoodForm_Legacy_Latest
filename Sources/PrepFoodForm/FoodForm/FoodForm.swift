@@ -27,12 +27,6 @@ public struct FoodForm: View {
     @State var showingBarcodeScanner = false
 
     /// Menus
-    @State var showingSourcesMenu = false
-    @State var showingPhotosMenu = false
-    @State var showingInvalidLinkAlert = false
-    @State var showingConfirmRemoveLinkMenu = false
-    @State var showingAddBarcodeMenu = false
-
     @State var showingFoodLabel = false
 
 
@@ -98,11 +92,6 @@ public struct FoodForm: View {
                     }
                 }
         }
-//        .bottomMenu(isPresented: $showingAddBarcodeMenu, menu: addBarcodeMenu)
-//        .bottomMenu(isPresented: $showingSourcesMenu, menu: sourcesMenu)
-//        .bottomMenu(isPresented: $showingAddLinkMenu, menu: addLinkMenu)
-//        .bottomMenu(isPresented: $showingPhotosMenu, menu: photosMenu)
-//        .bottomMenu(isPresented: $showingConfirmRemoveLinkMenu, menu: confirmRemoveLinkMenu)
     }
     
     var addBarcodeTitle: String {

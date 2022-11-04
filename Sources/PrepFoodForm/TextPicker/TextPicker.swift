@@ -29,9 +29,6 @@ struct TextPicker: View {
                 dismiss()
             }
         }
-        .bottomMenu(isPresented: $textPickerViewModel.showingMenu, menu: bottomMenu)
-        .bottomMenu(isPresented: $textPickerViewModel.showingAutoFillConfirmation,
-                    menu: confirmAutoFillMenu)
     }
     
     func appeared() {

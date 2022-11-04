@@ -1,7 +1,6 @@
 import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
-import SwiftUISugar
 
 extension FoodForm {
     struct NutrientsList: View {
@@ -23,7 +22,6 @@ extension FoodForm.NutrientsList {
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingMicronutrientsPicker) { micronutrientsPicker }
-//            .bottomMenu(isPresented: $showingMenu, menu: bottomMenu)
     }
     
     var scrollView: some View {

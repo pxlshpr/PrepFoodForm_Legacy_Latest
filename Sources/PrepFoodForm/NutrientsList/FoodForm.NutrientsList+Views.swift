@@ -83,21 +83,4 @@ extension FoodForm.NutrientsList {
             Spacer().frame(height: 7)
         }
     }
-    
-    //MARK: Menu
-    
-    var bottomMenu: BottomMenu {
-        BottomMenu(action: showHideAction)
-    }
-
-    var showHideAction: BottomMenuAction {
-        BottomMenuAction(
-            title: "\(showingImages ? "Hide" : "Show") Images",
-            systemImage: "eye\(showingImages ? ".slash" : "")",
-            tapHandler: {
-                withAnimation {
-                    showingImages.toggle()
-                }
-            })
-    }
 }
