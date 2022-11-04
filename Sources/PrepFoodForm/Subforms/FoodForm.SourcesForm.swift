@@ -7,19 +7,19 @@ let LabelSpacing: CGFloat = 10
 let LabelImageWidth: CGFloat = 20
 
 extension FoodForm {
-    enum SourcesAction {
-        case removeLink
-        case addLink
-        case showPhotosMenu
-        case removeImage(index: Int)
-    }
+//    enum SourcesAction {
+//        case removeLink
+//        case addLink
+//        case showPhotosMenu
+//        case removeImage(index: Int)
+//    }
 
     struct SourcesForm: View {
         @ObservedObject var sources: Sources
         @State var showingRemoveAllImagesConfirmation = false
         @State var showingPhotosPicker = false
         @State var showingTextPicker: Bool = false
-        var actionHandler: ((SourcesAction) -> Void)
+//        var actionHandler: ((SourcesAction) -> Void)
     }
 }
 extension FoodForm.SourcesForm {
@@ -73,7 +73,7 @@ extension FoodForm.SourcesForm {
     
     var removeLinkButton: some View {
         Button(role: .destructive) {
-            actionHandler(.removeLink)
+//            actionHandler(.removeLink)
         } label: {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "trash")
@@ -90,7 +90,7 @@ extension FoodForm.SourcesForm {
             verticalPadding: 15
         ) {
             Button {
-                actionHandler(.addLink)
+//                actionHandler(.addLink)
             } label: {
                 Label("Add a Link", systemImage: "link")
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -125,7 +125,7 @@ extension FoodForm.SourcesForm {
             mode: .imageViewer(
                 initialImageIndex: sources.presentingImageIndex,
                 deleteHandler: { deletedImageIndex in
-                    actionHandler(.removeImage(index: deletedImageIndex))
+//                    actionHandler(.removeImage(index: deletedImageIndex))
                 },
                 columnSelectionHandler: { selectedColumn, scanResult in
                     sources.autoFillHandler?(selectedColumn, scanResult)
@@ -154,7 +154,7 @@ extension FoodForm.SourcesForm {
     
     var addImagesButton: some View {
         Button {
-            actionHandler(.showPhotosMenu)
+//            actionHandler(.showPhotosMenu)
         } label: {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "plus")
@@ -170,7 +170,7 @@ extension FoodForm.SourcesForm {
     func removeImage(at index: Int) {
         Haptics.feedback(style: .rigid)
         withAnimation {
-            actionHandler(.removeImage(index: index))
+//            actionHandler(.removeImage(index: index))
         }
     }
 }

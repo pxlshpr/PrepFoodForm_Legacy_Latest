@@ -95,24 +95,19 @@ extension FoodForm {
         extract(column: selectedColumn, from: [scanResult], shouldOverwrite: true)
     }
     
-    //MARK: - Sources
-    func tappedAddSource() {
-        showingSourcesMenu = true
-    }
-    
-    func handleSourcesAction(_ action: SourcesAction) {
-        switch action {
-        case .removeLink:
-            showingConfirmRemoveLinkMenu = true
-        case .addLink:
-            showingAddLinkMenu = true
-        case .showPhotosMenu:
-            showingPhotosMenu = true
-        case .removeImage(index: let index):
-            resetFillForFieldsUsingImage(at: index)
-            sources.removeImage(at: index)
-        }
-    }
+//    func handleSourcesAction(_ action: SourcesAction) {
+//        switch action {
+//        case .removeLink:
+//            showingConfirmRemoveLinkMenu = true
+//        case .addLink:
+//            break
+//        case .showPhotosMenu:
+//            showingPhotosMenu = true
+//        case .removeImage(index: let index):
+//            resetFillForFieldsUsingImage(at: index)
+//            sources.removeImage(at: index)
+//        }
+//    }
     
     /// Change all `.scanned` and `.selection` autofills that depend on this to `.userInput`
     //TODO: Move this to a Fields

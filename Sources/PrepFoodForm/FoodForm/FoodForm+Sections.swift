@@ -3,6 +3,7 @@ import SwiftUISugar
 import FoodLabel
 import PrepDataTypes
 import PrepViews
+import SwiftHaptics
 
 extension FoodForm {
     var detailsSection: some View {
@@ -30,9 +31,7 @@ extension FoodForm {
     }
     
     var sourcesSection: some View {
-        SourcesView(sources: sources,
-                    didTapAddSource: tappedAddSource,
-                    handleSourcesAction: handleSourcesAction)
+        SourcesSummaryCell(sources: sources)
     }
     
     var foodLabelSection: some View {
@@ -133,13 +132,30 @@ extension FoodForm {
             )
         }
         
-        var addBarcodeButton: some View {
-            Button {
-                showingAddBarcodeMenu = true
-            } label: {
-                Text("Add a barcode")
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        var addBarcodeSection: some View {
+            FormStyledSection(header: header, footer: footer, verticalPadding: 0) {
+                HStack {
+                    Menu {
+                        Button {
+                        } label: {
+                            Label("Scan a Barcode", systemImage: "barcode.viewfinder")
+                        }
+                        
+                        Button {
+                        } label: {
+                            Label("Enter Manually", systemImage: "123.rectangle")
+                        }
+                        
+                    } label: {
+                        Text("Add a Barcode")
+                            .frame(height: 50)
+                    }
                     .contentShape(Rectangle())
+                    .simultaneousGesture(TapGesture().onEnded {
+                        Haptics.feedback(style: .soft)
+                    })
+                    Spacer()
+                }
             }
         }
         
@@ -158,9 +174,7 @@ extension FoodForm {
                     }
                 }
             } else {
-                FormStyledSection(header: header, footer: footer) {
-                    addBarcodeButton
-                }
+                addBarcodeSection
             }
         }
     }

@@ -4,6 +4,7 @@ import FoodLabelScanner
 import PhotosUI
 import MFPScraper
 import PrepDataTypes
+import SwiftHaptics
 
 public struct FoodForm: View {
     
@@ -28,11 +29,12 @@ public struct FoodForm: View {
     /// Menus
     @State var showingSourcesMenu = false
     @State var showingPhotosMenu = false
-    @State var showingAddLinkMenu = false
+    @State var showingInvalidLinkAlert = false
     @State var showingConfirmRemoveLinkMenu = false
     @State var showingAddBarcodeMenu = false
 
     @State var showingFoodLabel = false
+
 
     /// Wizard
     @State var shouldShowWizard: Bool = true
@@ -85,11 +87,11 @@ public struct FoodForm: View {
                     }
                 }
         }
-        .bottomMenu(isPresented: $showingSourcesMenu, menu: sourcesMenu)
+//        .bottomMenu(isPresented: $showingSourcesMenu, menu: sourcesMenu)
+//        .bottomMenu(isPresented: $showingAddBarcodeMenu, menu: addBarcodeMenu)
         .bottomMenu(isPresented: $showingPhotosMenu, menu: photosMenu)
-        .bottomMenu(isPresented: $showingAddLinkMenu, menu: addLinkMenu)
+//        .bottomMenu(isPresented: $showingAddLinkMenu, menu: addLinkMenu)
         .bottomMenu(isPresented: $showingConfirmRemoveLinkMenu, menu: confirmRemoveLinkMenu)
-        .bottomMenu(isPresented: $showingAddBarcodeMenu, menu: addBarcodeMenu)
     }
     
     var content: some View {

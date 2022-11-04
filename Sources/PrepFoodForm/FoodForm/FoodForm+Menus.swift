@@ -6,19 +6,19 @@ extension FoodForm {
     
     
     //MARK: - Sources
-    var sourcesMenu: BottomMenu {
-        let addLinkGroup = BottomMenuActionGroup(action: addLinkMenuAction)
-        return BottomMenu(groups: [photosMenuGroup, addLinkGroup])
-    }
+//    var sourcesMenu: BottomMenu {
+//        let addLinkGroup = BottomMenuActionGroup(action: addLinkMenuAction)
+//        return BottomMenu(groups: [photosMenuGroup, addLinkGroup])
+//    }
     
     //MARK: - Barcodes
-    var addBarcodeMenu: BottomMenu {
-        let scanAction = BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
-            showingBarcodeScanner = true
-        })
-        let group = BottomMenuActionGroup(actions: [scanAction, enterBarcodeManuallyLink])
-        return BottomMenu(group: group)
-    }
+//    var addBarcodeMenu: BottomMenu {
+//        let scanAction = BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
+//            showingBarcodeScanner = true
+//        })
+//        let group = BottomMenuActionGroup(actions: [scanAction, enterBarcodeManuallyLink])
+//        return BottomMenu(group: group)
+//    }
 
     var enterBarcodeManuallyLink: BottomMenuAction {
        BottomMenuAction(

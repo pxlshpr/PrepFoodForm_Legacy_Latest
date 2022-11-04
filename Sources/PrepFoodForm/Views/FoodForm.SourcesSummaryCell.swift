@@ -5,15 +5,18 @@ import SwiftHaptics
 import SwiftUISugar
 
 extension FoodForm {
-    struct SourcesView: View {
+    struct SourcesSummaryCell: View {
         @ObservedObject var sources: FoodForm.Sources
         
-        let didTapAddSource: () -> ()
-        let handleSourcesAction: (SourcesAction) -> ()
+        @State var showingPhotosPicker = false
+        @State var showingAddLinkMenu = false
+        
+        @State var linkIsInvalid = false
+        @State var link: String = ""
     }
 }
 
-extension FoodForm.SourcesView {
+extension FoodForm.SourcesSummaryCell {
         
     var body: some View {
         Group {
@@ -23,16 +26,16 @@ extension FoodForm.SourcesView {
                 content
             }
         }
+        .alert(addLinkTitle, isPresented: $showingAddLinkMenu, actions: { addLinkActions }, message: { addLinkMessage })
+        .photosPicker(isPresented: $showingPhotosPicker, selection: $sources.selectedPhotos, maxSelectionCount: sources.availableImagesCount, matching: .images)
+
     }
     
     var emptyContent: some View {
-        FormStyledSection(header: header, footer: emptyFooter) {
-            Button {
-                didTapAddSource()
-            } label: {
-                Text("Add a source")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
+        FormStyledSection(header: header, footer: emptyFooter, verticalPadding: 0) {
+            HStack {
+                addSourceMenu
+                Spacer()
             }
         }
     }
@@ -45,10 +48,7 @@ extension FoodForm.SourcesView {
     
     var navigationLink: some View {
         NavigationLink {
-            FoodForm.SourcesForm(
-                sources: sources,
-                actionHandler: handleSourcesAction
-            )
+            FoodForm.SourcesForm(sources: sources)
         } label: {
             VStack(spacing: 0) {
                 imagesRow
@@ -128,4 +128,78 @@ extension FoodForm.SourcesView {
             .foregroundColor(Color(.secondaryLabel))
             .multilineTextAlignment(.leading)
     }
+    
+    var addSourceMenu: some View {
+        Menu {
+            
+            Button {
+                showingAddLinkMenu = true
+            } label: {
+                Label("Add a Link", systemImage: "link")
+            }
+
+            Divider()
+
+            Button {
+                showingPhotosPicker = true
+            } label: {
+                Label("Choose Photo\(sources.pluralS)", systemImage: "photo.on.rectangle")
+            }
+            
+            Button {
+            } label: {
+                Label("Take Photo\(sources.pluralS)", systemImage: "camera")
+            }
+
+            Button {
+            } label: {
+                Label("Scan a Food Label", systemImage: "text.viewfinder")
+            }
+            
+        } label: {
+            Text("Add a Source")
+                .frame(height: 50)
+        }
+        .contentShape(Rectangle())
+        .simultaneousGesture(TapGesture().onEnded {
+            Haptics.feedback(style: .soft)
+        })
+    }
+}
+
+//MARK: - Add Link Alert
+extension FoodForm.SourcesSummaryCell {
+    var addLinkTitle: String {
+        linkIsInvalid ? "Invalid link" : "Add a Link"
+    }
+    
+    var addLinkActions: some View {
+        Group {
+            TextField("Enter a URL", text: $link)
+                .textInputAutocapitalization(.never)
+                .keyboardType(.URL)
+                .submitLabel(.done)
+            Button("Add", action: {
+                guard link.isValidUrl, let linkInfo = LinkInfo(link) else {
+                    Haptics.errorFeedback()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        linkIsInvalid = true
+                        showingAddLinkMenu = true
+                    }
+                    return
+                }
+                linkIsInvalid = false
+                link = ""
+                withAnimation {
+                    sources.addLink(linkInfo)
+                }
+            })
+            Button("Cancel", role: .cancel, action: {})
+        }
+    }
+    
+    var addLinkMessage: some View {
+        Text(linkIsInvalid ? "Please enter a valid URL." : "Please enter a link that verifies the nutrition facts of this food.")
+    }
+
 }
