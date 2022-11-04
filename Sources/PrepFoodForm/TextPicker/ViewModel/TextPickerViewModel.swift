@@ -24,7 +24,7 @@ class TextPickerViewModel: ObservableObject {
         self.imageViewModels = imageViewModels
         self.mode = mode
         self.selectedImageTexts = mode.selectedImageTexts
-        showingBoxes = !mode.isImageViewer
+        showingBoxes = true /// !mode.isImageViewer
         zoomBoxes = Array(repeating: nil, count: imageViewModels.count)
         
         initialImageIndex = mode.initialImageIndex(from: imageViewModels)

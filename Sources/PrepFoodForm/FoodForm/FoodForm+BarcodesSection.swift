@@ -51,12 +51,14 @@ extension FoodForm {
                 HStack {
                     Menu {
                         Button {
+                            Haptics.feedback(style: .soft)
                             showingBarcodeScanner = true
                         } label: {
                             Label("Scan a Barcode", systemImage: "barcode.viewfinder")
                         }
                         
                         Button {
+                            Haptics.feedback(style: .soft)
                             showingAddBarcodeAlert = true
                         } label: {
                             Label("Enter Manually", systemImage: "123.rectangle")

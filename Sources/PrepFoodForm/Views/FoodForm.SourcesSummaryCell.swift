@@ -138,6 +138,7 @@ extension FoodForm.SourcesSummaryCell {
         Menu {
             
             Button {
+                Haptics.feedback(style: .soft)
                 showingAddLinkAlert = true
             } label: {
                 Label("Add a Link", systemImage: "link")
@@ -146,18 +147,21 @@ extension FoodForm.SourcesSummaryCell {
             Divider()
 
             Button {
+                Haptics.feedback(style: .soft)
                 showingPhotosPicker = true
             } label: {
                 Label("Choose Photo\(sources.pluralS)", systemImage: "photo.on.rectangle")
             }
             
             Button {
+                Haptics.feedback(style: .soft)
                 showingCamera = true
             } label: {
                 Label("Take Photo\(sources.pluralS)", systemImage: "camera")
             }
 
             Button {
+                Haptics.feedback(style: .soft)
                 showingFoodLabelCamera = true
             } label: {
                 Label("Scan a Food Label", systemImage: "text.viewfinder")
@@ -216,6 +220,7 @@ extension FoodForm.SourcesSummaryCell {
                 }
                 linkIsInvalid = false
                 link = ""
+                Haptics.successFeedback()
                 withAnimation {
                     sources.addLink(linkInfo)
                 }

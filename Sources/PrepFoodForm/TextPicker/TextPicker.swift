@@ -21,14 +21,24 @@ struct TextPicker: View {
         ZStack {
             pagerLayer
             buttonsLayer
+                .confirmationDialog("AutoFill", isPresented: $showingAutoFillConfirmation) {
+                    Button("Confirm AutoFill") {
+                        Haptics.successFeedback()
+                        textPickerViewModel.tappedConfirmAutoFill()
+                    }
+                } message: {
+                    Text("This will replace any existing data with those detected in this image")
+                }
         }
         .onAppear(perform: appeared)
         .onChange(of: textPickerViewModel.shouldDismiss) { newValue in
             if newValue {
-                print("🥹 textPickerViewModel.shouldDismiss is \(newValue) so dismissing")
                 dismiss()
             }
         }
+        .onChange(of: textPickerViewModel.showingAutoFillConfirmation, perform: { newValue in
+            showingAutoFillConfirmation = newValue
+        })
     }
     
     func appeared() {

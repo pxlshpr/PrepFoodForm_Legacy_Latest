@@ -105,6 +105,7 @@ extension FoodForm.SourcesForm {
             verticalPadding: 15
         ) {
             Button {
+                Haptics.feedback(style: .soft)
                 showingAddLinkAlert = true
             } label: {
                 Label("Add a Link", systemImage: "link")
@@ -219,6 +220,7 @@ extension FoodForm.SourcesForm {
                 }
                 linkIsInvalid = false
                 link = ""
+                Haptics.successFeedback()
                 withAnimation {
                     sources.addLink(linkInfo)
                 }

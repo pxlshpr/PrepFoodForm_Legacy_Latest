@@ -11,6 +11,13 @@ extension FoodForm {
         sources.didScanAllPickedImages = didScanAllPickedImages
         sources.autoFillHandler = autoFillColumn
         
+//        sources.autoFillHandler = { selectedColumn, scanResult in
+//            extract(column: selectedColumn,
+//                    from: columnSelectionInfo.candidates,
+//                    shouldOverwrite: false
+//            )
+//        }
+        
         if shouldShowWizard {
             withAnimation(WizardAnimation) {
                 formDisabled = true
@@ -22,6 +29,14 @@ extension FoodForm {
             showingWizardOverlay = false
             formDisabled = false
         }
+    }
+    
+    func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {
+        guard let scanResult else {
+            /// We shouldn't come here without a `ScanResult`
+            return
+        }
+        extract(column: selectedColumn, from: [scanResult], shouldOverwrite: true)
     }
 
     func prefill(_ food: MFPProcessedFood) {
@@ -85,14 +100,6 @@ extension FoodForm {
             let fieldValues = await sources.extractFieldsFrom(results, at: column)
             handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
         }
-    }
-    
-    func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {
-        guard let scanResult else {
-            /// We shouldn't come here without a `ScanResult`
-            return
-        }
-        extract(column: selectedColumn, from: [scanResult], shouldOverwrite: true)
     }
     
 //    func handleSourcesAction(_ action: SourcesAction) {

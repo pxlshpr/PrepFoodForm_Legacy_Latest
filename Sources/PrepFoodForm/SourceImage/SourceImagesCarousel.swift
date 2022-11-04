@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftHaptics
 
 struct SourceImagesCarousel: View {
     
@@ -23,9 +24,11 @@ struct SourceImagesCarousel: View {
     func sourceImage(at index: Int) -> some View {
         Menu {
             Button("View") {
+                Haptics.feedback(style: .soft)
                 didTapViewOnImage?(index)
             }
             Button(role: .destructive) {
+                Haptics.warningFeedback()
                 didTapDeleteOnImage?(index)
             } label: {
                 Text("Delete")
@@ -33,8 +36,10 @@ struct SourceImagesCarousel: View {
         } label: {
             SourceImage(imageViewModel: imageViewModels[index])
         } primaryAction: {
+            Haptics.feedback(style: .soft)
             didTapViewOnImage?(index)
         }
+        .contentShape(Rectangle())
         .padding(.horizontal, 10)
         .padding(.vertical, 20)
     }

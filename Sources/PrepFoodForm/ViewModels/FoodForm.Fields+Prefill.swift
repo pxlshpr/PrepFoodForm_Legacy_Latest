@@ -122,4 +122,19 @@ extension FoodForm.Fields {
         case .misc:     	microsMisc.append(field)
         }
     }
+    
+    func removeMicronutrient(for fieldValue: FieldValue) {
+        guard let group = fieldValue.microValue.nutrientType.group else {
+            return
+        }
+        switch group {
+        case .fats:         microsFats.removeAll(where: { $0.nutrientType == fieldValue.microValue.nutrientType })
+        case .fibers:       microsFibers.removeAll(where: { $0.nutrientType == fieldValue.microValue.nutrientType })
+        case .sugars:       microsSugars.removeAll(where: { $0.nutrientType == fieldValue.microValue.nutrientType })
+        case .minerals:     microsMinerals.removeAll(where: { $0.nutrientType == fieldValue.microValue.nutrientType })
+        case .vitamins:     microsVitamins.removeAll(where: { $0.nutrientType == fieldValue.microValue.nutrientType })
+        case .misc:         microsMisc.removeAll(where: { $0.nutrientType == fieldValue.microValue.nutrientType })
+        }
+    }
+
 }

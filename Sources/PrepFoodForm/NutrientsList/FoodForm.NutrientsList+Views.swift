@@ -27,6 +27,7 @@ extension FoodForm.NutrientsList {
         if fields.containsFieldWithFillImage {
             Menu {
                 Button {
+                    Haptics.feedback(style: .soft)
                     withAnimation {
                         showingImages.toggle()
                     }
@@ -40,6 +41,10 @@ extension FoodForm.NutrientsList {
                 Image(systemName: "ellipsis")
                     .padding(.vertical)
             }
+            .contentShape(Rectangle())
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
         }
     }
 

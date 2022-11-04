@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftHaptics
 
 extension TextPicker {
     var topMenuButton: some View {
@@ -6,8 +7,10 @@ extension TextPicker {
             Button {
                 if textPickerViewModel.columnCountForCurrentImage == 1 {
                     /// Show confirmation dialog if we have only one column
+                    Haptics.warningFeedback()
                     showingAutoFillConfirmation = true
                 } else {
+                    Haptics.feedback(style: .soft)
                     /// Otherwise show the column picker
                     textPickerViewModel.tappedAutoFill()
                 }
@@ -15,6 +18,7 @@ extension TextPicker {
                 Label("AutoFill", systemImage: "text.viewfinder")
             }
             Button {
+                Haptics.feedback(style: .soft)
                 withAnimation {
                     textPickerViewModel.showingBoxes.toggle()
                 }
@@ -26,6 +30,7 @@ extension TextPicker {
             }
             Divider()
             Button(role: .destructive) {
+                Haptics.warningFeedback()
                 showingDeleteConfirmation = true
             } label: {
                 Label("Delete Photo", systemImage: "trash")
@@ -46,15 +51,21 @@ extension TextPicker {
                 .padding(.vertical, 10)
                 .contentShape(Rectangle())
         }
-        .confirmationDialog("AutoFill", isPresented: $showingAutoFillConfirmation) {
-            Button("Confirm AutoFill") {
-                textPickerViewModel.tappedConfirmAutoFill()
-            }
-        } message: {
-            Text("This will replace any existing data with those detected in this image")
-        }
+        .contentShape(Rectangle())
+        .simultaneousGesture(TapGesture().onEnded {
+            Haptics.feedback(style: .soft)
+        })
+//        .confirmationDialog("AutoFill", isPresented: $showingAutoFillConfirmation) {
+//            Button("Confirm AutoFill") {
+//                Haptics.successFeedback()
+//                textPickerViewModel.tappedConfirmAutoFill()
+//            }
+//        } message: {
+//            Text("This will replace any existing data with those detected in this image")
+//        }
         .confirmationDialog("", isPresented: $showingDeleteConfirmation, titleVisibility: .hidden) {
             Button("Delete Photo", role: .destructive) {
+                Haptics.errorFeedback()
                 textPickerViewModel.deleteCurrentImage()
             }
         } message: {

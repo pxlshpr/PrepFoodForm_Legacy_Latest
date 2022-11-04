@@ -95,6 +95,7 @@ extension FoodForm.Fields {
             case .protein: protein.fill(with: fieldValue)
             }
         case .micro:
+            removeMicronutrient(for: fieldValue)
             addMicronutrient(fieldValue)
 //            fillMicroFieldValue(fieldValue, for: microValue.nutrientType)
         default:
