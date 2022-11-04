@@ -42,8 +42,8 @@ public struct FoodForm: View {
     
     let didScanFoodLabel = NotificationCenter.default.publisher(for: .didScanFoodLabel)
     
-    let initialScanResult: ScanResult?
-    let initialScanImage: UIImage?
+    var initialScanResult: ScanResult?
+    var initialScanImage: UIImage?
     
     public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
