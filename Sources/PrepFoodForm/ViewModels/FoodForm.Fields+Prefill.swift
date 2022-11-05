@@ -39,7 +39,7 @@ extension FoodForm.Fields {
     }
     
     func prefillSize(_ processedSize: MFPProcessedFood.Size) {
-        let field: Field = .init(fieldValue: processedSize.fieldValue)
+        let field: Field = .init(fieldValue: processedSize.fieldValue, sources: sources)
         if processedSize.isVolumePrefixed {
             volumePrefixedSizes.append(field)
         } else {
@@ -48,7 +48,7 @@ extension FoodForm.Fields {
     }
     
     func prefillSize(_ size: FormSize) {
-        let field: Field = .init(fieldValue: size.fieldValue)
+        let field: Field = .init(fieldValue: size.fieldValue, sources: sources)
         if size.isVolumePrefixed {
             volumePrefixedSizes.append(field)
         } else {
@@ -58,7 +58,7 @@ extension FoodForm.Fields {
 
     func prefillDensity(from food: MFPProcessedFood) {
         guard let fieldValue = food.densityFieldValue else { return }
-        density = .init(fieldValue: fieldValue)
+        density = .init(fieldValue: fieldValue, sources: sources)
     }
 
     func prefillAmountPer(from food: MFPProcessedFood) {
@@ -89,14 +89,14 @@ extension FoodForm.Fields {
 //            prefillSize(size)
 //        }
         
-        serving = .init(fieldValue: fieldValue)
+        serving = .init(fieldValue: fieldValue, sources: sources)
     }
     
     func prefillNutrients(from food: MFPProcessedFood) {
-        energy = .init(fieldValue: food.energyFieldValue)
-        carb = .init(fieldValue: food.carbFieldValue)
-        fat = .init(fieldValue: food.fatFieldValue)
-        protein = .init(fieldValue: food.proteinFieldValue)
+        energy = .init(fieldValue: food.energyFieldValue, sources: sources)
+        carb = .init(fieldValue: food.carbFieldValue, sources: sources)
+        fat = .init(fieldValue: food.fatFieldValue, sources: sources)
+        protein = .init(fieldValue: food.proteinFieldValue, sources: sources)
         
         prefillMicros(food.microFieldValues)
     }
@@ -111,7 +111,7 @@ extension FoodForm.Fields {
         guard let group = fieldValue.microValue.nutrientType.group else {
             return
         }
-        let field = Field(fieldValue: fieldValue)
+        let field = Field(fieldValue: fieldValue, sources: sources)
         field.resetAndCropImage()
         switch group {
         case .fats:         microsFats.append(field)

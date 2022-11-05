@@ -65,7 +65,7 @@ extension FoodForm.AmountPerForm.AmountForm {
     }
 
     var addSizeForm: some View {
-        FoodForm.AmountPerForm.SizeForm(includeServing: false, allowAddSize: false) { sizeField in
+        FoodForm.AmountPerForm.SizeForm(includeServing: false, allowAddSize: false, sources: sources) { sizeField in
             guard let size = sizeField.size else { return }
             field.value.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -74,7 +74,6 @@ extension FoodForm.AmountPerForm.AmountForm {
             }
         }
         .environmentObject(fields)
-        .environmentObject(sources)
     }
 
     func tappedPrefillFieldValue(_ fieldValue: FieldValue) {

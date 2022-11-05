@@ -5,16 +5,17 @@ import VisionSugar
 //MARK: Selection Options
 
 extension FieldValue {
-    var selectionFillOptions: [FillOption] {
+    func selectionFillOptions(fields: FoodForm.Fields) -> [FillOption] {
         if self.usesValueBasedTexts {
-            return valueBasedSelectionFillOptions
+            return valueBasedSelectionFillOptions(fields: fields)
         } else {
             return stringBasedSelectionFillOptions
         }
     }
-    var valueBasedSelectionFillOptions: [FillOption] {
+    
+    func valueBasedSelectionFillOptions(fields: FoodForm.Fields) -> [FillOption] {
         guard case .selection(let info) = fill,
-              info.imageText?.text != FoodForm.Fields.shared.firstExtractedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+              info.imageText?.text != fields.firstExtractedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
             return []
         }

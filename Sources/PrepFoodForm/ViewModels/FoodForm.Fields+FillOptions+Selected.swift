@@ -15,7 +15,7 @@ extension FoodForm.Fields {
     
     func selectionFillOptions(for fieldValue: FieldValue) -> [FillOption] {
         guard case .density = fieldValue else {
-            return fieldValue.selectionFillOptions
+            return fieldValue.selectionFillOptions(fields: self)
         }
 
         guard case .selection(let info) = fieldValue.fill,

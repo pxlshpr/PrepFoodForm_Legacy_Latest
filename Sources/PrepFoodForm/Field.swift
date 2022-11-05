@@ -3,7 +3,7 @@ import FoodLabelScanner
 
 class Field: ObservableObject, Identifiable {
     
-//    var sources: FoodForm.Sources
+    var sources: FoodForm.Sources
     
     @Published var id = UUID()
     @Published var value: FieldValue
@@ -11,8 +11,9 @@ class Field: ObservableObject, Identifiable {
     @Published var image: UIImage? = nil
     @Published var isCropping: Bool = false
 
-    init(fieldValue: FieldValue) {
+    init(fieldValue: FieldValue, sources: FoodForm.Sources) {
         self.value = fieldValue
+        self.sources = sources
     }
     
     func fill(with fieldValue: FieldValue) {
@@ -89,7 +90,7 @@ class Field: ObservableObject, Identifiable {
     //MARK: - Copying
     
     var copy: Field {
-        let new = Field(fieldValue: value)
+        let new = Field(fieldValue: value, sources: sources)
         new.copyData(from: self)
         return new
     }

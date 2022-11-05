@@ -10,7 +10,7 @@ extension FoodForm.Fields {
         }
         
         for sizeFieldValue in fieldValues.filter({ $0.isSize }) {
-            let sizeField = Field(fieldValue: sizeFieldValue)
+            let sizeField = Field(fieldValue: sizeFieldValue, sources: sources)
             /// If we were able to add this size view model (if it wasn't a duplicate) ...
             guard add(sizeField: sizeField) else {
                 continue
@@ -21,7 +21,7 @@ extension FoodForm.Fields {
         }
         
         /// Get Barcodes from all images
-        for barcodeField in sources.allScanResults.allBarcodeFields {
+        for barcodeField in sources.allScanResults.allBarcodeFields(sources: sources) {
             guard add(barcodeField: barcodeField) else {
                 continue
             }

@@ -138,14 +138,14 @@ extension Array where Element == ScanResult {
         return fieldValues
     }
 
-    var allBarcodeFields: [Field] {
-        allBarcodeFieldValues.map { Field(fieldValue: $0) }
+    func allBarcodeFields(sources: FoodForm.Sources) -> [Field] {
+        allBarcodeFieldValues.map { Field(fieldValue: $0, sources: sources) }
     }
     
-    func allSizeViewModels(at column: Int) -> [Field] {
-        allSizeFieldValues(at: column)
-            .map { Field(fieldValue: $0) }
-    }
+//    func allSizeViewModels(at column: Int) -> [Field] {
+//        allSizeFieldValues(at: column)
+//            .map { Field(fieldValue: $0) }
+//    }
     
     /**
      First gets the `bestScanResult` (with the greatest `nutrientCount`).

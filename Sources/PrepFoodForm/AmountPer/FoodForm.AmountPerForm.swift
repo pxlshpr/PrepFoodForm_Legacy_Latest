@@ -189,17 +189,15 @@ extension FoodForm.AmountPerForm {
     }
 
     func sizeForm(for sizeField: Field) -> some View {
-        SizeForm(field: sizeField) { sizeField in
+        SizeForm(field: sizeField, sources: sources) { sizeField in
 
         }
         .environmentObject(fields)
-        .environmentObject(sources)
     }
 
     var sizeForm: some View {
-        SizeForm()
+        SizeForm(sources: sources)
             .environmentObject(fields)
-            .environmentObject(sources)
     }
 
     var densityForm: some View {

@@ -7,10 +7,10 @@ extension ScanResult {
      The column is needed in case the column picked has a `HeaderType` of either `.per100g` or `.per100ml`,
      in which case—an additional size with the name "serving" will be returned with the amount of the
      */
-    func allSizeViewModels(at column: Int) -> [Field] {
-        allSizeFieldValues(at: column)
-            .map { Field(fieldValue: $0) }
-    }
+//    func allSizeViewModels(at column: Int) -> [Field] {
+//        allSizeFieldValues(at: column)
+//            .map { Field(fieldValue: $0) }
+//    }
     
     func allSizeFieldValues(at column: Int) -> [FieldValue] {
         var fieldValues: [FieldValue] =

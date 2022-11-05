@@ -65,7 +65,7 @@ extension FoodForm.AmountPerForm.ServingForm {
     }
     
     var addSizeForm: some View {
-        FoodForm.AmountPerForm.SizeForm(includeServing: true, allowAddSize: false) { sizeField in
+        FoodForm.AmountPerForm.SizeForm(includeServing: true, allowAddSize: false, sources: sources) { sizeField in
             guard let size = sizeField.size else { return }
             field.value.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -74,7 +74,6 @@ extension FoodForm.AmountPerForm.ServingForm {
             }
         }
         .environmentObject(fields)
-        .environmentObject(sources)
     }
 
     func didSave() {
