@@ -177,11 +177,17 @@ extension FoodForm.AmountPerForm {
     var amountForm: some View {
         AmountForm(existingField: fields.amount)
             .environmentObject(fields)
+            .onDisappear {
+                fields.updateCanBeSaved()
+            }
     }
 
     var servingForm: some View {
         ServingForm(existingField: fields.serving)
             .environmentObject(fields)
+            .onDisappear {
+                fields.updateCanBeSaved()
+            }
     }
 
     func sizeForm(for sizeField: Field) -> some View {

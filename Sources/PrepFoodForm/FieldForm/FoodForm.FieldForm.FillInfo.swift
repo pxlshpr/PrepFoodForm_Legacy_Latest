@@ -47,6 +47,7 @@ extension FoodForm.FillInfo {
             shouldAnimate: $shouldAnimate
         ) { fillOption in
             didTapFillOption(fillOption)
+            fields.updateFormState()
         }
         .environmentObject(fields)
     }

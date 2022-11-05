@@ -30,7 +30,7 @@ extension FoodForm.AmountPerForm.DensityForm {
         //Now set this fill on the density value
         setDensityValue(densityValue)
         field.value.fill = fill
-        field.isCropping = true
+        field.isCropping = true        
     }
 
     func didTapImage() {
@@ -83,6 +83,7 @@ extension FoodForm.AmountPerForm.DensityForm {
         field.value.volume.double = densityValue.volume.double
         field.value.volume.unit = densityValue.volume.unit
         field.value.fill = fill
+        fields.updateFormState()
     }
     
 //    func saveAndDismiss() {

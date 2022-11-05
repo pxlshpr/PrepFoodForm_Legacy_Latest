@@ -3,6 +3,7 @@ import PrepDataTypes
 
 extension FoodForm.NutrientsList {
     struct MacroForm: View {
+        @EnvironmentObject var fields: FoodForm.Fields
         @ObservedObject var existingField: Field
         @StateObject var field: Field
         

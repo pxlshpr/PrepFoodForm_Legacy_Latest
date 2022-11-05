@@ -94,6 +94,7 @@ extension FoodForm.AmountPerForm.ServingForm {
     func setNewValue(_ value: FoodLabelValue) {
         setAmount(value.amount)
         setUnit(value.unit?.formUnit ?? .weight(.g))
+        fields.updateFormState()
     }
     
     func setAmount(_ amount: Double) {

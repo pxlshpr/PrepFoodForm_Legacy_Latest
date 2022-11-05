@@ -11,6 +11,9 @@ extension FoodForm {
             NavigationLink {
                 DetailsForm()
                     .environmentObject(fields)
+                    .onDisappear {
+                        fields.updateCanBeSaved()
+                    }
             } label: {
                 if fields.detailsAreEmpty {
                     Text("Required")

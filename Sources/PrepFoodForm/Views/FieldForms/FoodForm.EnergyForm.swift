@@ -3,6 +3,7 @@ import PrepDataTypes
 
 extension FoodForm {
     struct EnergyForm: View {
+        @EnvironmentObject var fields: FoodForm.Fields
         @ObservedObject var existingField: Field
         @StateObject var field: Field
         
@@ -59,5 +60,6 @@ extension FoodForm.EnergyForm {
         } else {
             field.value.energyValue.unit = .kcal
         }
+        fields.updateFormState()
     }
 }
