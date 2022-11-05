@@ -278,7 +278,7 @@ extension FoodForm.Fields {
         && fat.value.isEmpty
         && protein.value.isEmpty
         && allSizes.isEmpty
-//        && allMicronutrientFields.isEmpty
+        && allMicronutrientFields.isEmpty
         && prefilledFood == nil
     }
 }
