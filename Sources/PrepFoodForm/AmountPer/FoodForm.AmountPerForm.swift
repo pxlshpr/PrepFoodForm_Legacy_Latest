@@ -6,6 +6,7 @@ import PrepViews
 extension FoodForm {
     struct AmountPerForm: View {
         @EnvironmentObject var fields: FoodForm.Fields
+        @EnvironmentObject var sources: FoodForm.Sources
         @State var showingAddSizeForm = false
     }
 }
@@ -177,6 +178,7 @@ extension FoodForm.AmountPerForm {
     var amountForm: some View {
         AmountForm(existingField: fields.amount)
             .environmentObject(fields)
+            .environmentObject(sources)
 //            .onDisappear {
 //                fields.updateCanBeSaved()
 //            }
@@ -185,6 +187,7 @@ extension FoodForm.AmountPerForm {
     var servingForm: some View {
         ServingForm(existingField: fields.serving)
             .environmentObject(fields)
+            .environmentObject(sources)
 //            .onDisappear {
 //                fields.updateCanBeSaved()
 //            }

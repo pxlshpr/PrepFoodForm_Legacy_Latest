@@ -79,6 +79,7 @@ extension FoodForm {
             NavigationLink {
                 AmountPerForm()
                     .environmentObject(fields)
+                    .environmentObject(sources)
             } label: {
                 if fields.hasAmount {
                     foodAmountPerView
