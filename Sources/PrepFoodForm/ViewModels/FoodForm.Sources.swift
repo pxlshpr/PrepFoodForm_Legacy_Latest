@@ -25,19 +25,6 @@ extension FoodForm {
         
         var didScanAllPickedImages: (() -> ())? = nil
         var autoFillHandler: ColumnSelectionHandler? = nil
-        
-        func clear() {
-            canBePublished = false
-            imageViewModels = []
-            imageSetStatus = .loading()
-            linkInfo = nil
-            columnSelectionInfo = nil
-            selectedScanResultsColumn = 1
-            selectedPhotos = []
-            presentingImageIndex = 0
-            didScanAllPickedImages = nil
-            autoFillHandler = nil
-        }
     }
 }
 
