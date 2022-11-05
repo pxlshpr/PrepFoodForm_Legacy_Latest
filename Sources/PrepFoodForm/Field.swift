@@ -2,6 +2,7 @@ import SwiftUI
 import FoodLabelScanner
 
 class Field: ObservableObject, Identifiable {
+    
     @Published var id = UUID()
     @Published var value: FieldValue
     
