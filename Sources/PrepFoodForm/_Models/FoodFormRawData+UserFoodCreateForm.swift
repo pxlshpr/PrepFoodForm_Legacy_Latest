@@ -5,7 +5,7 @@ import PrepDataTypes
 extension FoodFormFieldsAndSources {
 
     var createForm: UserFoodCreateForm? {
-        guard let info = userFoodInfo else {
+        guard let info = foodInfo else {
             return nil
         }
         return UserFoodCreateForm(
@@ -19,7 +19,7 @@ extension FoodFormFieldsAndSources {
         )
     }
     
-    var userFoodInfo: UserFoodInfo? {
+    var foodInfo: FoodInfo? {
         guard let amountFoodValue = FoodValue(fieldValue: amount),
               let foodNutrients
         else {
@@ -31,7 +31,7 @@ extension FoodFormFieldsAndSources {
         } else {
             servingFoodValue = nil
         }
-        return UserFoodInfo(
+        return FoodInfo(
             amount: amountFoodValue,
             serving: servingFoodValue,
             nutrients: foodNutrients,
@@ -42,8 +42,7 @@ extension FoodFormFieldsAndSources {
             imageIds: images.map { $0.id },
             barcodes: foodBarcodes,
             spawnedUserFoodId: nil,
-            spawnedPresetFoodId: nil,
-            cloudKitId: ""
+            spawnedPresetFoodId: nil
         )
     }
     

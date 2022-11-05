@@ -23,7 +23,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.57"),
         .package(url: "https://github.com/pxlshpr/MFPSearch", from: "0.0.8"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.19"),
-        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.97"),
+        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.101"),
         .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.8"),
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
