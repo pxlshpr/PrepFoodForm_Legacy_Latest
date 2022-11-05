@@ -67,6 +67,7 @@ extension FoodForm.AmountPerForm.DensityForm {
                 didTapImage: didTapImage,
                 didTapFillOption: didTapFillOption
             )
+            .environmentObject(fields)
         }
     }
 }

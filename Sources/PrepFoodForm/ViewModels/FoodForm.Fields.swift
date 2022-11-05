@@ -8,7 +8,7 @@ let DefaultAmount = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: 
 
 extension FoodForm {
     
-    class Fields: ObservableObject {
+    public class Fields: ObservableObject {
         
         static var shared = Fields()
         
@@ -54,7 +54,7 @@ extension FoodForm {
 
         var sizeBeingEdited: FormSize? = nil
 
-        init() {
+        public init() {
             self.emoji = randomFoodEmoji()
             self.amount = .init(fieldValue: DefaultAmount)
             self.serving = .init(fieldValue: .serving())

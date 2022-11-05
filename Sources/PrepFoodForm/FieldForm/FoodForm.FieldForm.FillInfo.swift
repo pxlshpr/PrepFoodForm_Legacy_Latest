@@ -10,6 +10,7 @@ import SwiftUISugar
 
 extension FoodForm {
     struct FillInfo: View {
+        @EnvironmentObject var fields: FoodForm.Fields
         @ObservedObject var field: Field
         @Binding var shouldAnimate: Bool
         var didTapImage: () -> ()
@@ -47,6 +48,7 @@ extension FoodForm.FillInfo {
         ) { fillOption in
             didTapFillOption(fillOption)
         }
+        .environmentObject(fields)
     }
 
     var shouldShowSupplementarySection: Bool {
