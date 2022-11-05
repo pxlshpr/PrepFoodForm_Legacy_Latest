@@ -3,14 +3,14 @@ import PrepDataTypes
 
 extension FoodForm.Fields {
     
-    func fillOptions(for fieldValue: FieldValue, using sources: FoodForm.Sources) -> [FillOption] {
+    func fillOptions(for fieldValue: FieldValue) -> [FillOption] {
         var fillOptions: [FillOption] = []
 
         fillOptions.append(contentsOf: extractedFillOptions(for: fieldValue))
         fillOptions.append(contentsOf: selectionFillOptions(for: fieldValue))
         fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
 
-        if let selectFillOption = selectFillOption(for: fieldValue, using: sources) {
+        if let selectFillOption = selectFillOption(for: fieldValue) {
             fillOptions .append(selectFillOption)
         }
         
@@ -36,7 +36,7 @@ extension FoodForm.Fields {
         }
     }
     
-    func hasFillOptions(for fieldValue: FieldValue, using sources: FoodForm.Sources) -> Bool {
-        !fillOptions(for: fieldValue, using: sources).isEmpty
+    func hasFillOptions(for fieldValue: FieldValue) -> Bool {
+        !fillOptions(for: fieldValue).isEmpty
     }
 }

@@ -8,7 +8,7 @@ let DefaultAmount = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: 
 
 extension FoodForm {
     
-    public class Fields: ObservableObject {
+    class Fields: ObservableObject {
         
         static var shared = Fields()
         
@@ -54,7 +54,7 @@ extension FoodForm {
 
         var sizeBeingEdited: FormSize? = nil
 
-        public init() {
+        init() {
             self.emoji = randomFoodEmoji()
             self.amount = .init(fieldValue: DefaultAmount)
             self.serving = .init(fieldValue: .serving())
@@ -65,7 +65,7 @@ extension FoodForm {
             self.density = .init(fieldValue: .density(FieldValue.DensityValue()))
         }
         
-        public convenience init(mockPrefilledFood mfpFood: MFPProcessedFood) {
+        convenience init(mockPrefilledFood mfpFood: MFPProcessedFood) {
             self.init()
             self.prefilledFood = mfpFood
             self.prefill(mfpFood)

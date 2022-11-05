@@ -25,7 +25,7 @@ extension FoodForm.AmountPerForm.DensityForm {
     
     var textPicker: some View {
         TextPicker(
-            imageViewModels: sources.imageViewModels,
+            imageViewModels: FoodForm.Sources.shared.imageViewModels,
             mode: .singleSelection(
                 filter: .textsWithDensities,
                 selectedImageText: field.fill.imageText,

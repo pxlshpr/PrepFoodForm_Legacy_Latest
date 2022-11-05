@@ -5,7 +5,7 @@ extension FoodForm.AmountPerForm.SizeForm {
 
     @ViewBuilder
     var fillOptionsSections: some View {
-        if fields.hasFillOptions(for: field.value, using: sources) {
+        if fields.hasFillOptions(for: field.value) {
             FoodForm.FillInfo(
                 field: field,
                 shouldAnimate: $shouldAnimateOptions,
@@ -17,7 +17,6 @@ extension FoodForm.AmountPerForm.SizeForm {
                 }
             )
             .environmentObject(fields)
-            .environmentObject(sources)
         }
     }
     

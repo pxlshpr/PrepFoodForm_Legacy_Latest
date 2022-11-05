@@ -18,7 +18,6 @@ extension FoodForm.AmountPerForm {
 
         @Environment(\.dismiss) var dismiss
         @EnvironmentObject var fields: FoodForm.Fields
-        @EnvironmentObject var sources: FoodForm.Sources
 
         let existingField: Field?
         

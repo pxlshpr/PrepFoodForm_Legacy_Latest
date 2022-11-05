@@ -6,8 +6,7 @@ extension FoodForm.AmountPerForm {
     struct AmountForm: View {
         
         @EnvironmentObject var fields: FoodForm.Fields
-        @EnvironmentObject var sources: FoodForm.Sources
-
+        
         @ObservedObject var existingField: Field
         @StateObject var field: Field
 
@@ -74,7 +73,6 @@ extension FoodForm.AmountPerForm.AmountForm {
             }
         }
         .environmentObject(fields)
-        .environmentObject(sources)
     }
 
     func tappedPrefillFieldValue(_ fieldValue: FieldValue) {

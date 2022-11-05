@@ -1,8 +1,8 @@
 import Foundation
 
 extension FoodForm.Fields {
-    func selectFillOption(for fieldValue: FieldValue, using sources: FoodForm.Sources) -> FillOption? {
-        guard sources.hasAvailableTexts(for: fieldValue) else {
+    func selectFillOption(for fieldValue: FieldValue) -> FillOption? {
+        guard FoodForm.Sources.shared.hasAvailableTexts(for: fieldValue) else {
             return nil
         }
         return FillOption(

@@ -3,7 +3,6 @@ import SwiftUI
 extension FoodForm.AmountPerForm {
     struct SizesList: View {
         @EnvironmentObject var fields: FoodForm.Fields
-        @EnvironmentObject var sources: FoodForm.Sources
         @State var showingAddSizeForm = false
         @State var sizeToEdit: Field?
     }
@@ -91,7 +90,6 @@ extension FoodForm.AmountPerForm.SizesList {
     var addSizeForm: some View {
         FoodForm.AmountPerForm.SizeForm()
             .environmentObject(fields)
-            .environmentObject(sources)
     }
     
     @ViewBuilder
@@ -100,7 +98,6 @@ extension FoodForm.AmountPerForm.SizesList {
             
         }
         .environmentObject(fields)
-        .environmentObject(sources)
     }
     
     var navigationTrailingContent: some ToolbarContent {

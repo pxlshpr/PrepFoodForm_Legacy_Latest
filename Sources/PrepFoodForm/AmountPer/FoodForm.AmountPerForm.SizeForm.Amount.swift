@@ -4,7 +4,6 @@ import SwiftHaptics
 extension FoodForm.AmountPerForm.SizeForm {
     struct Amount: View {
         @EnvironmentObject var fields: FoodForm.Fields
-        @EnvironmentObject var sources: FoodForm.Sources
         @EnvironmentObject var formViewModel: SizeFormViewModel
         @ObservedObject var field: Field
         
@@ -70,6 +69,7 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
         }
         .environmentObject(fields)
         .sheet(isPresented: $showingSizeForm) {
+            Color.red
             FoodForm.AmountPerForm.SizeForm(includeServing: fields.hasServing, allowAddSize: false) { sizeViewModel in
                 guard let size = sizeViewModel.size else { return }
                 withAnimation {
@@ -81,7 +81,6 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
                 }
             }
             .environmentObject(fields)
-            .environmentObject(sources)
         }
     }
     

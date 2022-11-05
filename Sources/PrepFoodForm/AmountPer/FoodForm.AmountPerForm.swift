@@ -6,7 +6,6 @@ import PrepViews
 extension FoodForm {
     struct AmountPerForm: View {
         @EnvironmentObject var fields: FoodForm.Fields
-        @EnvironmentObject var sources: FoodForm.Sources
         @State var showingAddSizeForm = false
     }
 }
@@ -80,7 +79,6 @@ extension FoodForm.AmountPerForm {
                     NavigationLink {
                         SizesList()
                             .environmentObject(fields)
-                            .environmentObject(sources)
                     } label: {
                         FoodSizesView(sizes: sizesBinding, didTapAddSize: {
                             showingAddSizeForm = true
@@ -179,13 +177,11 @@ extension FoodForm.AmountPerForm {
     var amountForm: some View {
         AmountForm(existingField: fields.amount)
             .environmentObject(fields)
-            .environmentObject(sources)
     }
 
     var servingForm: some View {
         ServingForm(existingField: fields.serving)
             .environmentObject(fields)
-            .environmentObject(sources)
     }
 
     func sizeForm(for sizeField: Field) -> some View {
@@ -193,18 +189,15 @@ extension FoodForm.AmountPerForm {
 
         }
         .environmentObject(fields)
-        .environmentObject(sources)
     }
 
     var sizeForm: some View {
         SizeForm()
             .environmentObject(fields)
-            .environmentObject(sources)
     }
 
     var densityForm: some View {
         DensityForm(field: fields.density, orderWeightFirst: fields.isWeightBased)
             .environmentObject(fields)
-            .environmentObject(sources)
     }
 }

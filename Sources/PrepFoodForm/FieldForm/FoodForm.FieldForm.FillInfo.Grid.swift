@@ -5,8 +5,7 @@ import SwiftUISugar
 extension FoodForm.FillInfo {
     struct OptionsGrid: View {
         @EnvironmentObject var fields: FoodForm.Fields
-        @EnvironmentObject var sources: FoodForm.Sources
-
+        
         @ObservedObject var field: Field
         @Binding var shouldAnimate: Bool
         
@@ -23,7 +22,7 @@ extension FoodForm.FillInfo.OptionsGrid {
     var flowLayout: some View {
         FlowLayout(
             mode: .scrollable,
-            items: fields.fillOptions(for: field.value, using: sources),
+            items: fields.fillOptions(for: field.value),
             itemSpacing: 4,
             shouldAnimateHeight: $shouldAnimate
         ) { fillOption in

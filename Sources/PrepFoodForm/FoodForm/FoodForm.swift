@@ -13,8 +13,8 @@ public struct FoodForm: View {
     let didSave: (FoodFormOutput) -> ()
     
     /// ViewModels
-    @ObservedObject var fields: Fields
-    @ObservedObject var sources: Sources
+    @StateObject var fields: Fields
+    @StateObject var sources: Sources = Sources.shared
 
     /// Sheets
     @State var showingEmojiPicker = false
@@ -45,22 +45,33 @@ public struct FoodForm: View {
     @State var initialScanResult: ScanResult?
     @State var initialScanImage: UIImage?
     
-    public init(fields: FoodForm.Fields, sources: FoodForm.Sources, didSave: @escaping (FoodFormOutput) -> ()) {
-        Fields.shared = fields
-        Sources.shared = sources
-        self.fields = fields
-        self.sources = sources
+    public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
+        Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
+        Sources.shared = Sources()
         self.didSave = didSave
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
+        _initialScanResult = State(initialValue: nil)
+        _initialScanImage = State(initialValue: nil)
+        _shouldShowWizard = State(initialValue: false)
+    }
+    
+    public init(didSave: @escaping (FoodFormOutput) -> ()) {
+        Fields.shared = Fields()
+        Sources.shared = Sources()
+        self.didSave = didSave
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
     }
     
-    public init(fields: FoodForm.Fields, sources: FoodForm.Sources, scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
-        Fields.shared = fields
-        Sources.shared = sources
-        self.fields = fields
-        self.sources = sources
+    public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
+        Fields.shared = Fields()
+        Sources.shared = Sources()
         self.didSave = didSave
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
         _shouldShowWizard = State(initialValue: false)
         _initialScanResult = State(initialValue: scanResult)
         _initialScanImage = State(initialValue: image)

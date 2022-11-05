@@ -62,7 +62,7 @@ extension FoodForm.FieldForm {
             if !isForDecimalValue {
                 EmptyView()
             } else {
-                Text("Enter \(fields.hasFillOptions(for: field.value, using: sources) ? "or autofill " : "")a value")
+                Text("Enter \(fields.hasFillOptions(for: field.value) ? "or autofill " : "")a value")
             }
         }
     }
@@ -131,7 +131,7 @@ extension FoodForm.FieldForm {
     
     @ViewBuilder
     var fillInfo: some View {
-        if fields.hasFillOptions(for: field.value, using: sources) {
+        if fields.hasFillOptions(for: field.value) {
             FoodForm.FillInfo(
                 field: field,
                 shouldAnimate: $shouldAnimateOptions,
@@ -141,7 +141,6 @@ extension FoodForm.FieldForm {
                     didTapFillOption(fillOption)
                 })
             .environmentObject(fields)
-            .environmentObject(sources)
         }
     }
     
