@@ -45,23 +45,33 @@ public struct FoodForm: View {
     @State var initialScanResult: ScanResult?
     @State var initialScanImage: UIImage?
     
-    public init(didSave: @escaping (FoodFormOutput) -> ()) {
+    public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
+        Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
+        Sources.shared = Sources()
         self.didSave = didSave
-        
-        let sources = Sources()
-        let fields = Fields(sources: sources)
-        _fields = StateObject(wrappedValue: fields)
-        _sources = StateObject(wrappedValue: sources)
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
+        _initialScanResult = State(initialValue: nil)
+        _initialScanImage = State(initialValue: nil)
+        _shouldShowWizard = State(initialValue: false)
+    }
+    
+    public init(didSave: @escaping (FoodFormOutput) -> ()) {
+        Fields.shared = Fields()
+        Sources.shared = Sources()
+        self.didSave = didSave
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
     }
     
     public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
+        Fields.shared = Fields()
+        Sources.shared = Sources()
         self.didSave = didSave
-        let sources = Sources()
-        let fields = Fields(sources: sources)
-        _fields = StateObject(wrappedValue: fields)
-        _sources = StateObject(wrappedValue: sources)
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
         _shouldShowWizard = State(initialValue: false)
         _initialScanResult = State(initialValue: scanResult)
         _initialScanImage = State(initialValue: image)

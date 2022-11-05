@@ -10,7 +10,7 @@ extension FoodForm {
     
     class Fields: ObservableObject {
         
-        var sources: Sources
+        static var shared = Fields()
         
         @Published var name: String = ""
         @Published var emoji: String = ""
@@ -54,23 +54,22 @@ extension FoodForm {
 
         var sizeBeingEdited: FormSize? = nil
 
-        init(sources: Sources) {
-            self.sources = sources
+        init() {
             self.emoji = randomFoodEmoji()
-            self.amount = .init(fieldValue: DefaultAmount, sources: sources)
-            self.serving = .init(fieldValue: .serving(), sources: sources)
-            self.energy = .init(fieldValue: .energy(), sources: sources)
-            self.carb = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)), sources: sources)
-            self.fat = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)), sources: sources)
-            self.protein = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)), sources: sources)
-            self.density = .init(fieldValue: .density(FieldValue.DensityValue()), sources: sources)
+            self.amount = .init(fieldValue: DefaultAmount)
+            self.serving = .init(fieldValue: .serving())
+            self.energy = .init(fieldValue: .energy())
+            self.carb = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
+            self.fat = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
+            self.protein = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
+            self.density = .init(fieldValue: .density(FieldValue.DensityValue()))
         }
         
-//        convenience init(mockPrefilledFood mfpFood: MFPProcessedFood) {
-//            self.init(sources: sources)
-//            self.prefilledFood = mfpFood
-//            self.prefill(mfpFood)
-//            self.updateFormState()
-//        }
+        convenience init(mockPrefilledFood mfpFood: MFPProcessedFood) {
+            self.init()
+            self.prefilledFood = mfpFood
+            self.prefill(mfpFood)
+            self.updateFormState()
+        }
     }
 }

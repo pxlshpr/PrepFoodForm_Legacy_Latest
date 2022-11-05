@@ -34,7 +34,7 @@ extension FoodForm.Fields {
             return
         }
         
-        let field = Field.init(fieldValue: .init(micronutrient: nutrientType), sources: sources)
+        let field = Field.init(fieldValue: .init(micronutrient: nutrientType))
         switch nutrientType.group {
         case .fats:         microsFats.append(field)
         case .fibers:       microsFibers.append(field)

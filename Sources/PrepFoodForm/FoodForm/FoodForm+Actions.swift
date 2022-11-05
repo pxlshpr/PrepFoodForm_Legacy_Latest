@@ -53,16 +53,17 @@ extension FoodForm {
         let imageViewModel = ImageViewModel(barcodeImage: image, recognizedBarcodes: barcodes)
         var didAddABarcode = false
         for barcode in barcodes {
-            let barcodeValue = FieldValue.barcode(FieldValue.BarcodeValue(
-                payloadString: barcode.string,
-                symbology: barcode.symbology,
-                fill: .barcodeScanned(
-                    ScannedFillInfo(
-                        recognizedBarcode: barcode,
-                        imageId: imageViewModel.id)
-                )
-            ))
-            let field = Field(fieldValue: barcodeValue, sources: sources)
+            let field = Field(fieldValue:
+                    .barcode(FieldValue.BarcodeValue(
+                        payloadString: barcode.string,
+                        symbology: barcode.symbology,
+                        fill: .barcodeScanned(
+                            ScannedFillInfo(
+                                recognizedBarcode: barcode,
+                                imageId: imageViewModel.id)
+                        )
+                    ))
+            )
             didAddABarcode = fields.add(barcodeField: field)
         }
         if didAddABarcode {
@@ -73,7 +74,7 @@ extension FoodForm {
     
     func handleTypedOutBarcode(_ payload: String) {
         let barcodeValue = FieldValue.BarcodeValue(payload: payload, fill: .userInput)
-        let field = Field(fieldValue: .barcode(barcodeValue), sources: sources)
+        let field = Field(fieldValue: .barcode(barcodeValue))
         withAnimation {
             let didAdd = fields.add(barcodeField: field)
             if didAdd {

@@ -53,7 +53,7 @@ class SizeFormViewModel: ObservableObject {
 }
 
 extension Field {
-    static func emptySize(sources: FoodForm.Sources) -> Field {
-        .init(fieldValue: .size(.init(size: FormSize(), fill: .userInput)), sources: sources)
+    static var emptySize: Field {
+        .init(fieldValue: .size(.init(size: FormSize(), fill: .userInput)))
     }
 }

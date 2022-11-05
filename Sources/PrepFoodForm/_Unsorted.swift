@@ -127,11 +127,11 @@ extension Field {
     }
 }
 
-//extension FormSize {
-//    var asFieldViewModelForUserInput: Field {
-//        Field(fieldValue: .size(.init(size: self, fill: .userInput)))
-//    }
-//}
+extension FormSize {
+    var asFieldViewModelForUserInput: Field {
+        Field(fieldValue: .size(.init(size: self, fill: .userInput)))
+    }
+}
 
 extension FieldValue {
     var size: FormSize? {
@@ -590,10 +590,8 @@ extension ScanResult {
         if serving?.amount != nil {
             count += 1
         }
-        let count1 = 0
-        let count2 = 0
-//        let count1 = allSizeViewModels(at: 1).count
-//        let count2 = allSizeViewModels(at: 2).count
+        let count1 = allSizeViewModels(at: 1).count
+        let count2 = allSizeViewModels(at: 2).count
         count += max(count1, count2)
 //        if let serving {
 //            if serving.amount != nil {

@@ -18,7 +18,7 @@ extension FoodForm.AmountPerForm {
 
         @Environment(\.dismiss) var dismiss
         @EnvironmentObject var fields: FoodForm.Fields
-        @ObservedObject var sources: FoodForm.Sources
+        @EnvironmentObject var sources: FoodForm.Sources
 
         let existingField: Field?
         
@@ -40,12 +40,10 @@ extension FoodForm.AmountPerForm {
 
         var didAddSizeViewModel: ((Field) -> ())?
 
-        init(
-            field: Field? = nil,
-            includeServing: Bool = true,
-            allowAddSize: Bool = true,
-            sources: FoodForm.Sources,
-            didAddSizeViewModel: ((Field) -> ())? = nil
+        init(field: Field? = nil,
+             includeServing: Bool = true,
+             allowAddSize: Bool = true,
+             didAddSizeViewModel: ((Field) -> ())? = nil
         ) {
             let formViewModel = SizeFormViewModel(
                 includeServing: includeServing,
@@ -61,12 +59,10 @@ extension FoodForm.AmountPerForm {
                 _field = StateObject(wrappedValue: field.copy)
             } else {
                 _showingVolumePrefixToggle = State(initialValue: false)
-                let emptySize = Field.emptySize(sources: sources)
-                _field = StateObject(wrappedValue: emptySize)
+                _field = StateObject(wrappedValue: Field.emptySize)
             }
             
             self.didAddSizeViewModel = didAddSizeViewModel
-            self.sources = sources
         }
     }
 }

@@ -191,8 +191,7 @@ extension FoodForm.SourcesForm {
         withAnimation {
             sources.removeImage(at: index)
         }
-        //TODO: Send a notification for this
-//        FoodForm.Fields.shared.resetFillsForFieldsUsingImage(with: id)
+        FoodForm.Fields.shared.resetFillsForFieldsUsingImage(with: id)
     }
 }
 

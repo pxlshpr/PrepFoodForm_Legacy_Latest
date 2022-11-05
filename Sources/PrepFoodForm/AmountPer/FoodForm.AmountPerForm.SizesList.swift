@@ -89,16 +89,18 @@ extension FoodForm.AmountPerForm.SizesList {
     }
     
     var addSizeForm: some View {
-        FoodForm.AmountPerForm.SizeForm(sources: sources)
+        FoodForm.AmountPerForm.SizeForm()
             .environmentObject(fields)
+            .environmentObject(sources)
     }
     
     @ViewBuilder
     func editSizeForm(for sizeField: Field) -> some View {
-        FoodForm.AmountPerForm.SizeForm(field: sizeField, sources: sources) { sizeField in
+        FoodForm.AmountPerForm.SizeForm(field: sizeField) { sizeField in
             
         }
         .environmentObject(fields)
+        .environmentObject(sources)
     }
     
     var navigationTrailingContent: some ToolbarContent {
