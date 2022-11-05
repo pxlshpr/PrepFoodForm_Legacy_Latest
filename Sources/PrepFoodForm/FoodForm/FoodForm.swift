@@ -47,10 +47,7 @@ public struct FoodForm: View {
     
     public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
-        
         Sources.shared = Sources()
-//        Sources.shared.clear()
-
         self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
@@ -61,12 +58,7 @@ public struct FoodForm: View {
     
     public init(didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
-        
-        print("✨ Food Form initialized")
-
         Sources.shared = Sources()
-//        Sources.shared.clear()
-        
         self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
@@ -77,8 +69,6 @@ public struct FoodForm: View {
     public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
         Sources.shared = Sources()
-//        Sources.shared.clear()
-
         self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
