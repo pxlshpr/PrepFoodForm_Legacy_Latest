@@ -62,6 +62,8 @@ public struct FoodForm: View {
     public init(didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
         
+        print("✨ Food Form initialized")
+
         Sources.shared = Sources()
 //        Sources.shared.clear()
         
@@ -74,7 +76,6 @@ public struct FoodForm: View {
     
     public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
-        
         Sources.shared = Sources()
 //        Sources.shared.clear()
 
