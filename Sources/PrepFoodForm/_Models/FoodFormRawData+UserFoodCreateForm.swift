@@ -14,7 +14,7 @@ extension FoodFormFieldsAndSources {
             emoji: emoji,
             detail: detail,
             brand: brand,
-            publishStatus: .hidden,
+            publishStatus: shouldPublish ? .pendingReview : .hidden,
             info: info
         )
     }
