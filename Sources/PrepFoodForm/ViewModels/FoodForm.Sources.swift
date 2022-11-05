@@ -6,7 +6,7 @@ import MFPScraper
 import VisionSugar
 
 extension FoodForm {
-    class Sources: ObservableObject {
+    public class Sources: ObservableObject {
         
         static var shared = Sources()
         
@@ -26,8 +26,7 @@ extension FoodForm {
         var didScanAllPickedImages: (() -> ())? = nil
         var autoFillHandler: ColumnSelectionHandler? = nil
         
-        init() {
-            print("We're here")
+        public init() {
         }
     }
 }
