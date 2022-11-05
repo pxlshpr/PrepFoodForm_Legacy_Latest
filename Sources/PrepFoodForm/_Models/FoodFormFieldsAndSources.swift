@@ -25,8 +25,10 @@ struct FoodFormFieldsAndSources: Codable {
     
     let prefilledFood: MFPProcessedFood?
     let images: [FoodImage]
-
-    init?(fields: FoodForm.Fields, sources: FoodForm.Sources) {
+    
+    let shouldPublish: Bool
+    
+    init?(fields: FoodForm.Fields, sources: FoodForm.Sources, shouldPublish: Bool) {
 //        guard fields.isValid else { return nil }
         
         self.name = fields.name
@@ -49,6 +51,8 @@ struct FoodFormFieldsAndSources: Codable {
 
         self.link = sources.linkInfo?.urlString
         self.images = sources.imageViewModels.map { FoodImage($0) }
+        
+        self.shouldPublish = shouldPublish
     }
     
     static func save(_ fields: FoodForm.Fields) {
@@ -71,7 +75,7 @@ struct FoodFormFieldsAndSources: Codable {
 //        }
     }
     
-    static func persistOnDevice(_ fields: FoodForm.Fields, sources: FoodForm.Sources) {
+    static func persistOnDevice(_ fields: FoodForm.Fields, sources: FoodForm.Sources, shouldPublish: Bool) {
         guard let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             return
         }
@@ -84,7 +88,7 @@ struct FoodFormFieldsAndSources: Codable {
             }
 
             let encoder = JSONEncoder()
-            let data = try encoder.encode(FoodFormFieldsAndSources(fields: fields, sources: sources))
+            let data = try encoder.encode(FoodFormFieldsAndSources(fields: fields, sources: sources, shouldPublish: shouldPublish))
 
             let foodUrl = directoryUrl.appending(component: "FoodFormRawData.json")
             try data.write(to: foodUrl)

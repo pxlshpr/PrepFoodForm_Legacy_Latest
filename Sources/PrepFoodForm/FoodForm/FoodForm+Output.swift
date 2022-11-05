@@ -14,7 +14,7 @@ extension FoodForm {
     
     func foodFormOutput(shouldPublish: Bool) -> FoodFormOutput? {
         guard
-            let fieldsAndSources = FoodFormFieldsAndSources(fields: fields, sources: sources),
+            let fieldsAndSources = FoodFormFieldsAndSources(fields: fields, sources: sources, shouldPublish: shouldPublish),
             let createForm = fieldsAndSources.createForm,
             let jsonData = try? JSONEncoder().encode(fieldsAndSources)
         else {
