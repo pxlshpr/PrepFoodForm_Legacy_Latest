@@ -179,10 +179,12 @@ extension FoodForm.FieldForm {
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            Button("Cancel") {
+            Button {
                 /// Do nothing to revert the values as the original `FieldViewModel` is still untouched
                 doNotRegisterUserInput = true
                 dismiss()
+            } label: {
+                closeButtonLabel
             }
         }
     }

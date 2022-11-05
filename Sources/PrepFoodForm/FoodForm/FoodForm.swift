@@ -72,6 +72,7 @@ public struct FoodForm: View {
             content
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }
+                .toolbar { navigationTrailingContent }
                 .onAppear(perform: appeared)
                 .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
@@ -205,15 +206,61 @@ public struct FoodForm: View {
     
     //MARK: - Toolbars
     
+    var navigationTrailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            if let statusMessage {
+                Text(statusMessage)
+                    .foregroundColor(statusMessageColor)
+                    .font(.caption)
+            }
+        }
+    }
+    
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
             Button {
                 dismiss()
             } label: {
-                
-                Text("Cancel")
+                closeButtonLabel
             }
         }
     }
 }
 
+extension FoodForm {
+    var statusMessage: String? {
+        if let missingField = fields.missingRequiredField {
+            return "Missing \(missingField)"
+        } else {
+            if sources.canBePublished {
+                return nil
+            } else {
+                return "Missing source"
+            }
+        }
+    }
+    
+    var statusMessageColor: Color {
+        if fields.canBeSaved {
+            if sources.canBePublished {
+                return .green.opacity(0.4)
+            } else {
+                return .yellow.opacity(0.5)
+            }
+        } else {
+            return Color(.tertiaryLabel).opacity(0.8)
+        }
+    }
+}
+
+extension FoodForm.Fields {
+    var missingRequiredField: String? {
+        if name.isEmpty { return "Name" }
+        if amount.value.isEmpty { return "Amount" }
+        if energy.value.isEmpty { return "Energy" }
+        if carb.value.isEmpty { return "Carbohydrate"}
+        if fat.value.isEmpty { return "Total Fats" }
+        if protein.value.isEmpty { return "Protein"}
+        return nil
+    }
+}

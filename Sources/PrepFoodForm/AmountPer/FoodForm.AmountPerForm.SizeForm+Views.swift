@@ -33,8 +33,10 @@ extension FoodForm.AmountPerForm.SizeForm {
 
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            Button("Cancel") {
+            Button {
                 dismiss()
+            } label: {
+                closeButtonLabel
             }
         }
     }
