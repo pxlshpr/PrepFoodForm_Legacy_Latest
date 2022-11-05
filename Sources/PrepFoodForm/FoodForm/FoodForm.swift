@@ -210,7 +210,7 @@ public struct FoodForm: View {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
             if let statusMessage {
                 Text(statusMessage)
-                    .foregroundColor(statusMessageColor)
+                    .foregroundColor(Color(.tertiaryLabel).opacity(0.8))
                     .font(.caption)
             }
         }
@@ -243,17 +243,17 @@ extension FoodForm {
         }
     }
     
-    var statusMessageColor: Color {
-        if fields.canBeSaved {
-            if sources.canBePublished {
-                return .green.opacity(0.4)
-            } else {
-                return .yellow.opacity(0.5)
-            }
-        } else {
-            return Color(.tertiaryLabel).opacity(0.8)
-        }
-    }
+//    var statusMessageColor: Color {
+//        if fields.canBeSaved {
+//            if sources.canBePublished {
+//                return .green.opacity(0.4)
+//            } else {
+//                return .yellow.opacity(0.5)
+//            }
+//        } else {
+//            return Color(.tertiaryLabel).opacity(0.8)
+//        }
+//    }
 }
 
 extension FoodForm.Fields {
