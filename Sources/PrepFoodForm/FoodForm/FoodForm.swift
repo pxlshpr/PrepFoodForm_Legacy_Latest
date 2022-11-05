@@ -258,9 +258,6 @@ extension FoodForm {
 
 extension FoodForm.Fields {
     var missingRequiredField: String? {
-        
-        if !isInEmptyState { return nil }
-        
         if name.isEmpty { return "Name" }
         if amount.value.isEmpty { return "Amount" }
         if energy.value.isEmpty { return "Energy" }
