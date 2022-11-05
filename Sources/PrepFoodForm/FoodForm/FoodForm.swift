@@ -14,7 +14,7 @@ public struct FoodForm: View {
     
     /// ViewModels
     @StateObject var fields: Fields
-    @StateObject var sources: Sources
+    @StateObject var sources: Sources = Sources.shared
 
     /// Sheets
     @State var showingEmojiPicker = false
@@ -47,10 +47,10 @@ public struct FoodForm: View {
     
     public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
-        Sources.shared = Sources()
+//        Sources.shared = Sources()
         self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
-        _sources = StateObject(wrappedValue: Sources.shared)
+//        _sources = StateObject(wrappedValue: Sources.shared)
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
         _shouldShowWizard = State(initialValue: false)
@@ -58,20 +58,20 @@ public struct FoodForm: View {
     
     public init(didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
-        Sources.shared = Sources()
+//        Sources.shared = Sources()
         self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
-        _sources = StateObject(wrappedValue: Sources.shared)
+//        _sources = StateObject(wrappedValue: Sources.shared)
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
     }
     
     public init(scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = Fields()
-        Sources.shared = Sources()
+//        Sources.shared = Sources()
         self.didSave = didSave
         _fields = StateObject(wrappedValue: Fields.shared)
-        _sources = StateObject(wrappedValue: Sources.shared)
+//        _sources = StateObject(wrappedValue: Sources.shared)
         _shouldShowWizard = State(initialValue: false)
         _initialScanResult = State(initialValue: scanResult)
         _initialScanImage = State(initialValue: image)
