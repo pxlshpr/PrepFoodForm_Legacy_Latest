@@ -11,6 +11,7 @@ extension FoodForm.AmountPerForm {
             case weight, volume
         }
         
+        @EnvironmentObject var sources: FoodForm.Sources
         @EnvironmentObject var fields: FoodForm.Fields
         @ObservedObject var field: Field
 //        @StateObject var field: Field
@@ -60,13 +61,15 @@ extension FoodForm.AmountPerForm.DensityForm {
     
     @ViewBuilder
     var fillOptionsSections: some View {
-        if fields.hasFillOptions(for: field.value) {
+        if fields.hasFillOptions(for: field.value, using: sources) {
             FoodForm.FillInfo(
                 field: field,
                 shouldAnimate: $shouldAnimateOptions,
                 didTapImage: didTapImage,
                 didTapFillOption: didTapFillOption
             )
+            .environmentObject(fields)
+            .environmentObject(sources)
         }
     }
 }

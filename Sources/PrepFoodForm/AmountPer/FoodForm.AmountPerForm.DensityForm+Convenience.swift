@@ -14,7 +14,7 @@ extension FoodForm.AmountPerForm.DensityForm {
     }
 
     var selectedImageIndex: Int? {
-        FoodForm.Sources.shared.imageViewModels.firstIndex(where: { $0.id == field.fill.imageId })
+        sources.imageViewModels.firstIndex(where: { $0.id == field.fill.imageId })
     }
     
     var topFieldIsFocused: Bool {

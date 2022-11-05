@@ -3,7 +3,7 @@ import PrepDataTypes
 
 extension FoodForm.Fields {
     
-    func handleExtractedFieldsValues(_ fieldValues: [FieldValue], shouldOverwrite: Bool) {
+    func handleExtractedFieldsValues(_ fieldValues: [FieldValue], using sources: FoodForm.Sources, shouldOverwrite: Bool) {
         
         for fieldValue in fieldValues.filter({ $0.isOneToOne }) {
             handleOneToOneExtractedNutrientFieldValue(fieldValue, shouldOverwrite: shouldOverwrite)
@@ -21,7 +21,7 @@ extension FoodForm.Fields {
         }
         
         /// Get Barcodes from all images
-        for barcodeField in FoodForm.Sources.shared.allScanResults.allBarcodeFields {
+        for barcodeField in sources.allScanResults.allBarcodeFields {
             guard add(barcodeField: barcodeField) else {
                 continue
             }
@@ -31,7 +31,7 @@ extension FoodForm.Fields {
         
         updateFormState()
 
-        FoodForm.Sources.shared.markAllImageViewModelsAsProcessed()
+        sources.markAllImageViewModelsAsProcessed()
     }
     
     func add(barcodeField: Field) -> Bool {

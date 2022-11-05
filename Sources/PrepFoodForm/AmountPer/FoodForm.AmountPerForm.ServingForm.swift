@@ -5,6 +5,7 @@ import SwiftHaptics
 extension FoodForm.AmountPerForm {
     struct ServingForm: View {
         @EnvironmentObject var fields: FoodForm.Fields
+        @EnvironmentObject var sources: FoodForm.Sources
         @ObservedObject var existingField: Field
         @StateObject var field: Field
 
@@ -73,6 +74,7 @@ extension FoodForm.AmountPerForm.ServingForm {
             }
         }
         .environmentObject(fields)
+        .environmentObject(sources)
     }
 
     func didSave() {

@@ -25,6 +25,10 @@ extension FoodForm {
         
         var didScanAllPickedImages: (() -> ())? = nil
         var autoFillHandler: ColumnSelectionHandler? = nil
+        
+        init() {
+            print("We're here")
+        }
     }
 }
 

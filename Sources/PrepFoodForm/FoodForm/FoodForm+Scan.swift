@@ -30,7 +30,7 @@ extension FoodForm {
     
     func handleExtractedFieldValues(_ fieldValues: [FieldValue], shouldOverwrite: Bool) {
         
-        fields.handleExtractedFieldsValues(fieldValues, shouldOverwrite: shouldOverwrite)
+        fields.handleExtractedFieldsValues(fieldValues, using: sources, shouldOverwrite: shouldOverwrite)
         
         /// Set the `ImageSetStatus` in `Sources` with the counts from `Fields`
         sources.imageSetStatus = .scanned(

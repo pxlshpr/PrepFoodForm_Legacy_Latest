@@ -3,6 +3,8 @@ import FoodLabelScanner
 
 class Field: ObservableObject, Identifiable {
     
+//    var sources: FoodForm.Sources
+    
     @Published var id = UUID()
     @Published var value: FieldValue
     
