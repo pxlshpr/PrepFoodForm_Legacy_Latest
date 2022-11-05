@@ -15,20 +15,15 @@ extension FoodForm {
 //                        fields.updateCanBeSaved()
 //                    }
             } label: {
-                if fields.detailsAreEmpty {
-                    Text("Required")
-                        .foregroundColor(Color(.tertiaryLabel))
-                } else {
-                    FoodDetailsView(
-                        emoji: $fields.emoji,
-                        name: $fields.name,
-                        detail: $fields.detail,
-                        brand: $fields.brand,
-                        didTapEmoji: {
-                            showingEmojiPicker = true
-                        }
-                    )
-                }
+                FoodDetailsView(
+                    emoji: $fields.emoji,
+                    name: $fields.name,
+                    detail: $fields.detail,
+                    brand: $fields.brand,
+                    didTapEmoji: {
+                        showingEmojiPicker = true
+                    }
+                )
             }
         }
     }

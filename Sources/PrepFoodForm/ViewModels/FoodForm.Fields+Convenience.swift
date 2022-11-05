@@ -65,10 +65,6 @@ extension FoodForm.Fields {
         amount.value.doubleValue.unit == .serving
     }
     
-    var detailsAreEmpty: Bool {
-        name.isEmpty && emoji.isEmpty && detail.isEmpty && brand.isEmpty
-    }
-
     //MARK: Density
     
     var hasValidDensity: Bool {

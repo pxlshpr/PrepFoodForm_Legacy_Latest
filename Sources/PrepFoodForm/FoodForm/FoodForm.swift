@@ -229,7 +229,7 @@ public struct FoodForm: View {
 
 extension FoodForm {
     var statusMessage: String? {
-        guard !showingWizard, !fields.isInEmptyState else {
+        guard !(showingWizard || fields.isInEmptyState) else {
             return nil
         }
         if let missingField = fields.missingRequiredField {
@@ -271,14 +271,14 @@ extension FoodForm.Fields {
     }
     
     var isInEmptyState: Bool {
-        detailsAreEmpty
+        name.isEmpty && detail.isEmpty && brand.isEmpty
         && serving.value.isEmpty
         && energy.value.isEmpty
         && carb.value.isEmpty
         && fat.value.isEmpty
         && protein.value.isEmpty
         && allSizes.isEmpty
-        && allMicronutrientFields.isEmpty
+//        && allMicronutrientFields.isEmpty
         && prefilledFood == nil
     }
 }
