@@ -132,5 +132,7 @@ extension FoodForm.FieldForm {
             field.value.fill = newFillType
             field.isCropping = true
         }
+        
+        fields.updateCanBeSaved()
     }
 }

@@ -31,9 +31,9 @@ extension FoodForm.NutrientsList {
             MacroForm(existingField: field)
                 .environmentObject(fields)
                 .environmentObject(sources)
-                .onDisappear {
-                    fields.updateCanBeSaved()
-                }
+//                .onDisappear {
+//                    fields.updateCanBeSaved()
+//                }
         } label: {
             Cell(field: field, showImage: $showingImages)
         }
