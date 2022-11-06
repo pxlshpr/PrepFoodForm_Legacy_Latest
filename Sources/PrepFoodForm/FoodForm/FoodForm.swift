@@ -167,7 +167,7 @@ public struct FoodForm: View {
 
     var saveButtons: some View {
         var publicButton: some View {
-            FormPrimaryButton(title: "Add to Public Database") {
+            FormPrimaryButton(title: "Submit to Prep Database") {
                 guard let data = foodFormOutput(shouldPublish: true) else {
                     return
                 }
