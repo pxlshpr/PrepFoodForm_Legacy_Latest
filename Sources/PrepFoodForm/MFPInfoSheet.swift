@@ -64,6 +64,8 @@ We will not verify foods that are solely based on their data, [as MyFitnessPal t
             Section("Disclaimer") {
                 Text("""
 We are in no way affiliated with MyFitnessPal, and do not claim ownership over any of the data they provide.
+
+We simply make use of their publically accessible data to provide you with this feature.
 """)
                 .italic()
                 .foregroundColor(Color(.tertiaryLabel))
