@@ -57,7 +57,7 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
     }
     
     var unitPickerForAmount: some View {
-        FoodForm.AmountPerForm.UnitPicker(
+        UnitPicker(
             pickedUnit: field.sizeAmountUnit,
             includeServing: formViewModel.includeServing,
             servingDescription: fields.serving.doubleValueDescription,

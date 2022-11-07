@@ -51,7 +51,7 @@ extension FoodForm.AmountPerForm.ServingForm {
     }
 
     var unitPicker: some View {
-        FoodForm.AmountPerForm.UnitPicker(
+        UnitPicker(
             pickedUnit: field.value.doubleValue.unit,
             includeServing: false
         ) {

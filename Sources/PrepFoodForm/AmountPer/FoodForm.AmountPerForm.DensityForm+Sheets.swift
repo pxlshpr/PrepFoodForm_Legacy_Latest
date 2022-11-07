@@ -2,7 +2,7 @@ import SwiftUI
 
 extension FoodForm.AmountPerForm.DensityForm {
     var weightUnitPicker: some View {
-        FoodForm.AmountPerForm.UnitPicker(
+        UnitPicker(
             pickedUnit: field.value.weight.unit,
             filteredType: .weight)
         { unit in
@@ -13,7 +13,7 @@ extension FoodForm.AmountPerForm.DensityForm {
     }
     
     var volumeUnitPicker: some View {
-        FoodForm.AmountPerForm.UnitPicker(
+        UnitPicker(
             pickedUnit: field.value.volume.unit,
             filteredType: .volume)
         { unit in

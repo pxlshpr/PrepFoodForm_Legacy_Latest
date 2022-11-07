@@ -36,7 +36,7 @@ extension FoodForm.AmountPerForm.SizeForm {
     }
     
     var unitPickerForVolumePrefix: some View {
-        FoodForm.AmountPerForm.UnitPicker(
+        UnitPicker(
             pickedUnit: field.sizeVolumePrefixUnit,
             filteredType: .volume)
         { unit in

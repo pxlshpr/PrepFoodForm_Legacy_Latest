@@ -2,50 +2,48 @@ import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
 
-extension FoodForm.AmountPerForm {
-    struct UnitPicker: View {
-        
-        @EnvironmentObject var fields: FoodForm.Fields
-        @Environment(\.dismiss) var dismiss
-        
-        @State var type: UnitType
-        @State var pickedUnit: FormUnit
+public struct UnitPicker: View {
+    
+    @EnvironmentObject var fields: FoodForm.Fields
+    @Environment(\.dismiss) var dismiss
+    
+    @State var type: UnitType
+    @State var pickedUnit: FormUnit
 
-        @State var pickedVolumePrefixUnit: FormUnit = .volume(.cup)
-        
-        var includeServing: Bool
-        var allowAddSize: Bool
-        var filteredType: UnitType?
-        var servingDescription: String?
-        
-        var didPickUnit: (FormUnit) -> ()
-        var didTapAddSize: (() -> ())?
+    @State var pickedVolumePrefixUnit: FormUnit = .volume(.cup)
+    
+    var includeServing: Bool
+    var allowAddSize: Bool
+    var filteredType: UnitType?
+    var servingDescription: String?
+    
+    var didPickUnit: (FormUnit) -> ()
+    var didTapAddSize: (() -> ())?
 
-        init(
-            pickedUnit unit: FormUnit = .weight(.g),
-            includeServing: Bool = true,
-            servingDescription: String? = nil,
-            allowAddSize: Bool = true,
-            filteredType: UnitType? = nil,
-            didTapAddSize: (() -> ())? = nil,
-            didPickUnit: @escaping (FormUnit) -> ())
-        {
-            self.didPickUnit = didPickUnit
-            self.didTapAddSize = didTapAddSize
-            self.includeServing = includeServing
-            self.servingDescription = servingDescription
-            self.allowAddSize = allowAddSize
-            self.filteredType = filteredType
-            
-            _pickedUnit = State(initialValue: unit)
-            _type = State(initialValue: unit.unitType)
-        }
+    public init(
+        pickedUnit unit: FormUnit = .weight(.g),
+        includeServing: Bool = true,
+        servingDescription: String? = nil,
+        allowAddSize: Bool = true,
+        filteredType: UnitType? = nil,
+        didTapAddSize: (() -> ())? = nil,
+        didPickUnit: @escaping (FormUnit) -> ())
+    {
+        self.didPickUnit = didPickUnit
+        self.didTapAddSize = didTapAddSize
+        self.includeServing = includeServing
+        self.servingDescription = servingDescription
+        self.allowAddSize = allowAddSize
+        self.filteredType = filteredType
+        
+        _pickedUnit = State(initialValue: unit)
+        _type = State(initialValue: unit.unitType)
     }
 }
 
-extension FoodForm.AmountPerForm.UnitPicker {
+extension UnitPicker {
     
-    var body: some View {
+    public var body: some View {
         NavigationView {
             longList
             .navigationTitle(navigationTitleString)
