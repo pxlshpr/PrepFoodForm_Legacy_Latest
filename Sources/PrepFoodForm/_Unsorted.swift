@@ -17,16 +17,6 @@ extension NutrientType {
     }
 }
 
-extension Array where Element == FormSize {
-    var standardSizes: [FormSize] {
-        filter({ $0.volumePrefixUnit == nil })
-    }
-    
-    var volumePrefixedSizes: [FormSize] {
-        filter({ $0.volumePrefixUnit != nil })
-    }
-}
-
 extension NutrientTypeGroup {
     var nutrients: [NutrientType] {
         NutrientType.allCases.filter({ $0.group == self })
