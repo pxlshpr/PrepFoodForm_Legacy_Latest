@@ -2,7 +2,12 @@ import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
 
-public struct UnitPicker: View {
+/**
+ Previously used `FoodForm.Fields` and `Field`, but the new `UnitPicker` now directly uses `FormSize`s being more portable.
+ 
+ [ ] Migrate and test all uses of this to `UnitPicker`
+ */
+public struct UnitPicker_Legacy: View {
     
     @EnvironmentObject var fields: FoodForm.Fields
     @Environment(\.dismiss) var dismiss
@@ -41,7 +46,7 @@ public struct UnitPicker: View {
     }
 }
 
-extension UnitPicker {
+extension UnitPicker_Legacy {
     
     public var body: some View {
         NavigationView {

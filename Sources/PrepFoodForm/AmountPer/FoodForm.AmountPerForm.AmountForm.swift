@@ -53,7 +53,7 @@ extension FoodForm.AmountPerForm.AmountForm {
     }
 
     var unitPicker: some View {
-        UnitPicker(
+        UnitPicker_Legacy(
             pickedUnit: field.value.doubleValue.unit
         ) {
             showingAddSizeForm = true
