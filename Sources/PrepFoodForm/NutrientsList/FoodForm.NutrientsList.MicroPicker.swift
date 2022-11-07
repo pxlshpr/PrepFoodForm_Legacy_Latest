@@ -24,6 +24,7 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
         NavigationView {
             SearchableView(
                 searchText: $searchText,
+                promptSuffix: "Micronutrients",
                 focused: $searchIsFocused,
                 content: {
                     form
@@ -33,7 +34,6 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
             .navigationBarTitleDisplayMode(.large)
             .toolbar { navigationLeadingContent }
             .toolbar { navigationTrailingContent }
-//            .interactiveDismissDisabled(searchIsFocused)
         }
     }
     
@@ -52,9 +52,11 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
     }
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            Button(pickedNutrientTypes.isEmpty ? "Done" : "Cancel") {
+            Button {
                 Haptics.feedback(style: .soft)
                 dismiss()
+            } label: {
+                closeButtonLabel
             }
         }
     }
