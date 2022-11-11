@@ -32,6 +32,10 @@ extension FoodForm.NutrientsList {
                 micronutrientsGroup
             }
             .padding(.horizontal, 20)
+            .safeAreaInset(edge: .bottom) {
+                Spacer()
+                    .frame(height: 60)
+            }
         }
         .background(Color(.systemGroupedBackground))
     }

@@ -11,18 +11,6 @@ let FormFooterFilledColor = Color(.secondaryLabel)
 let FormFooterEmptyColor = Color(.secondaryLabel)
 let WizardAnimation = Animation.easeIn(duration: 0.2)
 
-extension NutrientType {
-    func matchesSearchString(_ string: String) -> Bool {
-        description.lowercased().contains(string.lowercased())
-    }
-}
-
-extension NutrientTypeGroup {
-    var nutrients: [NutrientType] {
-        NutrientType.allCases.filter({ $0.group == self })
-    }
-}
-
 extension FieldValue.MicroValue {
     func matchesSearchString(_ string: String) -> Bool {
         nutrientType.matchesSearchString(string)

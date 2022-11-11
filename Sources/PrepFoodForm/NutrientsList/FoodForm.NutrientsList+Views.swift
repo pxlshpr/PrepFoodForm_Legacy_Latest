@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
+import PrepViews
 
 extension FoodForm.NutrientsList {
 
@@ -49,12 +50,13 @@ extension FoodForm.NutrientsList {
     }
 
     var micronutrientsPicker: some View {
-        MicronutrientsPicker { nutrientTypes in
-            withAnimation {
-                fields.addMicronutrients(nutrientTypes)
+        NutrientsPicker(
+            hasUnusedMicros: fields.hasUnusedMicros,
+            hasMicronutrient: fields.hasMicronutrient) { _, _, pickedNutrientTypes in
+                withAnimation {
+                    fields.addMicronutrients(pickedNutrientTypes)
+                }
             }
-        }
-        .environmentObject(fields)
     }
     
     //MARK: Decorator Views
