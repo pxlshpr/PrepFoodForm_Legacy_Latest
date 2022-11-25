@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/EmojiPicker",
       "state" : {
-        "revision" : "17acb3d1801549234737a1c1d390dd8778a7eac2",
-        "version" : "0.0.14"
+        "revision" : "06245cff8ffebdcfaa17cb493d816288d20ef273",
+        "version" : "0.0.22"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabel",
       "state" : {
-        "revision" : "0e4158e55054e57c6f5af8081b5792c626a68882",
-        "version" : "0.0.28"
+        "revision" : "3cd95ff3be2a3ca45095dcbd6c3eeb15ca7fc32f",
+        "version" : "0.0.29"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabelScanner",
       "state" : {
-        "revision" : "69ed035cac2a2d9720074d8b8b90223b9a0b11a3",
-        "version" : "0.0.73"
+        "revision" : "8bbf8a10a888151409cf7a91d292c1788b0b624b",
+        "version" : "0.0.81"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/MFPScraper",
       "state" : {
-        "revision" : "04790b29b421b734c92e2506531c8eece72f4c2f",
-        "version" : "0.0.57"
+        "revision" : "02e0dc6ab7b54f1f69b23dd64fd4250d80db4e67",
+        "version" : "0.0.62"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/MFPSearch",
       "state" : {
-        "revision" : "f91195dc55e654bfbe544ce99ab7fbc31a8b6f6c",
-        "version" : "0.0.8"
+        "revision" : "59269ef0b0a35b5b43f6eb62ee2b045592be561e",
+        "version" : "0.0.15"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/NamePicker",
       "state" : {
-        "revision" : "232b96beb2a2321c566bbeea88dbc0a68a8ec74a",
-        "version" : "0.0.18"
+        "revision" : "1572246467af87895149646e28bdb53b96f42cd1",
+        "version" : "0.0.20"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepDataTypes",
       "state" : {
-        "revision" : "92ddc3f87872f8954992fbc0dc7b424e20473601",
-        "version" : "0.0.24"
+        "revision" : "fb489abd0231fe9fd428905ff27399e1431cf061",
+        "version" : "0.0.186"
       }
     },
     {
@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepViews",
       "state" : {
-        "revision" : "27821f44bdaaa12a7aa519dd52c686df064162ea",
-        "version" : "0.0.4"
+        "revision" : "ee2c3f5cdfaf367d84f57c9874ccca743bb74fde",
+        "version" : "0.0.57"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftSugar",
       "state" : {
-        "revision" : "8f6e2615bee4969dd629c09cae9d900b52081b02",
-        "version" : "0.0.74"
+        "revision" : "080d38c0cb15782a1b24ae9ba1ff2163b0e196cb",
+        "version" : "0.0.86"
       }
     },
     {
@@ -158,8 +158,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUISugar",
       "state" : {
-        "revision" : "09fe6a38a64cd36fd197d19c0398cb7d9cb7efcf",
-        "version" : "0.0.208"
+        "revision" : "9abad170d0994caf1fbcb8436ed301160a63be8f",
+        "version" : "0.0.234"
       }
     },
     {
@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/VisionSugar",
       "state" : {
-        "revision" : "d48e9bae9dc8bf7e3b75f39624318c0474c34dd9",
-        "version" : "0.0.74"
+        "revision" : "f6fecd75f07cbb1bb9e0eb7b090bb79de7db8215",
+        "version" : "0.0.75"
       }
     },
     {
