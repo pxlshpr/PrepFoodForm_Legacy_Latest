@@ -92,14 +92,23 @@ extension FoodFormFieldsAndSources {
     var foodNutrientsArray: [FoodNutrient] {
         micronutrients.compactMap {
             let microValue = $0.microValue
-            guard let value = microValue.double else {
-                return nil
+            /// If it's a percentage value, get the converted value and unit and save that instead
+            if let converted = microValue.convertedFromPercentage {
+                return FoodNutrient(
+                    nutrientType: microValue.nutrientType,
+                    value: converted.amount,
+                    nutrientUnit: converted.unit
+                )
+            } else {
+                guard let value = microValue.double else {
+                    return nil
+                }
+                return FoodNutrient(
+                    nutrientType: microValue.nutrientType,
+                    value: value,
+                    nutrientUnit: microValue.unit
+                )
             }
-            return FoodNutrient(
-                nutrientType: microValue.nutrientType,
-                value: value,
-                nutrientUnit: microValue.unit
-            )
         }
     }
 }
