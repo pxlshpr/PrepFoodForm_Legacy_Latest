@@ -1082,11 +1082,12 @@ extension FormSize {
 extension FieldValue {
     var energyInKcal: Double? {
         guard let value = energyValue.double else { return nil }
-        if energyValue.unit == .kcal {
-            return value
-        } else {
-            return value * KcalsPerKilojule
-        }
+        return energyValue.unit.convert(value, to: .kcal)
+//        if energyValue.unit == .kcal {
+//            return value
+//        } else {
+//            return value * KcalsPerKilojule
+//        }
     }
     
     var macroDouble: Double? {

@@ -213,12 +213,13 @@ extension FieldValue {
         
         var inKcal: Double {
             let double = self.double ?? 0
-            switch unit {
-            case .kcal:
-                return double
-            case .kJ:
-                return double * KcalsPerKilojule
-            }
+            return unit.convert(double, to: .kcal)
+//            switch unit {
+//            case .kcal:
+//                return double
+//            case .kJ:
+//                return double * KcalsPerKilojule
+//            }
         }
         
         var double: Double? {
