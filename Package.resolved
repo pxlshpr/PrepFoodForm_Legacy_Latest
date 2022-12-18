@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUISugar",
       "state" : {
-        "revision" : "8a268c9ce9b1f6f53376a99d0807b22b7d142790",
-        "version" : "0.0.235"
+        "revision" : "7a8f63a7c9a01d095f262e54703921d3cb71a366",
+        "version" : "0.0.243"
       }
     },
     {
