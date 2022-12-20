@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepDataTypes",
       "state" : {
-        "revision" : "2d57dd26af013ab01b21166c73391d0db599d7ec",
-        "version" : "0.0.228"
+        "revision" : "c548cb77191980571606db6e26dd50f75a71a651",
+        "version" : "0.0.235"
       }
     },
     {
@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepViews",
       "state" : {
-        "revision" : "7f82d3c993f3c5213badd7e115c32b9b8991eb96",
-        "version" : "0.0.125"
+        "revision" : "66e0556ebe1f0a300e48aa83066fce9835597820",
+        "version" : "0.0.129"
       }
     },
     {
@@ -145,6 +145,15 @@
       }
     },
     {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/SwiftUI-Introspect",
+      "state" : {
+        "revision" : "f2616860a41f9d9932da412a8978fec79c06fe24",
+        "version" : "0.1.4"
+      }
+    },
+    {
       "identity" : "swiftuicamera",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUICamera",
@@ -167,8 +176,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUISugar",
       "state" : {
-        "revision" : "7a8f63a7c9a01d095f262e54703921d3cb71a366",
-        "version" : "0.0.243"
+        "revision" : "1c9f87c4356dbf0ea353d555bb2f50cce36cb85a",
+        "version" : "0.0.249"
       }
     },
     {
