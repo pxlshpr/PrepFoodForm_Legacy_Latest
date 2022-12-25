@@ -1,6 +1,7 @@
 import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
+import SwiftUISugar
 
 extension FoodForm {
     struct NutrientsList: View {
@@ -37,6 +38,11 @@ extension FoodForm.NutrientsList {
                     .frame(height: 60)
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .scrollContentBackground(.hidden)
+        .background(
+            FormBackground()
+                .edgesIgnoringSafeArea(.all)
+        )
+//        .background(Color(.systemGroupedBackground))
     }
 }

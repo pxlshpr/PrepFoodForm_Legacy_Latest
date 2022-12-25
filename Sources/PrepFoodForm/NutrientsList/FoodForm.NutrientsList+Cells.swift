@@ -1,5 +1,6 @@
 import SwiftUI
 import PrepDataTypes
+import SwiftUISugar
 
 extension FoodForm.NutrientsList {
     
@@ -90,7 +91,7 @@ extension FoodForm.NutrientsList {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 13)
                 .padding(.top, 13)
-                .background(Color(.secondarySystemGroupedBackground))
+                .background(FormCellBackground())
                 .cornerRadius(10)
                 .padding(.bottom, 10)
                 .contentShape(Rectangle())

@@ -112,6 +112,7 @@ public struct FoodForm: View {
     //MARK: - Layers
     
     @State var showingSaveButtons = false
+    @Environment(\.colorScheme) var colorScheme
     
     @ViewBuilder
     var formLayer: some View {
@@ -127,6 +128,11 @@ public struct FoodForm: View {
         .overlay(overlay)
         .blur(radius: showingWizardOverlay ? 5 : 0)
         .disabled(formDisabled)
+    }
+    
+    var backgroundColor: Color {
+//        Color(.systemGroupedBackground)
+        colorScheme == .dark ? Color(hex: "1C1C1E") : Color(hex: "F2F1F6")
     }
     
     @ViewBuilder
@@ -153,16 +159,45 @@ public struct FoodForm: View {
         }
     }
     
+    var dismissButtonRow: some View {
+        var button: some View {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.down.circle.fill")
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(
+                        Color(.tertiaryLabel),
+                        Color(.quaternaryLabel)
+                            .opacity(0.5)
+                    )
+                    .font(.system(size: 30))
+            }
+            .shadow(color: Color(.label).opacity(0.25), radius: 2, x: 0, y: 2)
+        }
+        
+        return HStack {
+            button
+            Spacer()
+        }
+        .padding(.bottom, 30)
+        .padding(.horizontal, 20)
+    }
+    
     @ViewBuilder
     var buttonsLayer: some View {
-        if fields.canBeSaved {
-            VStack {
-                Spacer()
-                saveButtons
+        VStack {
+            Spacer()
+            if !showingWizard {
+                dismissButtonRow
+                    .transition(.move(edge: .bottom))
             }
-            .edgesIgnoringSafeArea(.bottom)
-            .transition(.move(edge: .bottom))
+            if fields.canBeSaved {
+                saveButtons
+                    .transition(.move(edge: .bottom))
+            }
         }
+        .edgesIgnoringSafeArea(.bottom)
     }
 
     var saveButtons: some View {
@@ -218,11 +253,11 @@ public struct FoodForm: View {
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            Button {
-                dismiss()
-            } label: {
-                closeButtonLabel
-            }
+//            Button {
+//                dismiss()
+//            } label: {
+//                closeButtonLabel
+//            }
         }
     }
 }

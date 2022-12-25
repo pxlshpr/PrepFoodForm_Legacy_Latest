@@ -89,6 +89,11 @@ extension FoodForm.DetailsForm {
                 field(textField: brandTextField, text: $brand, fieldIndex: 2)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(
+            FormBackground()
+                .edgesIgnoringSafeArea(.all)
+        )
     }
     
     func field(textField: some View, text: Binding<String>, fieldIndex: Int) -> some View {
@@ -96,6 +101,7 @@ extension FoodForm.DetailsForm {
             textField
             clearButton(text: text, fieldIndex: fieldIndex)
         }
+        .listRowBackground(FormCellBackground())
     }
     
     func clearButton(text: Binding<String>, fieldIndex: Int) -> some View {

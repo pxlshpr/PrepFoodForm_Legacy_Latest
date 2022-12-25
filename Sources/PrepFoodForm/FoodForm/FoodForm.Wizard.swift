@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftUISugar
 
 extension FoodForm {
     enum WizardButton {
