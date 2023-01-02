@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabel",
       "state" : {
-        "revision" : "3cd95ff3be2a3ca45095dcbd6c3eeb15ca7fc32f",
-        "version" : "0.0.29"
+        "revision" : "a28efc8afb7582cdc6d101c429856ae59343f6d5",
+        "version" : "0.0.30"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabelCamera",
       "state" : {
-        "revision" : "da38f7120106f697e1f6838946fc622ee47c7f7c",
-        "version" : "0.0.20"
+        "revision" : "23d7c49a5df0783887502f12c8292557e8a1d7b8",
+        "version" : "0.0.21"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepDataTypes",
       "state" : {
-        "revision" : "c548cb77191980571606db6e26dd50f75a71a651",
-        "version" : "0.0.235"
+        "revision" : "9c9ea59da994824f4179772cd0a2a671bef04823",
+        "version" : "0.0.241"
       }
     },
     {
@@ -158,8 +158,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUICamera",
       "state" : {
-        "revision" : "dae4323f90b8f1fce72e35e12ac67eb6ac1b0226",
-        "version" : "0.0.35"
+        "revision" : "a9070d0f46a1f9290952aeb6f8e59e321707d31a",
+        "version" : "0.0.36"
       }
     },
     {
@@ -176,8 +176,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUISugar",
       "state" : {
-        "revision" : "7d618efd920556fdbe4d9c51921f47c94ab61078",
-        "version" : "0.0.259"
+        "revision" : "6b94beb17645793b09965a67b3fcb70337925736",
+        "version" : "0.0.320"
       }
     },
     {
