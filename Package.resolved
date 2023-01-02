@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabelCamera",
       "state" : {
-        "revision" : "23d7c49a5df0783887502f12c8292557e8a1d7b8",
-        "version" : "0.0.21"
+        "revision" : "228060f361b24ac1c43b754cda3b2c0fcff3f8dc",
+        "version" : "0.0.24"
       }
     },
     {
@@ -158,8 +158,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUICamera",
       "state" : {
-        "revision" : "a9070d0f46a1f9290952aeb6f8e59e321707d31a",
-        "version" : "0.0.36"
+        "revision" : "5952ef7429d19dd8f0d3925d61131322e724c438",
+        "version" : "0.0.39"
       }
     },
     {
