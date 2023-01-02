@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabelCamera",
       "state" : {
-        "revision" : "228060f361b24ac1c43b754cda3b2c0fcff3f8dc",
-        "version" : "0.0.24"
+        "revision" : "812bdd8ad9a65e4f402dcc09e92c08da21263d5d",
+        "version" : "0.0.25"
       }
     },
     {
