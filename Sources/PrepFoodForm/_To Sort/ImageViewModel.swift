@@ -184,9 +184,13 @@ class ImageViewModel: ObservableObject, Identifiable {
                 self.textsWithDensities = result.textsWithDensities
                 self.recognizedBarcodes = result.barcodes
 
+#if targetEnvironment(simulator)
+                    saveScanResultToJson()
+#endif
                 await MainActor.run {
                     self.status = .scanned
                     self.delegate?.imageDidFinishScanning(self)
+                    
                 }
             }
         }
