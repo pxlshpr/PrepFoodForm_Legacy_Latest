@@ -160,20 +160,20 @@ public struct FoodForm: View {
                 .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     labelScannerHasAppeared = true
                 }}
-                .scaleEffect(animatingScannerCollapse ? 0 : 1)
-                .padding(.top, animatingScannerCollapse ? 400 : 0)
+//                .scaleEffect(animatingScannerCollapse ? 0 : 1)
+//                .padding(.top, animatingScannerCollapse ? 400 : 0)
                 .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
                 .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
         }
     }
     
     func animateScannerCollapse() {
-//        withAnimation {
-//            animatingScannerCollapse = true
-//        }
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//            showingLabelScanner = false
-//        }
+        withAnimation {
+            animatingScannerCollapse = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            showingLabelScanner = false
+        }
     }
     
     @ViewBuilder
@@ -181,12 +181,12 @@ public struct FoodForm: View {
         if let mockScanResult, let mockScanImage {
             LabelScanner(
                 mock: (mockScanResult, mockScanImage),
-//                animatingCollapse: $animatingScannerCollapse,
+                animatingCollapse: $animatingScannerCollapse,
                 animateCollapse: animateScannerCollapse
             )
         } else {
             LabelScanner(
-//                animatingCollapse: $animatingScannerCollapse,
+                animatingCollapse: $animatingScannerCollapse,
                 animateCollapse: animateScannerCollapse
             )
         }

@@ -1,13 +1,29 @@
 import SwiftUI
 import ZoomableScrollView
 
+//extension ZoomBox: Hashable {
+//    func hash(into hasher: inout Hasher) {
+//        hasher.combine(boundingBox)
+//        hasher.combine(padded)
+//        hasher.combine(animated)
+//        hasher.combine(imageSize)
+//        hasher.combine(imageId)
+//    }
+//}
+//
+//extension ZoomBox: Equatable {
+//    static func ==(lhs: ZoomBox, rhs: ZoomBox) -> Bool {
+//        lhs.hashValue == rhs.hashValue
+//    }
+//}
+
 struct ImageViewer: View {
     
     let id: UUID
     let image: UIImage
-    let textBoxes: [TextBox]
     let contentMode: ContentMode
     
+    @Binding var textBoxes: [TextBox]
     @Binding var zoomBox: ZoomBox?
     @Binding var showingBoxes: Bool
     @Binding var textPickerHasAppeared: Bool
@@ -15,18 +31,18 @@ struct ImageViewer: View {
     init(
         id: UUID = UUID(),
         image: UIImage,
-        textBoxes: [TextBox] = [],
+        textBoxes: Binding<[TextBox]>? = nil,
         contentMode: ContentMode = .fit,
-        zoomBox: Binding<ZoomBox?>? = nil,
+        zoomBox: Binding<ZoomBox?>,
         showingBoxes: Binding<Bool>? = nil,
         textPickerHasAppeared: Binding<Bool>? = nil
     ) {
         self.id = id
         self.image = image
-        self.textBoxes = textBoxes
         self.contentMode = contentMode
-        
-        _zoomBox = zoomBox ?? .constant(nil)
+
+        _textBoxes = textBoxes ?? .constant([])
+        _zoomBox = zoomBox
         _showingBoxes = showingBoxes ?? .constant(true)
         _textPickerHasAppeared = textPickerHasAppeared ?? .constant(true)
     }
@@ -34,6 +50,9 @@ struct ImageViewer: View {
     var body: some View {
         zoomableScrollView
             .background(.black)
+//            .onChange(of: zoomBox) { newValue in
+//                print("Zoombox changed")
+//            }
     }
     
     
@@ -44,7 +63,7 @@ struct ImageViewer: View {
             backgroundColor: .black
         ) {
             imageView(image)
-//                .overlay(textBoxesLayer)
+                .overlay(textBoxesLayer)
         }
     }
     

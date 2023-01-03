@@ -140,7 +140,7 @@ extension TextPicker {
             ImageViewer(
                 id: id,
                 image: image,
-                textBoxes: textPickerViewModel.textBoxes(for: imageViewModel),
+                textBoxes: .constant(textPickerViewModel.textBoxes(for: imageViewModel)),
                 zoomBox: zoomBoxBinding,
                 showingBoxes: showingBoxesBinding,
                 textPickerHasAppeared: textPickerHasAppearedBinding
