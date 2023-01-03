@@ -26,6 +26,8 @@ public struct FoodForm: View {
     @State var showingTextPicker = false
     @State var showingBarcodeScanner = false
 
+    @State var showingLabelScanner = false
+    
     /// Menus
     @State var showingFoodLabel = false
 
@@ -44,7 +46,22 @@ public struct FoodForm: View {
     
     @State var initialScanResult: ScanResult?
     @State var initialScanImage: UIImage?
-    
+
+    @State var mockScanResult: ScanResult?
+    @State var mockScanImage: UIImage?
+
+    public init(mockScanResult: ScanResult, mockScanImage: UIImage, fields: FoodForm.Fields, sources: FoodForm.Sources, didSave: @escaping (FoodFormOutput) -> ()) {
+        Fields.shared = fields
+        Sources.shared = sources
+        self.fields = fields
+        self.sources = sources
+        self.didSave = didSave
+        _initialScanResult = State(initialValue: nil)
+        _initialScanImage = State(initialValue: nil)
+        _mockScanResult = State(initialValue: mockScanResult)
+        _mockScanImage = State(initialValue: mockScanImage)
+    }
+
     public init(fields: FoodForm.Fields, sources: FoodForm.Sources, didSave: @escaping (FoodFormOutput) -> ()) {
         Fields.shared = fields
         Sources.shared = sources
@@ -53,6 +70,8 @@ public struct FoodForm: View {
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
+        _mockScanResult = State(initialValue: nil)
+        _mockScanImage = State(initialValue: nil)
     }
     
     public init(fields: FoodForm.Fields, sources: FoodForm.Sources, scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
@@ -64,12 +83,28 @@ public struct FoodForm: View {
         _shouldShowWizard = State(initialValue: false)
         _initialScanResult = State(initialValue: scanResult)
         _initialScanImage = State(initialValue: image)
+        _mockScanResult = State(initialValue: nil)
+        _mockScanImage = State(initialValue: nil)
     }
     
     public var body: some View {
 //        let _ = Self._printChanges()
-        return NavigationView {
-            content
+        return content
+    }
+    
+    @State var animatingScannerCollapse = false
+    
+    var content: some View {
+        ZStack {
+            navigationView
+            scannerLayer
+                .zIndex(2)
+        }
+    }
+    
+    var navigationView: some View {
+        NavigationView {
+            formContent
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }
                 .toolbar { navigationTrailingContent }
@@ -101,7 +136,7 @@ public struct FoodForm: View {
         }
     }
 
-    var content: some View {
+    var formContent: some View {
         ZStack {
             formLayer
             wizardLayer
@@ -109,6 +144,54 @@ public struct FoodForm: View {
         }
     }
     
+    @State var labelScannerHasAppeared = false
+    
+    @ViewBuilder
+    var scannerLayer: some View {
+        if showingLabelScanner {
+            labelScanner
+//                .transition(.move(edge: .bottom))
+//                .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                    labelScannerHasAppeared = true
+//                }}
+//                .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
+//                .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
+                .transition(.move(edge: .bottom))
+                .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    labelScannerHasAppeared = true
+                }}
+                .scaleEffect(animatingScannerCollapse ? 0 : 1)
+                .padding(.top, animatingScannerCollapse ? 400 : 0)
+                .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
+                .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
+        }
+    }
+    
+    func animateScannerCollapse() {
+//        withAnimation {
+//            animatingScannerCollapse = true
+//        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//            showingLabelScanner = false
+//        }
+    }
+    
+    @ViewBuilder
+    var labelScanner: some View {
+        if let mockScanResult, let mockScanImage {
+            LabelScanner(
+                mock: (mockScanResult, mockScanImage),
+//                animatingCollapse: $animatingScannerCollapse,
+                animateCollapse: animateScannerCollapse
+            )
+        } else {
+            LabelScanner(
+//                animatingCollapse: $animatingScannerCollapse,
+                animateCollapse: animateScannerCollapse
+            )
+        }
+    }
+
     //MARK: - Layers
     
     @State var showingSaveButtons = false

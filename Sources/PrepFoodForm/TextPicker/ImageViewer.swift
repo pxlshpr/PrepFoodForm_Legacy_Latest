@@ -6,6 +6,7 @@ struct ImageViewer: View {
     let id: UUID
     let image: UIImage
     let textBoxes: [TextBox]
+    let contentMode: ContentMode
     
     @Binding var zoomBox: ZoomBox?
     @Binding var showingBoxes: Bool
@@ -15,6 +16,7 @@ struct ImageViewer: View {
         id: UUID = UUID(),
         image: UIImage,
         textBoxes: [TextBox] = [],
+        contentMode: ContentMode = .fit,
         zoomBox: Binding<ZoomBox?>? = nil,
         showingBoxes: Binding<Bool>? = nil,
         textPickerHasAppeared: Binding<Bool>? = nil
@@ -22,6 +24,7 @@ struct ImageViewer: View {
         self.id = id
         self.image = image
         self.textBoxes = textBoxes
+        self.contentMode = contentMode
         
         _zoomBox = zoomBox ?? .constant(nil)
         _showingBoxes = showingBoxes ?? .constant(true)
@@ -30,6 +33,7 @@ struct ImageViewer: View {
     
     var body: some View {
         zoomableScrollView
+            .background(.black)
     }
     
     
@@ -40,7 +44,7 @@ struct ImageViewer: View {
             backgroundColor: .black
         ) {
             imageView(image)
-                .overlay(textBoxesLayer)
+//                .overlay(textBoxesLayer)
         }
     }
     
@@ -48,9 +52,12 @@ struct ImageViewer: View {
     func imageView(_ image: UIImage) -> some View {
         Image(uiImage: image)
             .resizable()
-            .scaledToFit()
+            .aspectRatio(contentMode: contentMode)
+            .edgesIgnoringSafeArea(.all)
+//            .aspectRatio(contentMode: .fit)
+//            .scaledToFit()
             .background(.black)
-            .opacity(showingBoxes ? 0.7 : 1)
+//            .opacity(showingBoxes ? 0.7 : 1)
             .animation(.default, value: showingBoxes)
     }
     

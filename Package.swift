@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.30"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.29"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.30"),
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.82"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.62"),
         .package(url: "https://github.com/pxlshpr/MFPSearch", from: "0.0.15"),

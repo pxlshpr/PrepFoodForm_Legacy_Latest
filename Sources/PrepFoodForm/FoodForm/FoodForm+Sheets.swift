@@ -30,6 +30,7 @@ extension FoodForm {
             sources.addImageViewModel(ImageViewModel(image))
         }
     }
+    
     var foodLabelCamera: some View {
         FoodLabelCamera(foodLabelScanHandler: didReceiveScanFromFoodLabelCamera)
     }

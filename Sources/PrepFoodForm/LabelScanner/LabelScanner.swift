@@ -20,18 +20,27 @@ public struct LabelScanner: View {
     
     @State var showingImageViewer = false
     
-    public init(mock: (ScanResult, UIImage)? = nil) {
+    @Binding var animatingCollapse: Bool
+    
+    let animateCollapse: (() -> ())?
+    
+    public init(
+        mock: (ScanResult, UIImage)? = nil,
+        animatingCollapse: Binding<Bool>? = nil,
+        animateCollapse: (() -> ())? = nil
+    ) {
         self.mock = mock
+        self.animateCollapse = animateCollapse
+        _animatingCollapse = animatingCollapse ?? .constant(false)
     }
     
     public var body: some View {
         ZStack {
-            NavigationStack(path: $path) {
+//            NavigationStack(path: $path) {
                 content
-                    .edgesIgnoringSafeArea(.all)
-                    .toolbar(.hidden, for: .navigationBar)
-                    .navigationDestination(for: Route.self, destination: destination)
-            }
+//                    .toolbar(.hidden, for: .navigationBar)
+//                    .navigationDestination(for: Route.self, destination: destination)
+//            }
         }
     }
     
@@ -57,7 +66,11 @@ public struct LabelScanner: View {
     @ViewBuilder
     var imageViewer: some View {
         if let image {
-            ImageViewer(image: image)
+            ImageViewer(image: image, contentMode: .fill)
+                .edgesIgnoringSafeArea(.all)
+                .background(.black)
+//                .scaleEffect(animatingCollapse ? 0 : 1)
+//                .padding(.top, animatingCollapse ? 400 : 0)
         }
     }
     
@@ -70,6 +83,10 @@ public struct LabelScanner: View {
             
             withAnimation {
                 showingImageViewer = true
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                self.animateCollapse?()
             }
             
 //            path.append(.foodForm)
