@@ -164,6 +164,8 @@ public struct LabelScanner: View {
         Task(priority: .high) {
             let screenFillZoomBox = getScreenFillZoomBox(for: image)
 //            self.zoomBox = screenFillZoomBox
+            Haptics.selectionFeedback()
+
             try await transitionToImageViewer(with: screenFillZoomBox)
             
             /// Now capture recognized texts
@@ -178,6 +180,9 @@ public struct LabelScanner: View {
                     tapHandler: {}
                 )
             }
+            
+            Haptics.selectionFeedback()
+            
             await MainActor.run {
                 withAnimation {
                     self.textBoxes = textBoxes
@@ -197,7 +202,7 @@ public struct LabelScanner: View {
             
             await MainActor.run {
                 withAnimation {
-                    self.shimmering = false
+//                    self.shimmering = false
                     self.scannedTextBoxes = resultBoxes
                 }
             }
@@ -238,7 +243,8 @@ public struct LabelScanner: View {
             }
             print("Took: \(CFAbsoluteTimeGetCurrent()-startCut)s, have \(images.count) images")
 
-            
+            Haptics.selectionFeedback()
+
             await MainActor.run {
                 withAnimation {
                     showingCroppedImages = true
@@ -252,12 +258,13 @@ public struct LabelScanner: View {
             let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
 
             await MainActor.run {
+                Haptics.feedback(style: .soft)
                 withAnimation(Bounce) {
                     stackedOnTop = true
                 }
             }
 
-            try await sleepTask(1.0, tolerance: 0.01)
+            try await sleepTask(0.5, tolerance: 0.01)
 
             collapse()
 //            return textSet.scanResult
@@ -407,7 +414,8 @@ extension ScanResult {
             TextBox(
                 id: $0.id,
                 boundingBox: $0.boundingBox,
-                color: .green,
+                color: .accentColor,
+                opacity: 0.8,
                 tapHandler: {}
             )
         }

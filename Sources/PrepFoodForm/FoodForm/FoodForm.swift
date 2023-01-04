@@ -199,6 +199,7 @@ public struct FoodForm: View {
     }
     
     func scanResultHandler(_ scanResult: ScanResult) {
+        Haptics.successFeedback()
         extractFieldsOrShowColumnSelectionInfo()
     }
 
