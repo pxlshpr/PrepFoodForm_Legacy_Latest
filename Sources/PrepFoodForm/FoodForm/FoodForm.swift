@@ -187,9 +187,19 @@ public struct FoodForm: View {
         } else {
             LabelScanner(
                 animatingCollapse: $animatingScannerCollapse,
-                animateCollapse: animateScannerCollapse
+                animateCollapse: animateScannerCollapse,
+                imageHandler: imageHandler,
+                scanResultHandler: scanResultHandler
             )
         }
+    }
+    
+    func imageHandler(_ image: UIImage, scanResult: ScanResult) {
+        sources.add(image, with: scanResult)
+    }
+    
+    func scanResultHandler(_ scanResult: ScanResult) {
+        extractFieldsOrShowColumnSelectionInfo()
     }
 
     //MARK: - Layers

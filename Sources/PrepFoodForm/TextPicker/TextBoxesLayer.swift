@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TextBoxesLayer: View {
     
-    let textBoxes: [TextBox]
+    @Binding var textBoxes: [TextBox]
     
     var body: some View {
         boxesLayer
@@ -12,11 +12,18 @@ struct TextBoxesLayer: View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 ForEach(textBoxes.indices, id: \.self) { i in
-                    TextBoxView(textBox: textBoxes[i],
-                                size: geometry.size)
+                    textBoxView(at: i, size: geometry.size)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+    
+    func textBoxView(at index: Int, size: CGSize) -> some View {
+        let binding = Binding<TextBox>(
+            get: { textBoxes[index] },
+            set: { _ in }
+        )
+        return TextBoxView(textBox: binding, size: size)
     }
 }

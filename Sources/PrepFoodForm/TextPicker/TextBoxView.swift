@@ -3,7 +3,7 @@ import SwiftHaptics
 
 struct TextBoxView: View {
     
-    let textBox: TextBox
+    @Binding var textBox: TextBox
     let size: CGSize
     
     var body: some View {
@@ -37,7 +37,7 @@ struct TextBoxView: View {
     var box: some View {
         RoundedRectangle(cornerRadius: 3)
             .foregroundColor(textBox.color)
-            .opacity(0.3)
+            .opacity(textBox.opacity)
             .frame(width: rect.width,
                    height: rect.height)
         

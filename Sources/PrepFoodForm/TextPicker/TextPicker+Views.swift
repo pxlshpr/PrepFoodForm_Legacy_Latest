@@ -132,7 +132,7 @@ extension TextPicker {
     }
 
     @ViewBuilder
-    func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
+    func zoomableScrollView_new(for imageViewModel: ImageViewModel) -> some View {
         if let id = id(for: imageViewModel),
            let zoomBoxBinding = zoomBoxBinding(for: imageViewModel),
            let image = imageViewModel.image
@@ -154,7 +154,7 @@ extension TextPicker {
 extension TextPicker {
     
     @ViewBuilder
-    func zoomableScrollView_legacy(for imageViewModel: ImageViewModel) -> some View {
+    func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
         if let index = textPickerViewModel.imageViewModels.firstIndex(of: imageViewModel),
            index < textPickerViewModel.zoomBoxes.count,
            let image = imageViewModel.image
@@ -172,12 +172,14 @@ extension TextPicker {
     
     @ViewBuilder
     func textBoxesLayer(for imageViewModel: ImageViewModel) -> some View {
-//        if config.showingBoxes {
-            TextBoxesLayer(textBoxes: textPickerViewModel.textBoxes(for: imageViewModel))
-                .opacity((textPickerViewModel.hasAppeared && textPickerViewModel.showingBoxes) ? 1 : 0)
-                .animation(.default, value: textPickerViewModel.hasAppeared)
-                .animation(.default, value: textPickerViewModel.showingBoxes)
-//        }
+        let binding = Binding<[TextBox]>(
+            get: { textPickerViewModel.textBoxes(for: imageViewModel) },
+            set: { _ in }
+        )
+        return TextBoxesLayer(textBoxes: binding)
+            .opacity((textPickerViewModel.hasAppeared && textPickerViewModel.showingBoxes) ? 1 : 0)
+            .animation(.default, value: textPickerViewModel.hasAppeared)
+            .animation(.default, value: textPickerViewModel.showingBoxes)
     }
 
     @ViewBuilder

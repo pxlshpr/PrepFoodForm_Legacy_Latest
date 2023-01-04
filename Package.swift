@@ -18,8 +18,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.30"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.39"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.82"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.43"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.83"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.62"),
         .package(url: "https://github.com/pxlshpr/MFPSearch", from: "0.0.15"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.20"),
@@ -28,14 +28,15 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.129"),
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.86"),
-        .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.39"),
+        .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.41"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.320"),
-        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.39"),
+        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.40"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.75"),
         
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
         .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
+        .package(url: "https://github.com/markiv/SwiftUI-Shimmer", from: "1.1.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -63,6 +64,7 @@ let package = Package(
                 .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
                 .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),
                 .product(name: "SwiftUIPager", package: "swiftuipager"),
+                .product(name: "Shimmer", package: "swiftui-shimmer"),
             ]),
         .testTarget(
             name: "PrepFoodFormTests",

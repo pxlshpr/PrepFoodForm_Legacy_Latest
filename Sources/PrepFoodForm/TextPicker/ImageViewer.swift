@@ -24,27 +24,34 @@ struct ImageViewer: View {
     let contentMode: ContentMode
     
     @Binding var textBoxes: [TextBox]
+    @Binding var scannedTextBoxes: [TextBox]
     @Binding var zoomBox: ZoomBox?
     @Binding var showingBoxes: Bool
     @Binding var textPickerHasAppeared: Bool
+    
+    @Binding var shimmering: Bool
 
     init(
         id: UUID = UUID(),
         image: UIImage,
         textBoxes: Binding<[TextBox]>? = nil,
+        scannedTextBoxes: Binding<[TextBox]>? = nil,
         contentMode: ContentMode = .fit,
         zoomBox: Binding<ZoomBox?>,
         showingBoxes: Binding<Bool>? = nil,
-        textPickerHasAppeared: Binding<Bool>? = nil
+        textPickerHasAppeared: Binding<Bool>? = nil,
+        shimmering: Binding<Bool>? = nil
     ) {
         self.id = id
         self.image = image
         self.contentMode = contentMode
 
         _textBoxes = textBoxes ?? .constant([])
+        _scannedTextBoxes = scannedTextBoxes ?? .constant([])
         _zoomBox = zoomBox
         _showingBoxes = showingBoxes ?? .constant(true)
         _textPickerHasAppeared = textPickerHasAppeared ?? .constant(true)
+        _shimmering = shimmering ?? .constant(false)
     }
     
     var body: some View {
@@ -64,6 +71,7 @@ struct ImageViewer: View {
         ) {
             imageView(image)
                 .overlay(textBoxesLayer)
+                .overlay(scannedTextBoxesLayer)
         }
     }
     
@@ -81,9 +89,23 @@ struct ImageViewer: View {
     }
     
     var textBoxesLayer: some View {
-        TextBoxesLayer(textBoxes: textBoxes)
+        var shouldShow: Bool {
+            (textPickerHasAppeared && showingBoxes && scannedTextBoxes.isEmpty)
+        }
+        return TextBoxesLayer(textBoxes: $textBoxes)
+            .opacity(shouldShow ? 1 : 0)
+            .animation(.default, value: textPickerHasAppeared)
+            .animation(.default, value: showingBoxes)
+            .animation(.default, value: scannedTextBoxes.count)
+            .shimmering(active: shimmering)
+    }
+    
+    var scannedTextBoxesLayer: some View {
+        TextBoxesLayer(textBoxes: $scannedTextBoxes)
             .opacity((textPickerHasAppeared && showingBoxes) ? 1 : 0)
             .animation(.default, value: textPickerHasAppeared)
             .animation(.default, value: showingBoxes)
+//            .shimmering(active: shimmering)
     }
+
 }
