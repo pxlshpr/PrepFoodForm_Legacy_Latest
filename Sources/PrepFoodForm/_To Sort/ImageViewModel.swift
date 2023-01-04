@@ -37,14 +37,18 @@ class ImageViewModel: ObservableObject, Identifiable {
 
     let delegate: ImageViewModelDelegate?
     
+    let didLoad: ((UIImage) -> ())?
+    
     init(_ image: UIImage,
+         didLoad: ((UIImage) -> ())? = nil,
          delegate: ImageViewModelDelegate? = nil
     ) {
         self.image = image
         self.status = .notScanned
         self.id = UUID()
         self.delegate = delegate
-        
+        self.didLoad = didLoad
+
         self.startScanTask(with: image)
         self.prepareThumbnails()
         self.startUploadTask()
@@ -52,6 +56,7 @@ class ImageViewModel: ObservableObject, Identifiable {
 
     init(barcodeImage image: UIImage,
          recognizedBarcodes: [RecognizedBarcode],
+         didLoad: ((UIImage) -> ())? = nil,
          delegate: ImageViewModelDelegate? = nil
     ) {
         self.image = image
@@ -59,6 +64,7 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.id = UUID()
         self.recognizedBarcodes = recognizedBarcodes
         self.delegate = delegate
+        self.didLoad = didLoad
 
         self.prepareThumbnails()
         self.startUploadTask()
@@ -66,6 +72,7 @@ class ImageViewModel: ObservableObject, Identifiable {
 
     init(
         photosPickerItem: PhotosPickerItem,
+        didLoad: ((UIImage) -> ())? = nil,
         delegate: ImageViewModelDelegate? = nil
     ) {
         self.image = nil
@@ -73,6 +80,7 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.status = .loading
         self.id = UUID()
         self.delegate = delegate
+        self.didLoad = didLoad
         
         self.startLoadTask(with: photosPickerItem)
     }
@@ -80,6 +88,7 @@ class ImageViewModel: ObservableObject, Identifiable {
     /// Create this with a preset `ScanResult` to skip the scanning process entirely
     init(image: UIImage,
          scanResult: ScanResult,
+         didLoad: ((UIImage) -> ())? = nil,
          delegate: ImageViewModelDelegate? = nil
     ) {
         self.image = image
@@ -87,6 +96,7 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.photosPickerItem = nil
         self.scanResult = scanResult
         self.delegate = delegate
+        self.didLoad = didLoad
 
         self.id = scanResult.id
         
@@ -214,9 +224,11 @@ class ImageViewModel: ObservableObject, Identifiable {
                 self.startUploadTask()
                 
                 self.status = .notScanned
-                self.startScanTask(with: image)
                 
-                self.delegate?.imageDidFinishScanning(self)
+                self.didLoad?(image)
+                
+//                self.startScanTask(with: image)
+//                self.delegate?.imageDidFinishScanning(self)
             }
         }
     }

@@ -101,7 +101,7 @@ struct ImageViewer: View {
     }
     
     var scannedTextBoxesLayer: some View {
-        TextBoxesLayer(textBoxes: $scannedTextBoxes)
+        TextBoxesLayer(textBoxes: $scannedTextBoxes, isCutOut: true)
             .opacity((textPickerHasAppeared && showingBoxes) ? 1 : 0)
             .animation(.default, value: textPickerHasAppeared)
             .animation(.default, value: showingBoxes)

@@ -31,7 +31,13 @@ extension FoodForm.SourcesSummaryCell {
             }
         }
         .alert(addLinkTitle, isPresented: $showingAddLinkAlert, actions: { addLinkActions }, message: { addLinkMessage })
-        .photosPicker(isPresented: $showingPhotosPicker, selection: $sources.selectedPhotos, maxSelectionCount: sources.availableImagesCount, matching: .images)
+        .photosPicker(
+            isPresented: $showingPhotosPicker,
+            selection: $sources.selectedPhotos,
+//            maxSelectionCount: sources.availableImagesCount,
+            maxSelectionCount: 1,
+            matching: .images
+        )
         .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
         .sheet(isPresented: $showingCamera) { camera }
     }

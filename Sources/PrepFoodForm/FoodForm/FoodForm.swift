@@ -109,7 +109,8 @@ public struct FoodForm: View {
                 .toolbar { navigationLeadingContent }
                 .toolbar { navigationTrailingContent }
                 .onAppear(perform: appeared)
-                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
+                .onChange(of: sources.selectedPhotos, perform: selectedPhotosChanged)
+//                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
@@ -125,7 +126,8 @@ public struct FoodForm: View {
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
                     selection: $sources.selectedPhotos,
-                    maxSelectionCount: sources.availableImagesCount,
+//                    maxSelectionCount: sources.availableImagesCount,
+                    maxSelectionCount: 1,
                     matching: .images
                 )
                 .onChange(of: sources.columnSelectionInfo) { columnSelectionInfo in
@@ -134,6 +136,29 @@ public struct FoodForm: View {
                     }
                 }
         }
+    }
+    
+    @State var selectedPhoto: UIImage? = nil
+    @State var labelScannerForImage = false
+    
+    @State var animateLabelScannerUp = false
+
+    func selectedPhotosChanged(to items: [PhotosPickerItem]) {
+        
+        guard let item = items.first else { return }
+        labelScannerForImage = true
+        showingLabelScanner = true
+        withAnimation {
+            animateLabelScannerUp = true
+        }
+        
+        let _ = ImageViewModel(photosPickerItem: item) { image in
+            withAnimation(.easeInOut(duration: 0.7)) {
+                self.selectedPhoto = image
+            }
+        }
+//        updateCanBePublished()
+        sources.selectedPhotos = []
     }
 
     var formContent: some View {
@@ -156,7 +181,8 @@ public struct FoodForm: View {
 //                }}
 //                .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
 //                .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
-                .transition(.move(edge: .bottom))
+                .offset(y: animateLabelScannerUp ? 0 : UIScreen.main.bounds.height)
+//                .transition(.move(edge: .bottom))
                 .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     labelScannerHasAppeared = true
                 }}
@@ -181,11 +207,15 @@ public struct FoodForm: View {
         if let mockScanResult, let mockScanImage {
             LabelScanner(
                 mock: (mockScanResult, mockScanImage),
+                isCamera: !labelScannerForImage,
+                image: $selectedPhoto,
                 animatingCollapse: $animatingScannerCollapse,
                 animateCollapse: animateScannerCollapse
             )
         } else {
             LabelScanner(
+                isCamera: !labelScannerForImage,
+                image: $selectedPhoto,
                 animatingCollapse: $animatingScannerCollapse,
                 animateCollapse: animateScannerCollapse,
                 imageHandler: imageHandler,

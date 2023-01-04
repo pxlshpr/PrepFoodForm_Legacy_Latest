@@ -17,12 +17,23 @@ public struct LabelScanner: View {
     @State var startTransition: Bool = false
     @State var endTransition: Bool = false
     @State var path: [Route] = []
-    
     @State var scanResult: ScanResult? = nil
     @State var image: UIImage? = nil
-    
+    @Binding var selectedImage: UIImage?
     @State var showingImageViewer = false
-    
+    @State var hideCamera: Bool
+    @State var showingBoxes = false
+    @State var zoomBox: ZoomBox? = nil
+    @State var isLoadingImageViewer = false
+    @State var animatingCollapseOfCutouts = false
+    @State var animatingCollapseOfCroppedImages = false
+    @State var showingCroppedImages = false
+    @State var textBoxes: [TextBox] = []
+    @State var scannedTextBoxes: [TextBox] = []
+    @State var shimmering = true
+    @State var images: [(UIImage, CGRect, UUID, Angle)] = []
+    @State var stackedOnTop: Bool = false
+
     @Binding var animatingCollapse: Bool
     
     let animateCollapse: (() -> ())?
@@ -30,30 +41,54 @@ public struct LabelScanner: View {
     let imageHandler: ((UIImage, ScanResult) -> ())?
     let scanResultHandler: ((ScanResult) -> ())?
     
+    let isCamera: Bool
+    
+    @State var showingBlackBackground = false
+
     public init(
         mock: (ScanResult, UIImage)? = nil,
+        isCamera: Bool = true,
+        image: Binding<UIImage?> = .constant(nil),
         animatingCollapse: Binding<Bool>? = nil,
         animateCollapse: (() -> ())? = nil,
         imageHandler: ((UIImage, ScanResult) -> ())? = nil,
         scanResultHandler: ((ScanResult) -> ())? = nil
     ) {
+        self.isCamera = isCamera
+        
         self.mock = mock
         self.animateCollapse = animateCollapse
         self.imageHandler = imageHandler
         self.scanResultHandler = scanResultHandler
+        
+        _selectedImage = image
+        _hideCamera = State(initialValue: !isCamera)
         _animatingCollapse = animatingCollapse ?? .constant(false)
+        
+        _showingBlackBackground = State(initialValue: !isCamera)
     }
-    
-    @State var hideCamera: Bool = false
     
     public var body: some View {
         ZStack {
+            if showingBlackBackground {
+                Color.black
+                    .edgesIgnoringSafeArea(.all)
+            }
+            imageLayer
             imageViewerLayer
+            cameraLayer
+        }
+        .onChange(of: selectedImage) { newValue in
+            guard let newValue else { return }
+            handleCapturedImage(newValue)
+        }
+    }
+    
+    @ViewBuilder
+    var cameraLayer: some View {
+        if isCamera {
             foodLabelCamera
                 .opacity(hideCamera ? 0 : 1)
-//            if showingImageViewer {
-//            } else {
-//            }
         }
     }
     
@@ -67,24 +102,89 @@ public struct LabelScanner: View {
         }
     }
     
-    var textBoxesBinding: Binding<[TextBox]>? {
-        Binding<[TextBox]>(
-            get: { textBoxes },
-            set: { _ in }
-        )
-    }
+    @State var shimmeringImage = false
 
-    @State var showingBoxes = false
-//    var zoomBoxBinding: Binding<ZoomBox?> {
-//        Binding<ZoomBox?>(
-//            get: {
-//            },
-//            set: { _ in }
-//        )
-//    }
+    @ViewBuilder
+    var imageLayer: some View {
+        if let selectedImage {
+            ZStack {
+                ZStack {
+                    Color.black
+                    Image(uiImage: selectedImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                    Color.black
+                        .opacity(shimmeringImage ? 0.6 : 0)
+                }
+                .scaleEffect(animatingCollapse ? 0 : 1)
+                .padding(.top, animatingCollapse ? 400 : 0)
+                .padding(.trailing, animatingCollapse ? 300 : 0)
+                textBoxesLayer
+                croppedImagesCutoutLayer
+                    .scaleEffect(animatingCollapseOfCutouts ? 0 : 1)
+                    .opacity(animatingCollapseOfCutouts ? 0 : 1)
+                    .padding(.top, animatingCollapseOfCutouts ? 400 : 0)
+                    .padding(.trailing, animatingCollapseOfCutouts ? 300 : 0)
+                croppedImagesLayer
+                    .scaleEffect(animatingCollapseOfCroppedImages ? 0 : 1)
+                    .padding(.top, animatingCollapseOfCroppedImages ? 0 : 0)
+                    .padding(.trailing, animatingCollapseOfCroppedImages ? 300 : 0)
+            }
+            .edgesIgnoringSafeArea(.all)
+//            .transition(.move(edge: .bottom))
+            .transition(.opacity)
+        }
+    }
     
-    @State var zoomBox: ZoomBox? = nil
-    @State var isLoadingImageViewer = false
+    var textBoxesLayer: some View {
+        func textBoxView(_ box: TextBox) -> some View {
+            
+            var rect: CGRect {
+                guard let image else { return .zero }
+                let screen = UIScreen.main.bounds
+                let rectForSize: CGRect
+                let x: CGFloat
+                let y: CGFloat
+                
+                if image.size.widthToHeightRatio > screen.size.widthToHeightRatio {
+                    /// This means we have empty strips at the top, and image gets width set to screen width
+                    let scaledHeight = (image.size.height * screen.width) / image.size.width
+                    let scaledSize = CGSize(width: screen.width, height: scaledHeight)
+                    rectForSize = box.boundingBox.rectForSize(scaledSize)
+                    x = rectForSize.origin.x
+                    y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
+                } else {
+                    let scaledWidth = (image.size.width * screen.height) / image.size.height
+                    let scaledSize = CGSize(width: scaledWidth, height: screen.height)
+                    rectForSize = box.boundingBox.rectForSize(scaledSize)
+                    x = rectForSize.origin.x + ((screen.width - scaledWidth) / 2.0)
+                    y = rectForSize.origin.y
+                }
+
+                return CGRect(x: x, y: y, width: rectForSize.size.width, height: rectForSize.size.height)
+            }
+            
+            return RoundedRectangle(cornerRadius: 3)
+                .foregroundColor(box.color)
+                .opacity(box.opacity)
+                .frame(width: rect.width, height: rect.height)
+                .position(x: rect.midX, y: rect.midY)
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 3)
+//                        .stroke(box.color, lineWidth: 1)
+//                        .opacity(0.8)
+//                )
+                .shimmering()
+        }
+        
+        return ZStack {
+            Color.clear
+            ForEach(textBoxes.indices, id: \.self) { i in
+                textBoxView(textBoxes[i])
+            }
+        }
+        .edgesIgnoringSafeArea(.all)
+    }
     
     var imageViewerLayer: some View {
         
@@ -99,6 +199,7 @@ public struct LabelScanner: View {
                 showingBoxes: $showingBoxes,
                 shimmering: $shimmering
             )
+//            .shimmering(active: shimmeringImage)
             .edgesIgnoringSafeArea(.all)
             .background(.black)
 //            .shimmering(active: isLoadingImageViewer)
@@ -116,16 +217,18 @@ public struct LabelScanner: View {
         }
         
         return Group {
-            if let image {
+            if isCamera, let image {
                 ZStack {
                     imageViewer(image)
 //                    Color.clear
 //                        .background(.thinMaterial)
-//                        .opacity(isLoadingImageViewer ? 0.6 : 0)
-                    croppedImagesCutoutLayer
-                        .scaleEffect(animatingCollapseOfCutouts ? 0 : 1)
-                        .padding(.top, animatingCollapseOfCutouts ? 400 : 0)
-                        .padding(.trailing, animatingCollapseOfCutouts ? 300 : 0)
+//                    Color.black
+//                        .opacity(shimmeringImage ? 0.8 : 0)
+//                    croppedImagesCutoutLayer
+//                        .scaleEffect(animatingCollapseOfCutouts ? 0 : 1)
+//                        .opacity(animatingCollapseOfCutouts ? 0 : 1)
+//                        .padding(.top, animatingCollapseOfCutouts ? 400 : 0)
+//                        .padding(.trailing, animatingCollapseOfCutouts ? 300 : 0)
                     croppedImagesLayer
                         .scaleEffect(animatingCollapseOfCroppedImages ? 0 : 1)
                         .padding(.top, animatingCollapseOfCroppedImages ? 0 : 0)
@@ -135,14 +238,13 @@ public struct LabelScanner: View {
         }
     }
     
-    @State var animatingCollapseOfCutouts = false
-    @State var animatingCollapseOfCroppedImages = false
-
-    @State var showingCroppedImages = false
-    
-    func getScreenFillZoomBox(for image: UIImage) -> ZoomBox {
-        ZoomBox(
-            boundingBox: image.boundingBoxForScreenFill,
+    func getZoomBox(for image: UIImage) -> ZoomBox {
+        let boundingBox = isCamera
+        ? image.boundingBoxForScreenFill
+        : CGRect(x: 0, y: 0, width: 1, height: 1)
+        
+        return ZoomBox(
+            boundingBox: boundingBox,
             animated: false,
             padded: false,
             imageSize: image.size
@@ -153,73 +255,86 @@ public struct LabelScanner: View {
         LabelCamera(mockData: mock, imageHandler: handleCapturedImage)
     }
     
-    @State var textBoxes: [TextBox] = []
-    @State var scannedTextBoxes: [TextBox] = []
-    @State var shimmering = true
-    
     func handleCapturedImage(_ image: UIImage) {
-        self.image = image
+        withAnimation(.easeInOut(duration: 0.7).repeatForever()) {
+            self.image = image
+            shimmeringImage = true
+        }
         Haptics.successFeedback()
+        print("🔵 WE here")
         
         Task(priority: .high) {
-            let screenFillZoomBox = getScreenFillZoomBox(for: image)
+//            if !isCamera {
+//                try await sleepTask(0.5)
+//            }
+            try await startScan(image)
+        }
+    }
+    
+    func startScan(_ image: UIImage) async throws {
+        let zoomBox = getZoomBox(for: image)
 //            self.zoomBox = screenFillZoomBox
-            Haptics.selectionFeedback()
+        Haptics.selectionFeedback()
 
-            try await transitionToImageViewer(with: screenFillZoomBox)
-            
-            /// Now capture recognized texts
-            /// - captures all the RecognizedTexts
-            let textSet = try await image.recognizedTextSet(for: .accurate, includeBarcodes: true)
-            let textBoxes = textSet.texts.map {
-                TextBox(
-                    id: $0.id,
-                    boundingBox: $0.boundingBox,
-                    color: .accentColor,
-                    opacity: 0.8,
-                    tapHandler: {}
-                )
-            }
-            
-            Haptics.selectionFeedback()
-            
-            await MainActor.run {
-                withAnimation {
-                    self.textBoxes = textBoxes
-                    showingBoxes = true
+        try await transitionToImageViewer(with: zoomBox)
+        
+        /// Now capture recognized texts
+        /// - captures all the RecognizedTexts
+        let textSet = try await image.recognizedTextSet(for: .accurate, includeBarcodes: true)
+        let textBoxes = textSet.texts.map {
+            TextBox(
+                id: $0.id,
+                boundingBox: $0.boundingBox,
+                color: .accentColor,
+                opacity: 0.8,
+                tapHandler: {}
+            )
+        }
+        
+        Haptics.selectionFeedback()
+        
+        await MainActor.run {
+            withAnimation {
+                shimmeringImage = false
+                self.textBoxes = textBoxes
+                showingBoxes = true
 //                    isLoadingImageViewer = false
-                }
             }
-            
-            /// - Sets them in a state variable
-            /// - Have the loading animation stop and the texts appear
-            let start = CFAbsoluteTimeGetCurrent()
-            let scanResult = textSet.scanResult
-            
-            self.scanResult = scanResult
-            
-            let resultBoxes = scanResult.textBoxes
-            
-            await MainActor.run {
-                withAnimation {
+        }
+        
+        /// - Sets them in a state variable
+        /// - Have the loading animation stop and the texts appear
+        let start = CFAbsoluteTimeGetCurrent()
+        let scanResult = textSet.scanResult
+        
+        self.scanResult = scanResult
+        showingBlackBackground = false
+
+        let resultBoxes = scanResult.textBoxes
+        
+//            await MainActor.run {
+//                withAnimation {
 //                    self.shimmering = false
-                    self.scannedTextBoxes = resultBoxes
-                }
+//                    self.scannedTextBoxes = resultBoxes
+//                }
+//            }
+        
+        let startCut = CFAbsoluteTimeGetCurrent()
+        for box in resultBoxes {
+            guard let cropped = await image.cropped(boundingBox: box.boundingBox) else {
+                print("Couldn't get image for box: \(box)")
+                continue
             }
             
-            let startCut = CFAbsoluteTimeGetCurrent()
-            for box in resultBoxes {
-                guard let cropped = await image.cropped(boundingBox: box.boundingBox) else {
-                    print("Couldn't get image for box: \(box)")
-                    continue
-                }
-                
-                let screen = await UIScreen.main.bounds
+            let screen = await UIScreen.main.bounds
+            
+            let correctedRect: CGRect
+            if isCamera {
                 let scaledWidth: CGFloat = (image.size.width * screen.height) / image.size.height
                 let scaledSize = CGSize(width: scaledWidth, height: screen.height)
-
                 let rectForSize = box.boundingBox.rectForSize(scaledSize)
-                let correctedRect = CGRect(
+                
+                correctedRect = CGRect(
                     x: rectForSize.origin.x - ((scaledWidth - screen.width) / 2.0),
                     y: rectForSize.origin.y,
                     width: rectForSize.size.width,
@@ -232,50 +347,84 @@ public struct LabelScanner: View {
                 print("🌱 correctedRect: \(correctedRect)")
                 print("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
                 
-                if !self.images.contains(where: { $0.2 == box.id }) {
-                    self.images.append((
-                        cropped,
-                        correctedRect,
-                        box.id,
-                        Angle.degrees(CGFloat.random(in: -20...20)))
-                    )
-                }
-            }
-            print("Took: \(CFAbsoluteTimeGetCurrent()-startCut)s, have \(images.count) images")
 
-            Haptics.selectionFeedback()
-
-            await MainActor.run {
-                withAnimation {
-                    showingCroppedImages = true
-                    scannedTextBoxes = []
-                    self.textBoxes = []
+            } else {
+                
+                let rectForSize: CGRect
+                let x: CGFloat
+                let y: CGFloat
+                
+                if image.size.widthToHeightRatio > screen.size.widthToHeightRatio {
+                    /// This means we have empty strips at the top, and image gets width set to screen width
+                    let scaledHeight = (image.size.height * screen.width) / image.size.width
+                    let scaledSize = CGSize(width: screen.width, height: scaledHeight)
+                    rectForSize = box.boundingBox.rectForSize(scaledSize)
+                    x = rectForSize.origin.x
+                    y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
+                    
+                    print("🌱 scaledSize: \(scaledSize)")
+                } else {
+                    let scaledWidth = (image.size.width * screen.height) / image.size.height
+                    let scaledSize = CGSize(width: scaledWidth, height: screen.height)
+                    rectForSize = box.boundingBox.rectForSize(scaledSize)
+                    x = rectForSize.origin.x + ((screen.width - scaledWidth) / 2.0)
+                    y = rectForSize.origin.y
                 }
+
+                correctedRect = CGRect(
+                    x: x,
+                    y: y,
+                    width: rectForSize.size.width,
+                    height: rectForSize.size.height
+                )
+                
+                print("🌱 rectForSize: \(rectForSize)")
+                print("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
+
             }
             
-            try await sleepTask(0.5, tolerance: 0.01)
-            
-            let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
-
-            await MainActor.run {
-                Haptics.feedback(style: .soft)
-                withAnimation(Bounce) {
-                    stackedOnTop = true
-                }
+            if !self.images.contains(where: { $0.2 == box.id }) {
+                self.images.append((
+                    cropped,
+                    correctedRect,
+                    box.id,
+                    Angle.degrees(CGFloat.random(in: -20...20)))
+                )
             }
-
-            try await sleepTask(0.5, tolerance: 0.01)
-
-            collapse()
-//            return textSet.scanResult
-            /// Now run texts through FoodLabelScanner
-            /// - Have the texts now show a flashing occuring from left to right
-            /// - Once received
         }
+        print("Took: \(CFAbsoluteTimeGetCurrent()-startCut)s, have \(images.count) images")
+
+        Haptics.selectionFeedback()
+
+        await MainActor.run {
+            withAnimation {
+                showingCroppedImages = true
+//                    scannedTextBoxes = []
+                self.textBoxes = []
+                self.scannedTextBoxes = scanResult.textBoxes
+            }
+        }
+        
+        try await sleepTask(0.5, tolerance: 0.01)
+        
+        let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
+
+        await MainActor.run {
+            Haptics.feedback(style: .soft)
+            withAnimation(Bounce) {
+                stackedOnTop = true
+            }
+        }
+
+        try await sleepTask(0.5, tolerance: 0.01)
+
+        collapse()
+//            return textSet.scanResult
+        /// Now run texts through FoodLabelScanner
+        /// - Have the texts now show a flashing occuring from left to right
+        /// - Once received
     }
-    
-    @State var images: [(UIImage, CGRect, UUID, Angle)] = []
-    
+        
     @ViewBuilder
     var croppedImagesCutoutLayer: some View {
         if showingCroppedImages {
@@ -304,8 +453,6 @@ public struct LabelScanner: View {
             .transition(.opacity)
         }
     }
-    
-    @State var stackedOnTop: Bool = false
     
     func croppedImageCutout(rect: CGRect) -> some View {
         var r: CGFloat {
@@ -339,6 +486,11 @@ public struct LabelScanner: View {
         var scale: CGFloat {
             stackedOnTop ? 2.0 : 1.0
         }
+        
+        var shadow: CGFloat {
+            3
+//            stackedOnTop ? 3 : 0
+        }
 
         return Image(uiImage: image)
             .resizable()
@@ -347,7 +499,7 @@ public struct LabelScanner: View {
             .rotationEffect(angle, anchor: .center)
             .scaleEffect(scale, anchor: .center)
             .position(x: x, y: y)
-            .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 3)
+            .shadow(color: .black.opacity(0.3), radius: shadow, x: 0, y: shadow)
     }
     
     func transitionToImageViewer(with screenFillZoomBox: ZoomBox) async throws {

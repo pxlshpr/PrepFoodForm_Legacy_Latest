@@ -39,7 +39,8 @@ extension FoodForm.SourcesForm {
             .photosPicker(
                 isPresented: $showingPhotosPicker,
                 selection: $sources.selectedPhotos,
-                maxSelectionCount: sources.availableImagesCount,
+//                maxSelectionCount: sources.availableImagesCount,
+                maxSelectionCount: 1,
                 matching: .images
             )
     }
