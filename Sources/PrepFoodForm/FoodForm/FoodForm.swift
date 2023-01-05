@@ -165,7 +165,10 @@ public struct FoodForm: View {
         ZStack {
             formLayer
             wizardLayer
-            buttonsLayer
+            if !showingWizard {
+                buttonsLayer
+                    .transition(.move(edge: .bottom))
+            }
         }
     }
     
@@ -311,8 +314,82 @@ public struct FoodForm: View {
         .padding(.horizontal, 20)
     }
     
-    @ViewBuilder
     var buttonsLayer: some View {
+        
+        let saveIsDisabled = Binding<Bool>(
+            get: { !fields.canBeSaved },
+            set: { _ in }
+        )
+        let saveSecondaryIsDisabled = Binding<Bool>(
+            get: { !sources.canBePublished },
+            set: { _ in }
+        )
+        let info = Binding<FormSaveInfo?>(
+            get: { formSaveInfo },
+            set: { _ in }
+        )
+
+        var saveTitle: String {
+            /// [ ] Do this
+//            if isEditingPublicFood {
+//                return "Resubmit to Public Foods"
+//            } else {
+                return "Submit to Public Foods"
+//            }
+        }
+        
+        var saveSecondaryTitle: String {
+            /// [ ] Do this
+//            if isEditingPublicFood {
+//                return "Save and Make Private"
+//            } else if isEditingPrivateFood {
+//                return "Save Private Food"
+//            } else {
+                return "Add as Private Food"
+//            }
+        }
+        
+        /// [ ] Check if form is dirty (if editing), or if new, if there's been substantial data entered
+        let cancelAction = FormConfirmableAction(
+            shouldConfirm: false,
+            message: nil,
+            buttonTitle: nil) {
+                Haptics.feedback(style: .soft)
+                dismiss()
+            }
+        
+        let saveAction = FormConfirmableAction {
+            guard let data = foodFormOutput(shouldPublish: true) else {
+                return
+            }
+            didSave(data)
+            dismiss()
+        }
+
+        let saveSecondaryAction = FormConfirmableAction {
+            guard let data = foodFormOutput(shouldPublish: false) else {
+                return
+            }
+            didSave(data)
+            dismiss()
+        }
+
+        return FormDualSaveLayer(
+            saveIsDisabled: saveIsDisabled,
+            saveSecondaryIsDisabled: saveSecondaryIsDisabled,
+            saveTitle: saveTitle,
+            saveSecondaryTitle: saveSecondaryTitle,
+            info: info,
+            preconfirmationAction: nil,
+            cancelAction: cancelAction,
+            saveAction: saveAction,
+            saveSecondaryAction: saveSecondaryAction,
+            deleteAction: nil
+        )
+//        .edgesIgnoringSafeArea(.bottom)
+    }
+
+    var buttonsLayer_legacy: some View {
         VStack {
             Spacer()
             if !showingWizard {
@@ -405,6 +482,42 @@ extension FoodForm {
         }
     }
     
+    func tappedNoSource() {
+        
+    }
+
+    func tappedMissingRequiredFields() {
+        
+    }
+
+    var formSaveInfo: FormSaveInfo? {
+        guard !(showingWizard || fields.isInEmptyState) else {
+            return nil
+        }
+        
+        if fields.missingRequiredFields.count > 1 {
+            return FormSaveInfo(
+                title: "Missing Fields",
+                badge: fields.missingRequiredFields.count,
+                tapHandler: tappedMissingRequiredFields)
+        } else if fields.missingRequiredFields.count == 1 {
+            return FormSaveInfo(
+                title: "Missing \(fields.missingRequiredFields.first!)",
+                systemImage: "questionmark.circle.fill",
+                tapHandler: tappedMissingRequiredFields)
+        } else {
+            if sources.canBePublished {
+                return nil
+            } else {
+                return FormSaveInfo(
+                    title: "No Source",
+                    systemImage: "info.circle.fill",
+                    tapHandler: tappedNoSource)
+            }
+        }
+    }
+
+    
 //    var statusMessageColor: Color {
 //        if fields.canBeSaved {
 //            if sources.canBePublished {
@@ -428,6 +541,18 @@ extension FoodForm.Fields {
         if protein.value.isEmpty { return "Protein"}
         return nil
     }
+    
+    var missingRequiredFields: [String] {
+        var fields: [String] = []
+        if name.isEmpty { fields.append("Name") }
+        if amount.value.isEmpty { fields.append("Amount") }
+        if energy.value.isEmpty { fields.append("Energy") }
+        if carb.value.isEmpty { fields.append("Carbohydrate")}
+        if fat.value.isEmpty { fields.append("Total Fats") }
+        if protein.value.isEmpty { fields.append("Protein")}
+        return fields
+    }
+
     
     var isInEmptyState: Bool {
         name.isEmpty && detail.isEmpty && brand.isEmpty

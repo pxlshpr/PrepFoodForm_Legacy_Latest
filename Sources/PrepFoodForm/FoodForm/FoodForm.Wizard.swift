@@ -10,6 +10,7 @@ extension FoodForm {
         case choosePhotos
         case prefill
         case prefillInfo
+        case dismiss
     }
     
     struct Wizard: View {
@@ -21,13 +22,127 @@ extension FoodForm {
 extension FoodForm.Wizard {
     
     var body: some View {
-        VStack {
-            clearLayer
-            formLayer
-            clearLayer
+        ZStack {
+            VStack {
+                clearLayer
+                newFormLayer
+                clearLayer
+            }
+            VStack {
+                Spacer()
+                cancelButton
+            }
+            .edgesIgnoringSafeArea(.all)
         }
-        .zIndex(1)
+        .zIndex(10)
         .transition(.move(edge: .bottom))
+    }
+    
+    var cancelButton: some View {
+        Button {
+            tapHandler(.dismiss)
+        } label: {
+            Text("Cancel")
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(
+                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                        .foregroundColor(Color(.secondarySystemFill))
+                )
+                .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
+                .padding(.horizontal, 38)
+                .padding(.bottom, 55)
+                .contentShape(Rectangle())
+        }
+    }
+    
+    var newFormLayer: some View {
+        ZStack {
+            FormBackground()
+            VStack {
+                VStack(spacing: 7) {
+                    Text("Scan Food Label")
+                        .foregroundColor(Color(.secondaryLabel))
+                        .font(.footnote)
+                        .textCase(.uppercase)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                    HStack {
+                        Button {
+                            tapHandler(.takePhotos)
+                        } label: {
+                            VStack(spacing: 5) {
+                                Image(systemName: "camera")
+                                    .imageScale(.large)
+                                    .fontWeight(.medium)
+                                Text("Camera")
+                                    .fontWeight(.medium)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 80)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .foregroundColor(Color.accentColor)
+                            )
+                        }
+                        Button {
+                            tapHandler(.choosePhotos)
+                        } label: {
+                            VStack(spacing: 5) {
+                                Image(systemName: "photo.on.rectangle")
+                                    .imageScale(.large)
+                                    .fontWeight(.medium)
+                                Text("Choose")
+                                    .fontWeight(.medium)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 80)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .foregroundColor(Color.accentColor)
+                            )
+                        }
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 10)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+
+                FormStyledSection(header: Text("Manually Enter"), footer: learnMoreFooter) {
+                    Button {
+                        tapHandler(.startWithEmptyFood)
+                    } label: {
+                        Label("Empty Food", systemImage: "square.and.pencil")
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    Button {
+                        tapHandler(.prefill)
+                    } label: {
+                        Label("Prefill from MyFitnessPal", systemImage: "rectangle.and.pencil.and.ellipsis")
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
+        }
+        .cornerRadius(20)
+        .frame(height: 320)
+        .frame(maxWidth: 350)
+        .padding(.horizontal, 30)
+        .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
+    }
+    
+    var learnMoreFooter: some View {
+        Button {
+            tapHandler(.prefillInfo)
+        } label: {
+            Label("Learn more", systemImage: "info.circle")
+                .font(.footnote)
+        }
     }
     
     var formLayer: some View {
@@ -142,5 +257,23 @@ extension FoodForm.Wizard {
             }
             .buttonStyle(.borderless)
         }
+    }
+}
+
+struct WizardPreview: View {
+    var body: some View {
+        ZStack {
+            Color(.secondarySystemGroupedBackground)
+                .edgesIgnoringSafeArea(.all)
+            FoodForm.Wizard { _ in
+                
+            }
+        }
+    }
+}
+
+struct Wizard_Previews: PreviewProvider {
+    static var previews: some View {
+        WizardPreview()
     }
 }

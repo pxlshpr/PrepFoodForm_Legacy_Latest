@@ -148,6 +148,9 @@ extension FoodForm {
     func tappedWizardButton(_ button: WizardButton) {
         Haptics.feedback(style: .soft)
         switch button {
+        case .dismiss:
+            Haptics.feedback(style: .soft)
+            dismiss()
         case .background, .startWithEmptyFood:
             break
         case .takePhotos:
