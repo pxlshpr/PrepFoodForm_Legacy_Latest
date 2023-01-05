@@ -104,7 +104,6 @@ extension LabelScannerViewModel {
     }
     
     func columnSelectionHandler() {
-        startTimer()
         withAnimation {
             self.showingColumnPickerUI = false
         }
