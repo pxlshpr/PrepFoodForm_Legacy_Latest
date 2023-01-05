@@ -26,8 +26,14 @@ public struct FoodForm: View {
     @State var showingTextPicker = false
     @State var showingBarcodeScanner = false
 
-    @State var showingLabelScanner = false
+    @State var showingLabelScanner: Bool
+    @State var animateLabelScannerUp: Bool
+
+    @State var animatingScannerCollapse = false
     
+    @State var selectedPhoto: UIImage? = nil
+    @State var labelScannerForImage = false
+
     /// Menus
     @State var showingFoodLabel = false
 
@@ -60,9 +66,16 @@ public struct FoodForm: View {
         _initialScanImage = State(initialValue: nil)
         _mockScanResult = State(initialValue: mockScanResult)
         _mockScanImage = State(initialValue: mockScanImage)
+        _showingLabelScanner = State(initialValue: false)
+        _animateLabelScannerUp = State(initialValue: false)
     }
 
-    public init(fields: FoodForm.Fields, sources: FoodForm.Sources, didSave: @escaping (FoodFormOutput) -> ()) {
+    public init(
+        fields: FoodForm.Fields,
+        sources: FoodForm.Sources,
+        startWithLabelScanner: Bool = false,
+        didSave: @escaping (FoodFormOutput) -> ()
+    ) {
         Fields.shared = fields
         Sources.shared = sources
         self.fields = fields
@@ -72,6 +85,8 @@ public struct FoodForm: View {
         _initialScanImage = State(initialValue: nil)
         _mockScanResult = State(initialValue: nil)
         _mockScanImage = State(initialValue: nil)
+        _showingLabelScanner = State(initialValue: startWithLabelScanner)
+        _animateLabelScannerUp = State(initialValue: startWithLabelScanner)
     }
     
     public init(fields: FoodForm.Fields, sources: FoodForm.Sources, scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
@@ -85,15 +100,15 @@ public struct FoodForm: View {
         _initialScanImage = State(initialValue: image)
         _mockScanResult = State(initialValue: nil)
         _mockScanImage = State(initialValue: nil)
+        _showingLabelScanner = State(initialValue: false)
+        _animateLabelScannerUp = State(initialValue: false)
     }
     
     public var body: some View {
 //        let _ = Self._printChanges()
         return content
     }
-    
-    @State var animatingScannerCollapse = false
-    
+
     var content: some View {
         ZStack {
             navigationView
@@ -137,11 +152,6 @@ public struct FoodForm: View {
                 }
         }
     }
-    
-    @State var selectedPhoto: UIImage? = nil
-    @State var labelScannerForImage = false
-    
-    @State var animateLabelScannerUp = false
 
     func selectedPhotosChanged(to items: [PhotosPickerItem]) {
         

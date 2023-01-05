@@ -161,9 +161,7 @@ extension FoodForm {
             withAnimation {
                 animateLabelScannerUp = true
             }
-//            withAnimation {
-//                showingLabelScanner = true
-//            }
+            
         case .choosePhotos:
             showingPhotosPicker = true
         case .prefill:
