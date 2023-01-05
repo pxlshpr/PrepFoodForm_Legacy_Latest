@@ -32,7 +32,7 @@ extension LabelScannerViewModel {
         guard let scanResult else { return }
 
         self.shimmering = false
-        Haptics.feedback(style: .heavy)
+        Haptics.warningFeedback()
         withAnimation {
             showingColumnPicker = true
             showingColumnPickerUI = true
@@ -103,6 +103,7 @@ extension LabelScannerViewModel {
     }
     
     func columnSelectionHandler() {
+        Haptics.feedback(style: .soft)
         withAnimation {
             self.showingColumnPickerUI = false
         }
