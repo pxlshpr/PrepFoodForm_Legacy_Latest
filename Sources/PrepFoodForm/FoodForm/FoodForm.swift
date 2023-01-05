@@ -259,13 +259,14 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var formLayer: some View {
-        FormStyledScrollView {
+        FormStyledScrollView(showsIndicators: true) {
             detailsSection
             servingSection
             foodLabelSection
             barcodesSection
             sourcesSection
             prefillSection
+            Spacer().frame(height: 38)
         }
         .safeAreaInset(edge: .bottom) { safeAreaInset }
         .overlay(overlay)
@@ -280,11 +281,11 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var safeAreaInset: some View {
-        if fields.canBeSaved {
+//        if fields.canBeSaved {
             //TODO: Programmatically get this inset (67516AA6)
             Spacer()
-                .frame(height: sources.canBePublished ? 150 : 100)
-        }
+                .frame(height: 137)
+//        }
     }
     
     @ViewBuilder
@@ -364,7 +365,7 @@ public struct FoodForm: View {
         
         /// [ ] Check if form is dirty (if editing), or if new, if there's been substantial data entered
         let cancelAction = FormConfirmableAction(
-            shouldConfirm: false,
+            shouldConfirm: fields.isDirty,
             message: nil,
             buttonTitle: nil) {
                 Haptics.feedback(style: .soft)

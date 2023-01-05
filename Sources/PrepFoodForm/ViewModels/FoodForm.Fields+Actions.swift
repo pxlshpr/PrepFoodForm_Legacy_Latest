@@ -19,6 +19,20 @@ extension FoodForm.Fields {
         && !protein.value.isEmpty
     }
     
+    var isDirty: Bool {
+        //TODO: Check if changes from initial values were made when editing
+        !name.isEmpty
+        || !detail.isEmpty
+        || !brand.isEmpty
+        || !energy.value.isEmpty
+        || !carb.value.isEmpty
+        || !fat.value.isEmpty
+        || !protein.value.isEmpty
+        || !standardSizes.isEmpty
+        || !volumePrefixedSizes.isEmpty
+        || hasValidDensity
+    }
+    
     func updateShouldShowFoodLabel() {
         shouldShowFoodLabel = !energy.value.isEmpty
         || !amount.value.isEmpty
