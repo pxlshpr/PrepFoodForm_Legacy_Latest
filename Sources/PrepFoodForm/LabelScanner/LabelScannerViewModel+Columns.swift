@@ -32,6 +32,7 @@ extension LabelScannerViewModel {
         guard let scanResult else { return }
 
         self.shimmering = false
+        Haptics.feedback(style: .heavy)
         withAnimation {
             showingColumnPicker = true
             showingColumnPickerUI = true
@@ -58,15 +59,13 @@ extension LabelScannerViewModel {
     }
 
     func tapHandler(for text: RecognizedText) -> (() -> ())? {
-        var allowsTaps = !columns.selectedColumn.contains(text)
-        print("🥑 Tap handler for: \(text.string) will be: \(allowsTaps) because columns.selectedColumn does not contain it")
-        guard allowsTaps else {
-            return nil
-        }
+        let allowsTaps = !columns.selectedColumn.contains(text)
+        guard allowsTaps else { return nil }
+        
         return {
             withAnimation(.interactiveSpring()) {
                 print("🥑 Before toggling \(self.columns.selectedColumnIndex)")
-                Haptics.feedback(style: .heavy)
+                Haptics.feedback(style: .soft)
                 self.columns.toggleSelectedColumnIndex()
                 self.selectedImageTexts = self.columns.selectedImageTexts
                 print("🥑 AFTER toggling \(self.columns.selectedColumnIndex)")
