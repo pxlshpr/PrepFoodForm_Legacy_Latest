@@ -10,12 +10,15 @@ extension LabelScanner {
     
     @ViewBuilder
     var croppedImagesLayer: some View {
-        if showingCroppedImages {
+        if viewModel.showingCroppedImages {
             ZStack {
                 Color.clear
 //                Color.blue.opacity(0.3)
-                ForEach(images.indices, id: \.self) { i in
-                    croppedImage(images[i].0, rect: images[i].1, randomAngle: images[i].3)
+                ForEach(viewModel.images.indices, id: \.self) { i in
+                    croppedImage(
+                        viewModel.images[i].0,
+                        rect: viewModel.images[i].1,
+                        randomAngle: viewModel.images[i].3)
                 }
             }
             .edgesIgnoringSafeArea(.all)
@@ -25,19 +28,19 @@ extension LabelScanner {
     
     func croppedImage(_ image: UIImage, rect: CGRect, randomAngle: Angle) -> some View {
         var x: CGFloat {
-            stackedOnTop ? UIScreen.main.bounds.midX : rect.midX
+            viewModel.stackedOnTop ? UIScreen.main.bounds.midX : rect.midX
         }
         
         var y: CGFloat {
-            stackedOnTop ? 150 : rect.midY
+            viewModel.stackedOnTop ? 150 : rect.midY
         }
         
         var angle: Angle {
-            stackedOnTop ? randomAngle : .degrees(0)
+            viewModel.stackedOnTop ? randomAngle : .degrees(0)
         }
 
         var scale: CGFloat {
-            stackedOnTop ? 2.0 : 1.0
+            viewModel.stackedOnTop ? 2.0 : 1.0
         }
         
         var shadow: CGFloat {

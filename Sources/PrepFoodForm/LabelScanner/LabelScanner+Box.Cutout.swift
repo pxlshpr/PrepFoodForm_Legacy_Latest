@@ -10,11 +10,11 @@ extension LabelScanner {
     
     @ViewBuilder
     var croppedImagesCutoutLayer: some View {
-        if showingCroppedImages {
+        if viewModel.showingCroppedImages {
             ZStack {
                 Color.clear
-                ForEach(images.indices, id: \.self) { i in
-                    croppedImageCutout(rect: images[i].1)
+                ForEach(viewModel.images.indices, id: \.self) { i in
+                    croppedImageCutout(rect: viewModel.images[i].1)
                 }
             }
             .edgesIgnoringSafeArea(.all)

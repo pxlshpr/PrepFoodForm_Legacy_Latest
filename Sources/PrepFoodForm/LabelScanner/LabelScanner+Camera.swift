@@ -4,9 +4,9 @@ extension LabelScanner {
         
     @ViewBuilder
     var cameraLayer: some View {
-        if isCamera {
+        if viewModel.isCamera {
             foodLabelCamera
-                .opacity(hideCamera ? 0 : 1)
+                .opacity(viewModel.hideCamera ? 0 : 1)
         }
     }
     

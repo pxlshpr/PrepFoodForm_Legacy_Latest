@@ -14,12 +14,12 @@ extension LabelScanner {
             ImageViewer(
                 id: UUID(),
                 image: image,
-                textBoxes: $textBoxes,
-                scannedTextBoxes: $scannedTextBoxes,
+                textBoxes: $viewModel.textBoxes,
+                scannedTextBoxes: $viewModel.scannedTextBoxes,
                 contentMode: .fit,
                 zoomBox: $zoomBox,
-                showingBoxes: $showingBoxes,
-                shimmering: $shimmering
+                showingBoxes: $viewModel.showingBoxes,
+                shimmering: $viewModel.shimmering
             )
             .edgesIgnoringSafeArea(.all)
             .background(.black)
@@ -31,7 +31,7 @@ extension LabelScanner {
         
         return Group {
 //            if isCamera, let image {
-            if let image {
+            if let image = viewModel.image {
                 ZStack {
                     ZStack {
                         Color.clear
@@ -47,9 +47,9 @@ extension LabelScanner {
 //                        .padding(.top, animatingCollapseOfCutouts ? 400 : 0)
 //                        .padding(.trailing, animatingCollapseOfCutouts ? 300 : 0)
                     croppedImagesLayer
-                        .scaleEffect(animatingCollapseOfCroppedImages ? 0 : 1)
-                        .padding(.top, animatingCollapseOfCroppedImages ? 0 : 0)
-                        .padding(.trailing, animatingCollapseOfCroppedImages ? 300 : 0)
+                        .scaleEffect(viewModel.animatingCollapseOfCroppedImages ? 0 : 1)
+                        .padding(.top, viewModel.animatingCollapseOfCroppedImages ? 0 : 0)
+                        .padding(.trailing, viewModel.animatingCollapseOfCroppedImages ? 300 : 0)
                 }
                 .edgesIgnoringSafeArea(.all)
                 .transition(.opacity)

@@ -74,10 +74,15 @@ struct ImageViewer: View {
         var shouldShow: Bool {
             (textPickerHasAppeared && showingBoxes && scannedTextBoxes.isEmpty)
         }
+        var opacity: CGFloat {
+            guard shouldShow else { return 0 }
+            return shimmering ? 1 : 0.3
+        }
         return TextBoxesLayer(textBoxes: $textBoxes)
-            .opacity(shouldShow ? 1 : 0)
+            .opacity(opacity)
             .animation(.default, value: textPickerHasAppeared)
             .animation(.default, value: showingBoxes)
+            .animation(.default, value: shimmering)
             .animation(.default, value: scannedTextBoxes.count)
             .shimmering(active: shimmering)
     }

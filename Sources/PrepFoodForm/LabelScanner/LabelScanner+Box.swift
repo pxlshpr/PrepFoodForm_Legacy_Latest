@@ -12,7 +12,7 @@ extension LabelScanner {
         func textBoxView(_ box: TextBox) -> some View {
             
             var rect: CGRect {
-                guard let image else { return .zero }
+                guard let image = viewModel.image else { return .zero }
                 let screen = UIScreen.main.bounds
                 let rectForSize: CGRect
                 let x: CGFloat
@@ -51,8 +51,8 @@ extension LabelScanner {
         
         return ZStack {
             Color.clear
-            ForEach(textBoxes.indices, id: \.self) { i in
-                textBoxView(textBoxes[i])
+            ForEach(viewModel.textBoxes.indices, id: \.self) { i in
+                textBoxView(viewModel.textBoxes[i])
             }
         }
         .edgesIgnoringSafeArea(.all)
