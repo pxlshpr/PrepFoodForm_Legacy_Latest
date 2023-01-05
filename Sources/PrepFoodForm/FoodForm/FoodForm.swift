@@ -39,7 +39,7 @@ public struct FoodForm: View {
 
 
     /// Wizard
-    @State var shouldShowWizard: Bool = true
+    @State var shouldShowWizard: Bool
     @State var showingWizard = true
     @State var showingWizardOverlay = true
     @State var formDisabled = false
@@ -68,6 +68,7 @@ public struct FoodForm: View {
         _mockScanImage = State(initialValue: mockScanImage)
         _showingLabelScanner = State(initialValue: false)
         _animateLabelScannerUp = State(initialValue: false)
+        _shouldShowWizard = State(initialValue: true)
     }
 
     public init(
@@ -87,6 +88,7 @@ public struct FoodForm: View {
         _mockScanImage = State(initialValue: nil)
         _showingLabelScanner = State(initialValue: startWithLabelScanner)
         _animateLabelScannerUp = State(initialValue: startWithLabelScanner)
+        _shouldShowWizard = State(initialValue: !startWithLabelScanner)
     }
     
     public init(fields: FoodForm.Fields, sources: FoodForm.Sources, scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
@@ -102,6 +104,7 @@ public struct FoodForm: View {
         _mockScanImage = State(initialValue: nil)
         _showingLabelScanner = State(initialValue: false)
         _animateLabelScannerUp = State(initialValue: false)
+        _shouldShowWizard = State(initialValue: true)
     }
     
     public var body: some View {
