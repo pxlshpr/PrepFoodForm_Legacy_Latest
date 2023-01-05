@@ -78,8 +78,8 @@ extension LabelScannerViewModel {
         if selectedImageTexts.contains(where: { $0.text == text }) {
             return Color.accentColor
         } else {
-//            return Color(.systemBackground)
-            return Color.white
+            return Color(.systemBackground)
+//            return Color.white
         }
     }
 

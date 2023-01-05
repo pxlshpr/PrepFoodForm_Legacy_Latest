@@ -49,7 +49,8 @@ class LabelScannerViewModel: ObservableObject {
         self.scanResultHandler = scanResultHandler
         
         self.hideCamera = !isCamera
-        self.showingBlackBackground = !isCamera
+//        self.showingBlackBackground = !isCamera
+        self.showingBlackBackground = true
     }
     
     func begin(_ image: UIImage) {
