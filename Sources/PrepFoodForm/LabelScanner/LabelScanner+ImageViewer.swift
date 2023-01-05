@@ -19,6 +19,7 @@ extension LabelScanner {
                 contentMode: .fit,
                 zoomBox: $viewModel.zoomBox,
                 showingBoxes: $viewModel.showingBoxes,
+                showingCutouts: $viewModel.showingCutouts,
                 shimmering: $viewModel.shimmering,
                 showingColumnPicker: $viewModel.showingColumnPicker
             )

@@ -34,6 +34,7 @@ extension LabelScannerViewModel {
         self.shimmering = false
         withAnimation {
             showingColumnPicker = true
+            showingColumnPickerUI = true
         }
 
         columns = scanResult.scannedColumns
@@ -100,5 +101,17 @@ extension LabelScannerViewModel {
                 self.showColumnTextBoxes()
             }
         )
+    }
+    
+    func columnSelectionHandler() {
+        withAnimation {
+            self.showingColumnPickerUI = false
+        }
+        
+        Task.detached {
+            
+            /// Now continue our scan sequence by first cropping images
+            try await self.cropImages()
+        }
     }
 }

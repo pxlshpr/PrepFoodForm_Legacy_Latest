@@ -11,6 +11,7 @@ struct ImageViewer: View {
     @Binding var scannedTextBoxes: [TextBox]
     @Binding var zoomBox: ZoomBox?
     @Binding var showingBoxes: Bool
+    @Binding var showingCutouts: Bool
     @Binding var textPickerHasAppeared: Bool
     
     @Binding var shimmering: Bool
@@ -24,6 +25,7 @@ struct ImageViewer: View {
         contentMode: ContentMode = .fit,
         zoomBox: Binding<ZoomBox?>,
         showingBoxes: Binding<Bool>? = nil,
+        showingCutouts: Binding<Bool>? = nil,
         textPickerHasAppeared: Binding<Bool>? = nil,
         shimmering: Binding<Bool>? = nil,
         showingColumnPicker: Binding<Bool>? = nil
@@ -36,6 +38,7 @@ struct ImageViewer: View {
         _scannedTextBoxes = scannedTextBoxes ?? .constant([])
         _zoomBox = zoomBox
         _showingBoxes = showingBoxes ?? .constant(true)
+        _showingCutouts = showingCutouts ?? .constant(true)
         _textPickerHasAppeared = textPickerHasAppeared ?? .constant(true)
         _shimmering = shimmering ?? .constant(false)
         _showingColumnPicker = showingColumnPicker ?? .constant(false)
@@ -92,10 +95,15 @@ struct ImageViewer: View {
     }
     
     var scannedTextBoxesLayer: some View {
-        TextBoxesLayer(textBoxes: $scannedTextBoxes, isCutOut: true)
-            .opacity((textPickerHasAppeared && showingBoxes) ? 1 : 0)
+        var shouldShow: Bool {
+            (textPickerHasAppeared && showingBoxes && showingCutouts)
+        }
+
+        return TextBoxesLayer(textBoxes: $scannedTextBoxes, isCutOut: true)
+            .opacity(shouldShow ? 1 : 0)
             .animation(.default, value: textPickerHasAppeared)
             .animation(.default, value: showingBoxes)
+            .animation(.default, value: showingCutouts)
 //            .shimmering(active: shimmering)
     }
 

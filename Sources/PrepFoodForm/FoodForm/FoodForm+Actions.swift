@@ -104,7 +104,9 @@ extension FoodForm {
     func extract(column: Int, from results: [ScanResult], shouldOverwrite: Bool) {
         Task {
             let fieldValues = await sources.extractFieldsFrom(results, at: column)
-            handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
+            withAnimation {
+                handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
+            }
         }
     }
     

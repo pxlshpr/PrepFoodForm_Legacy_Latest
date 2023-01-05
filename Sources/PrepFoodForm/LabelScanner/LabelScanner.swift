@@ -25,7 +25,7 @@ public struct LabelScanner: View {
         animatingCollapse: Binding<Bool>? = nil,
         animateCollapse: (() -> ())? = nil,
         imageHandler: @escaping (UIImage, ScanResult) -> (),
-        scanResultHandler: @escaping (ScanResult) -> (),
+        scanResultHandler: @escaping (ScanResult, Int?) -> (),
         dismissHandler: @escaping () -> ()
     ) {
         self.animateCollapse = animateCollapse
@@ -72,10 +72,10 @@ public struct LabelScanner: View {
     
     var columnPickerLayer: some View {
         ColumnPickerOverlay(
-            isVisibleBinding: $viewModel.showingColumnPicker,
+            isVisibleBinding: $viewModel.showingColumnPickerUI,
             selectedColumn: viewModel.selectedColumnBinding,
             didTapDismiss: viewModel.dismissHandler,
-            didTapAutofill: { }
+            didTapAutofill: { viewModel.columnSelectionHandler() }
         )
     }
     

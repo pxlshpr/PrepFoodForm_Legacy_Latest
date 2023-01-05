@@ -12,29 +12,32 @@ class LabelScannerViewModel: ObservableObject {
 
     let isCamera: Bool
     let imageHandler: (UIImage, ScanResult) -> ()
-    let scanResultHandler: (ScanResult) -> ()
+    let scanResultHandler: (ScanResult, Int?) -> ()
     let dismissHandler: () -> ()
     var shimmeringStart: Double = 0
     
     @Published var hideCamera = false
     @Published var textBoxes: [TextBox] = []
     @Published var shimmering = false
-    @Published var showingBoxes = false
     @Published var scanResult: ScanResult? = nil
-    @Published var showingBlackBackground = false
     @Published var image: UIImage? = nil
     @Published var images: [(UIImage, CGRect, UUID, Angle)] = []
-    @Published var showingCroppedImages = false
     @Published var stackedOnTop: Bool = false
     @Published var scannedTextBoxes: [TextBox] = []
     @Published var animatingCollapseOfCutouts = false
     @Published var animatingCollapseOfCroppedImages = false
+    @Published var animatingLiftingUpOfCroppedImages = false
     @Published var columns: ScannedColumns = ScannedColumns()
-    @Published var showingColumnPicker = false
     @Published var selectedImageTexts: [ImageText] = []
     @Published var zoomBox: ZoomBox? = nil
     @Published var shimmeringImage = false
-
+    @Published var showingColumnPicker = false
+    @Published var showingColumnPickerUI = false
+    @Published var showingCroppedImages = false
+    @Published var showingBlackBackground = false
+    @Published var showingBoxes = false
+    @Published var showingCutouts = false
+    
     @Published var animatingCollapse: Bool
     @Published var clearSelectedImage: Bool = false
     
@@ -42,7 +45,7 @@ class LabelScannerViewModel: ObservableObject {
         isCamera: Bool,
         animatingCollapse: Bool,
         imageHandler: @escaping (UIImage, ScanResult) -> (),
-        scanResultHandler: @escaping (ScanResult) -> (),
+        scanResultHandler: @escaping (ScanResult, Int?) -> (),
         dismissHandler: @escaping () -> ()
     ) {
         self.animatingCollapse = animatingCollapse
@@ -134,19 +137,40 @@ class LabelScannerViewModel: ObservableObject {
                 self.showingBlackBackground = false
             }
             
-            guard scanResult.columnCount != 2 else {
+            if scanResult.columnCount == 2 {
                 try await self.showColumnPicker()
-                return
+            } else {
+                try await self.cropImages()
             }
-
-            /// Make sure the shimmering effect goes on for at least 2 seconds so user gets a feel of the image being processed
-            //        let minimumShimmeringTime: Double = 1
-            //        let timeSinceShimmeringStart = CFAbsoluteTimeGetCurrent()-shimmeringStart
-            //        if timeSinceShimmeringStart < minimumShimmeringTime {
-            //            try await sleepTask(minimumShimmeringTime - timeSinceShimmeringStart, tolerance: 0.005)
-            //        }
-            
-            try await self.cropImages()
+        }
+    }
+    
+    var textsToCrop: [RecognizedText] {
+        guard let scanResult else { return [] }
+        if showingColumnPicker {
+            var texts: [RecognizedText] = []
+            for selectedImageText in selectedImageTexts {
+                texts.append(selectedImageText.text)
+                if let attributeText = selectedImageText.attributeText {
+                    texts.append(attributeText)
+                }
+            }
+            texts.append(contentsOf: scanResult.servingTexts)
+            return texts
+        } else {
+            return scanResult.allTexts
+        }
+    }
+    
+    var getScannedTextBoxes: [TextBox] {
+        textsToCrop.map {
+            TextBox(
+                id: $0.id,
+                boundingBox: $0.boundingBox,
+                color: .accentColor,
+                opacity: 0.8,
+                tapHandler: {}
+            )
         }
     }
     
@@ -154,11 +178,11 @@ class LabelScannerViewModel: ObservableObject {
         guard let scanResult, let image else { return }
         
         Task.detached {
-            let resultBoxes = scanResult.textBoxes
+//            let resultBoxes = scanResult.textBoxes
             
-            for box in resultBoxes {
-                guard let cropped = await image.cropped(boundingBox: box.boundingBox) else {
-                    print("Couldn't get image for box: \(box)")
+            for text in await self.textsToCrop {
+                guard let cropped = await image.cropped(boundingBox: text.boundingBox) else {
+                    print("Couldn't get image for box: \(text)")
                     continue
                 }
                 
@@ -168,7 +192,7 @@ class LabelScannerViewModel: ObservableObject {
                 if self.isCamera {
                     let scaledWidth: CGFloat = (image.size.width * screen.height) / image.size.height
                     let scaledSize = CGSize(width: scaledWidth, height: screen.height)
-                    let rectForSize = box.boundingBox.rectForSize(scaledSize)
+                    let rectForSize = text.boundingBox.rectForSize(scaledSize)
                     
                     correctedRect = CGRect(
                         x: rectForSize.origin.x - ((scaledWidth - screen.width) / 2.0),
@@ -177,7 +201,7 @@ class LabelScannerViewModel: ObservableObject {
                         height: rectForSize.size.height
                     )
                     
-                    print("🌱 box.boundingBox: \(box.boundingBox)")
+                    print("🌱 box.boundingBox: \(text.boundingBox)")
                     print("🌱 scaledSize: \(scaledSize)")
                     print("🌱 rectForSize: \(rectForSize)")
                     print("🌱 correctedRect: \(correctedRect)")
@@ -194,7 +218,7 @@ class LabelScannerViewModel: ObservableObject {
                         /// This means we have empty strips at the top, and image gets width set to screen width
                         let scaledHeight = (image.size.height * screen.width) / image.size.width
                         let scaledSize = CGSize(width: screen.width, height: scaledHeight)
-                        rectForSize = box.boundingBox.rectForSize(scaledSize)
+                        rectForSize = text.boundingBox.rectForSize(scaledSize)
                         x = rectForSize.origin.x
                         y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
                         
@@ -202,7 +226,7 @@ class LabelScannerViewModel: ObservableObject {
                     } else {
                         let scaledWidth = (image.size.width * screen.height) / image.size.height
                         let scaledSize = CGSize(width: scaledWidth, height: screen.height)
-                        rectForSize = box.boundingBox.rectForSize(scaledSize)
+                        rectForSize = text.boundingBox.rectForSize(scaledSize)
                         x = rectForSize.origin.x + ((screen.width - scaledWidth) / 2.0)
                         y = rectForSize.origin.y
                     }
@@ -221,11 +245,11 @@ class LabelScannerViewModel: ObservableObject {
                 
                 await MainActor.run {
                     
-                    if !self.images.contains(where: { $0.2 == box.id }) {
+                    if !self.images.contains(where: { $0.2 == text.id }) {
                         self.images.append((
                             cropped,
                             correctedRect,
-                            box.id,
+                            text.id,
                             Angle.degrees(CGFloat.random(in: -20...20)))
                         )
                     }
@@ -236,14 +260,19 @@ class LabelScannerViewModel: ObservableObject {
             
             await MainActor.run {
                 withAnimation {
-                    self.showingCroppedImages = true
                     self.textBoxes = []
-                    self.scannedTextBoxes = scanResult.textBoxes
+                    self.showingCroppedImages = true
+//                    self.scannedTextBoxes = scanResult.textBoxes
+                    self.scannedTextBoxes = self.getScannedTextBoxes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.showingCutouts = true
+                        self.animatingLiftingUpOfCroppedImages = true
+                    }
                 }
             }
-            
+
             try await sleepTask(0.5, tolerance: 0.01)
-            
+
             let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
             
             await MainActor.run {
@@ -278,7 +307,12 @@ class LabelScannerViewModel: ObservableObject {
         withAnimation {
             //TODO: Handle this in LabelScanner with a local variable an an onChange modifier since it's a binding
             self.clearSelectedImage = true
-            scanResultHandler(scanResult!)
+            
+            if showingColumnPicker {
+                scanResultHandler(scanResult!, columns.selectedColumnIndex)
+            } else {
+                scanResultHandler(scanResult!, nil)
+            }
         }
     }
     

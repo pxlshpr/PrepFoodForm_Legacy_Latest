@@ -227,9 +227,13 @@ public struct FoodForm: View {
         sources.add(image, with: scanResult)
     }
     
-    func scanResultHandler(_ scanResult: ScanResult) {
+    func scanResultHandler(_ scanResult: ScanResult, column: Int? = nil) {
         Haptics.successFeedback()
-        extractFieldsOrShowColumnSelectionInfo()
+        if let column = column {
+            extract(column: column, from: [scanResult], shouldOverwrite: true)
+        } else {
+            extractFieldsOrShowColumnSelectionInfo()
+        }
     }
 
     //MARK: - Layers

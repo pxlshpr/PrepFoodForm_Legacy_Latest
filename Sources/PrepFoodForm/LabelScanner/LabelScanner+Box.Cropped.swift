@@ -40,12 +40,17 @@ extension LabelScanner {
         }
 
         var scale: CGFloat {
-            viewModel.stackedOnTop ? 2.0 : 1.0
+//            viewModel.stackedOnTop ? 2.0 : 1.0
+            if viewModel.stackedOnTop {
+                return 2
+            }
+            return viewModel.animatingLiftingUpOfCroppedImages
+            ? 1.05
+            : 1.03
         }
         
         var shadow: CGFloat {
-            3
-//            stackedOnTop ? 3 : 0
+            viewModel.stackedOnTop ? 3 : 5
         }
 
         return Image(uiImage: image)
@@ -55,6 +60,8 @@ extension LabelScanner {
             .rotationEffect(angle, anchor: .center)
             .scaleEffect(scale, anchor: .center)
             .position(x: x, y: y)
-            .shadow(color: .black.opacity(0.3), radius: shadow, x: 0, y: shadow)
+//            .shadow(color: .black.opacity(0.3), radius: shadow, x: 0, y: shadow)
+//            .shadow(color: .black.opacity(0.8), radius: shadow, x: 0, y: shadow)
+            .shadow(radius: shadow, x: 0, y: shadow)
     }
 }
