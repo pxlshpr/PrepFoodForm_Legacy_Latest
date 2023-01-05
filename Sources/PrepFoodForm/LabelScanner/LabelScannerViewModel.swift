@@ -18,7 +18,6 @@ class LabelScannerViewModel: ObservableObject {
     
     @Published var hideCamera = false
     @Published var textBoxes: [TextBox] = []
-    @Published var shimmering = false
     @Published var scanResult: ScanResult? = nil
     @Published var image: UIImage? = nil
     @Published var images: [(UIImage, CGRect, UUID, Angle)] = []
@@ -30,6 +29,7 @@ class LabelScannerViewModel: ObservableObject {
     @Published var columns: ScannedColumns = ScannedColumns()
     @Published var selectedImageTexts: [ImageText] = []
     @Published var zoomBox: ZoomBox? = nil
+    @Published var shimmering = false
     @Published var shimmeringImage = false
     @Published var showingColumnPicker = false
     @Published var showingColumnPickerUI = false

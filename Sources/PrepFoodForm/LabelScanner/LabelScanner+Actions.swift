@@ -12,7 +12,7 @@ extension LabelScanner {
         withAnimation(.easeInOut(duration: 0.7)) {
             viewModel.image = image
 //            self.image = image
-            
+//            viewModel.showingScanningLine = true
         }
         
         withAnimation(.easeInOut(duration: 0.4).repeatForever()) {
