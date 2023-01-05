@@ -63,20 +63,23 @@ class LabelScannerViewModel: ObservableObject {
         self.startScan(image)
     }
     
+    func zoomOutCompletely(_ image: UIImage, animated: Bool = false) {
+        let zoomBox = self.getZoomBox(for: image, animated: animated)
+        let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: zoomBox]
+        NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
+    }
+    
     func startScan(_ image: UIImage) {
 
         Task.detached {
-            let zoomBox = await self.getZoomBox(for: image)
             
             Haptics.selectionFeedback()
             
             try await sleepTask(0.03, tolerance: 0.005)
             //        try await sleepTask(1.0, tolerance: 0.005)
             
-            /// Zoom to ensure that the `ImageViewer` matches the camera preview layer
-            let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: zoomBox]
             await MainActor.run {
-                NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
+                self.zoomOutCompletely(image)
             }
             
             if self.isCamera {
@@ -175,9 +178,16 @@ class LabelScannerViewModel: ObservableObject {
     }
     
     func cropImages() async throws {
-        guard let scanResult, let image else { return }
+        guard let image else { return }
         
         Task.detached {
+
+            await MainActor.run {
+                if self.showingColumnPicker {
+                    self.zoomOutCompletely(image, animated: true)
+                }
+            }
+            
 //            let resultBoxes = scanResult.textBoxes
             
             for text in await self.textsToCrop {
@@ -316,7 +326,8 @@ class LabelScannerViewModel: ObservableObject {
         }
     }
     
-    func getZoomBox(for image: UIImage) -> ZoomBox {
+    func getZoomBox(for image: UIImage, animated: Bool) -> ZoomBox {
+        /// Zoom to ensure that the `ImageViewer` matches the camera preview layer when `isCamera` is true
         let boundingBox = isCamera
         ? image.boundingBoxForScreenFill
         : CGRect(x: 0, y: 0, width: 1, height: 1)
@@ -330,7 +341,7 @@ class LabelScannerViewModel: ObservableObject {
         
         return ZoomBox(
             boundingBox: boundingBox,
-            animated: false,
+            animated: animated,
             padded: padded,
             imageSize: imageSize
         )
