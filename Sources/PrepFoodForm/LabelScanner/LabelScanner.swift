@@ -49,6 +49,7 @@ public struct LabelScanner: View {
 //            imageLayer
             imageViewerLayer
             cameraLayer
+            columnPickerLayer
         }
         .onChange(of: selectedImage) { newValue in
             guard let newValue else { return }
@@ -64,6 +65,17 @@ public struct LabelScanner: View {
             withAnimation {
                 self.selectedImage = nil
             }
+        }
+    }
+    
+    @ViewBuilder
+    var columnPickerLayer: some View {
+        if viewModel.showingColumnPicker {
+            ColumnPickerOverlay(
+                selectedColumn: viewModel.selectedColumnBinding,
+                didTapDismiss: { },
+                didTapAutofill: { }
+            )
         }
     }
     

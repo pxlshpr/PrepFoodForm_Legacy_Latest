@@ -63,7 +63,7 @@ extension LabelScannerViewModel {
             return nil
         }
         return {
-            withAnimation {
+            withAnimation(.interactiveSpring()) {
                 print("🥑 Before toggling \(self.columns.selectedColumnIndex)")
                 Haptics.feedback(style: .heavy)
                 self.columns.toggleSelectedColumnIndex()
@@ -85,5 +85,20 @@ extension LabelScannerViewModel {
 
     /// [ ] Show column picking UI
     func showColumnPickingUI() async {
+    }
+    
+    
+    var selectedColumnBinding: Binding<Int> {
+        Binding<Int>(
+            get: { self.columns.selectedColumnIndex },
+            set: { newValue in
+                print("Setting column to \(newValue)")
+//                withAnimation {
+                    self.columns.selectedColumnIndex = newValue
+                    self.selectedImageTexts = self.columns.selectedImageTexts
+//                }
+                self.showColumnTextBoxes()
+            }
+        )
     }
 }

@@ -297,4 +297,5 @@ class LabelScannerViewModel: ObservableObject {
             imageSize: imageSize
         )
     }
+    
 }
