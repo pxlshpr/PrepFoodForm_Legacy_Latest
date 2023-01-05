@@ -52,6 +52,7 @@ struct ColumnPickerOverlay: View {
             Text("Per Serving")
                 .font(.system(size: 18, weight: .semibold, design: .default))
                 .foregroundColor(selectedColumn == 1 ? .white : .secondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
         }
     }
@@ -149,7 +150,7 @@ struct ColumnPickerOverlay: View {
                 Image(systemName: "chevron.down")
                     .imageScale(.medium)
                     .fontWeight(.medium)
-                    .foregroundColor(Color(.secondaryLabel))
+                    .foregroundColor(colorScheme == .light ? .primary : .secondary)
                     .frame(width: 38, height: 38)
                     .background(
                         Circle()
