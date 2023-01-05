@@ -170,7 +170,6 @@ extension TextPicker {
         }
     }
     
-    @ViewBuilder
     func textBoxesLayer(for imageViewModel: ImageViewModel) -> some View {
         let binding = Binding<[TextBox]>(
             get: { textPickerViewModel.textBoxes(for: imageViewModel) },

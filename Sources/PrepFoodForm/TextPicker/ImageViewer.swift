@@ -1,22 +1,6 @@
 import SwiftUI
 import ZoomableScrollView
 
-//extension ZoomBox: Hashable {
-//    func hash(into hasher: inout Hasher) {
-//        hasher.combine(boundingBox)
-//        hasher.combine(padded)
-//        hasher.combine(animated)
-//        hasher.combine(imageSize)
-//        hasher.combine(imageId)
-//    }
-//}
-//
-//extension ZoomBox: Equatable {
-//    static func ==(lhs: ZoomBox, rhs: ZoomBox) -> Bool {
-//        lhs.hashValue == rhs.hashValue
-//    }
-//}
-
 struct ImageViewer: View {
     
     let id: UUID
@@ -66,13 +50,14 @@ struct ImageViewer: View {
     var zoomableScrollView: some View {
         ZoomableScrollView(
             id: id,
-            zoomBox: $zoomBox,
+//            zoomBox: $zoomBox,
             backgroundColor: .black
         ) {
             imageView(image)
                 .overlay(textBoxesLayer)
                 .overlay(scannedTextBoxesLayer)
         }
+        .edgesIgnoringSafeArea(.all)
     }
     
     @ViewBuilder
@@ -80,9 +65,6 @@ struct ImageViewer: View {
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: contentMode)
-            .edgesIgnoringSafeArea(.all)
-//            .aspectRatio(contentMode: .fit)
-//            .scaledToFit()
             .background(.black)
 //            .opacity(showingBoxes ? 0.7 : 1)
             .animation(.default, value: showingBoxes)

@@ -153,9 +153,9 @@ public struct FoodForm: View {
         }
         
         let _ = ImageViewModel(photosPickerItem: item) { image in
-            withAnimation(.easeInOut(duration: 0.7)) {
+//            withAnimation(.easeInOut(duration: 0.7)) {
                 self.selectedPhoto = image
-            }
+//            }
         }
 //        updateCanBePublished()
         sources.selectedPhotos = []
@@ -204,24 +204,14 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var labelScanner: some View {
-        if let mockScanResult, let mockScanImage {
-            LabelScanner(
-                mock: (mockScanResult, mockScanImage),
-                isCamera: !labelScannerForImage,
-                image: $selectedPhoto,
-                animatingCollapse: $animatingScannerCollapse,
-                animateCollapse: animateScannerCollapse
-            )
-        } else {
-            LabelScanner(
-                isCamera: !labelScannerForImage,
-                image: $selectedPhoto,
-                animatingCollapse: $animatingScannerCollapse,
-                animateCollapse: animateScannerCollapse,
-                imageHandler: imageHandler,
-                scanResultHandler: scanResultHandler
-            )
-        }
+        LabelScanner(
+            isCamera: !labelScannerForImage,
+            image: $selectedPhoto,
+            animatingCollapse: $animatingScannerCollapse,
+            animateCollapse: animateScannerCollapse,
+            imageHandler: imageHandler,
+            scanResultHandler: scanResultHandler
+        )
     }
     
     func imageHandler(_ image: UIImage, scanResult: ScanResult) {
