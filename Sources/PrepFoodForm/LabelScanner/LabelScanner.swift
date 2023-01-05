@@ -30,12 +30,17 @@ public struct LabelScanner: View {
     @State var showingCroppedImages = false
     @State var textBoxes: [TextBox] = []
     @State var scannedTextBoxes: [TextBox] = []
-    @State var shimmering = true
+    @State var shimmering = false
     @State var images: [(UIImage, CGRect, UUID, Angle)] = []
     @State var stackedOnTop: Bool = false
     @State var shimmeringImage = false
-
+    @State var showingColumnPicker = false
+    
     @Binding var animatingCollapse: Bool
+    
+    @StateObject var columns: ScannedColumns = ScannedColumns()
+//    @State var selectedColumn: Int = 1
+    @State var selectedImageTexts: [ImageText] = []
     
     let animateCollapse: (() -> ())?
     

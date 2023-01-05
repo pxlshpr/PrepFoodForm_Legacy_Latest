@@ -9,10 +9,10 @@ import Shimmer
 extension LabelScanner {
 
     func handleCapturedImage(_ image: UIImage) {
-//        withAnimation(.easeInOut(duration: 0.7).repeatForever()) {
         withAnimation(.easeInOut(duration: 0.7)) {
             self.image = image
         }
+//        withAnimation(.easeInOut(duration: 0.7).repeatForever()) {
 //            shimmeringImage = true
 //        }
         
@@ -87,25 +87,39 @@ extension LabelScanner {
         
         Haptics.selectionFeedback()
         
+        /// **VisionKit Scan Completed**: Show all `RecognizedText`'s
+        let shimmeringStart = CFAbsoluteTimeGetCurrent()
+        self.textBoxes = textBoxes
+        shimmering = true
         await MainActor.run {
             withAnimation {
-                shimmeringImage = false
-                self.textBoxes = textBoxes
+//                shimmeringImage = false
                 showingBoxes = true
+                print("🟢 DONE")
 //                    isLoadingImageViewer = false
             }
         }
-        
-//        try await sleepTask(2.0, tolerance: 0.005)
+        try await sleepTask(1, tolerance: 0.005)
 
-        
-        /// - Sets them in a state variable
-        /// - Have the loading animation stop and the texts appear
+
+        //TODO: Put this in a task that runs in the background and only continues the animation once it has been retrieved making sure it doesn't block the main thread
         let scanResult = textSet.scanResult
+        self.scanResult = scanResult
 
+        guard scanResult.columnCount != 2 else {
+            try await showColumnPicker()
+            return
+        }
+        
         await MainActor.run {
-            self.scanResult = scanResult
             showingBlackBackground = false
+        }
+
+        /// Make sure the shimmering effect goes on for at least 2 seconds so user gets a feel of the image being processed
+        let minimumShimmeringTime: Double = 1
+        let timeSinceShimmeringStart = CFAbsoluteTimeGetCurrent()-shimmeringStart
+        if timeSinceShimmeringStart < minimumShimmeringTime {
+            try await sleepTask(minimumShimmeringTime - timeSinceShimmeringStart, tolerance: 0.005)
         }
 
         let resultBoxes = scanResult.textBoxes
@@ -117,9 +131,6 @@ extension LabelScanner {
 //                }
 //            }
         
-
-        let startCut = CFAbsoluteTimeGetCurrent()
-        var croppedImages: [(UIImage, CGRect, UUID, Angle)] = []
         for box in resultBoxes {
             guard let cropped = await image.cropped(boundingBox: box.boundingBox) else {
                 print("Couldn't get image for box: \(box)")
@@ -192,22 +203,12 @@ extension LabelScanner {
                 )
             }
         }
-        print("Took: \(CFAbsoluteTimeGetCurrent()-startCut)s, have \(images.count) images")
 
         Haptics.selectionFeedback()
-
-//        return
-        
-
-//        await MainActor.run {
-//            self.images = croppedImages
-//        }
-        
 
         await MainActor.run {
             withAnimation {
                 showingCroppedImages = true
-//                    scannedTextBoxes = []
                 self.textBoxes = []
                 self.scannedTextBoxes = scanResult.textBoxes
             }
@@ -227,10 +228,6 @@ extension LabelScanner {
         try await sleepTask(0.5, tolerance: 0.01)
 
         try await collapse()
-//            return textSet.scanResult
-        /// Now run texts through FoodLabelScanner
-        /// - Have the texts now show a flashing occuring from left to right
-        /// - Once received
     }
         
 
@@ -280,5 +277,156 @@ extension LabelScanner {
                 scanResultHandler(scanResult!)
             }
 //        }
+    }
+    
+    func zoomToColumns() async {
+        guard let imageSize = image?.size else { return }
+        let zoomRect = columns.boundingBox
+        let columnZoomBox = ZoomBox(
+            boundingBox: zoomRect,
+            animated: true,
+            padded: true,
+            imageSize: imageSize
+        )
+
+        await MainActor.run {
+            NotificationCenter.default.post(
+                name: .zoomZoomableScrollView,
+                object: nil,
+                userInfo: [Notification.ZoomableScrollViewKeys.zoomBox: columnZoomBox]
+            )
+        }
+    }
+    
+    func showColumnPicker() async throws {
+        guard let scanResult else { return }
+        
+        self.shimmering = false
+        withAnimation {
+            showingColumnPicker = true
+        }
+        
+        let columns = scanResult.scannedColumns
+        self.columns.column1 = columns.column1
+        self.columns.column2 = columns.column2
+        self.columns.selectedColumnIndex = columns.selectedColumnIndex
+        self.selectedImageTexts = columns.selectedImageTexts
+
+        await zoomToColumns()
+        showColumnTextBoxes()
+        await showColumnPickingUI()
+    }
+    
+    /// [ ] Show column boxes (animate changes, have default column preselected)
+    func showColumnTextBoxes() {
+        self.textBoxes = columns.texts.map {
+            TextBox(
+                boundingBox: $0.boundingBox,
+                color: color(for: $0),
+                tapHandler: tapHandler(for: $0)
+            )
+        }
+    }
+    
+    func tapHandler(for text: RecognizedText) -> (() -> ())? {
+        guard !columns.selectedColumn.contains(text) else {
+            return nil
+        }
+        return {
+            withAnimation {
+                self.columns.toggleSelectedColumnIndex()
+                self.selectedImageTexts = columns.selectedImageTexts
+            }
+            showColumnTextBoxes()
+        }
+    }
+    
+    func color(for text: RecognizedText) -> Color {
+        if selectedImageTexts.contains(where: { $0.text == text }) {
+            return Color.accentColor
+        } else {
+            return Color(.systemBackground).opacity(1.0)
+        }
+    }
+
+    
+    /// [ ] Show column picking UI
+    func showColumnPickingUI() async {
+    }
+}
+
+import VisionSugar
+
+class ScannedColumns: ObservableObject {
+    
+    var column1: TextColumn
+    var column2: TextColumn
+    
+    @Published var selectedColumnIndex: Int
+    
+    init() {
+        self.column1 = .init(column: 1, name: "", imageTexts: [])
+        self.column2 = .init(column: 2, name: "", imageTexts: [])
+        self.selectedColumnIndex = 1
+    }
+    
+    init(column1: TextColumn, column2: TextColumn, selectedColumnIndex: Int) {
+        self.column1 = column1
+        self.column2 = column2
+        self.selectedColumnIndex = selectedColumnIndex
+    }
+    
+    var selectedColumn: TextColumn {
+        selectedColumnIndex == 1 ? column1 : column2
+    }
+    
+    var selectedImageTexts: [ImageText] {
+        selectedColumnIndex == 1 ? column1.imageTexts : column2.imageTexts
+    }
+    
+    var texts: [RecognizedText] {
+        var texts: [RecognizedText] = []
+        for column in [column1, column2] {
+            texts.append(
+                contentsOf: column.imageTexts
+                    .map { $0.text }
+                )
+        }
+        return texts
+    }
+    
+    var boundingBox: CGRect {
+        var boundingBoxes: [CGRect] = []
+        for column in [column1, column2] {
+            boundingBoxes.append(
+                contentsOf: column.imageTexts
+                    .map { $0.boundingBoxWithAttribute }
+            )
+        }
+        return boundingBoxes.union
+    }
+    
+    func toggleSelectedColumnIndex() {
+        selectedColumnIndex = selectedColumnIndex == 1 ? 2 : 1
+    }
+}
+
+extension ScanResult {
+    var scannedColumns: ScannedColumns {
+        let column1 = TextColumn(
+            column: 1,
+            name: headerTitle1,
+            imageTexts: imageTextsForColumnSelection(at: 1)
+        )
+        let column2 = TextColumn(
+            column: 2,
+            name: headerTitle2,
+            imageTexts: imageTextsForColumnSelection(at: 2)
+        )
+        return ScannedColumns(
+            column1: column1,
+            column2: column2,
+            selectedColumnIndex: bestColumn
+        )
     }
 }

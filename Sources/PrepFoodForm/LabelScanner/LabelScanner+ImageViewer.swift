@@ -24,6 +24,7 @@ extension LabelScanner {
             .edgesIgnoringSafeArea(.all)
             .background(.black)
             .scaleEffect(animatingCollapse ? 0 : 1)
+            .opacity(showingColumnPicker ? 0.7 : 1)
 //            .padding(.top, animatingCollapse ? 400 : 0)
 //            .padding(.trailing, animatingCollapse ? 300 : 0)
         }
