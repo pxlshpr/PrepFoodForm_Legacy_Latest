@@ -17,14 +17,16 @@ extension LabelScanner {
                 textBoxes: $viewModel.textBoxes,
                 scannedTextBoxes: $viewModel.scannedTextBoxes,
                 contentMode: .fit,
-                zoomBox: $zoomBox,
+                zoomBox: $viewModel.zoomBox,
                 showingBoxes: $viewModel.showingBoxes,
-                shimmering: $viewModel.shimmering
+                shimmering: $viewModel.shimmering,
+                showingColumnPicker: $viewModel.showingColumnPicker
             )
             .edgesIgnoringSafeArea(.all)
             .background(.black)
             .scaleEffect(animatingCollapse ? 0 : 1)
-            .opacity(showingColumnPicker ? 0.7 : 1)
+//            .shimmering(active: viewModel.shimmering)
+            .opacity(viewModel.shimmeringImage ? 0.4 : 1)
 //            .padding(.top, animatingCollapse ? 400 : 0)
 //            .padding(.trailing, animatingCollapse ? 300 : 0)
         }

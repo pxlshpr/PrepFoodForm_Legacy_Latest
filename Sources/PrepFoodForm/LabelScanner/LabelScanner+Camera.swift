@@ -11,7 +11,7 @@ extension LabelScanner {
     }
     
     var foodLabelCamera: some View {
-        LabelCamera(mockData: mock, imageHandler: handleCapturedImage)
+        LabelCamera(imageHandler: handleCapturedImage)
     }
     
 }

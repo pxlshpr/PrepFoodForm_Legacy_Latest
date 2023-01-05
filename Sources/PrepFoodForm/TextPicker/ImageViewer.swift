@@ -14,6 +14,7 @@ struct ImageViewer: View {
     @Binding var textPickerHasAppeared: Bool
     
     @Binding var shimmering: Bool
+    @Binding var showingColumnPicker: Bool
 
     init(
         id: UUID = UUID(),
@@ -24,7 +25,8 @@ struct ImageViewer: View {
         zoomBox: Binding<ZoomBox?>,
         showingBoxes: Binding<Bool>? = nil,
         textPickerHasAppeared: Binding<Bool>? = nil,
-        shimmering: Binding<Bool>? = nil
+        shimmering: Binding<Bool>? = nil,
+        showingColumnPicker: Binding<Bool>? = nil
     ) {
         self.id = id
         self.image = image
@@ -36,6 +38,7 @@ struct ImageViewer: View {
         _showingBoxes = showingBoxes ?? .constant(true)
         _textPickerHasAppeared = textPickerHasAppeared ?? .constant(true)
         _shimmering = shimmering ?? .constant(false)
+        _showingColumnPicker = showingColumnPicker ?? .constant(false)
     }
     
     var body: some View {
@@ -50,7 +53,7 @@ struct ImageViewer: View {
     var zoomableScrollView: some View {
         ZoomableScrollView(
             id: id,
-//            zoomBox: $zoomBox,
+            zoomBox: $zoomBox,
             backgroundColor: .black
         ) {
             imageView(image)
@@ -66,7 +69,7 @@ struct ImageViewer: View {
             .resizable()
             .aspectRatio(contentMode: contentMode)
             .background(.black)
-//            .opacity(showingBoxes ? 0.7 : 1)
+            .opacity((showingBoxes && showingColumnPicker) ? 0.7 : 1)
             .animation(.default, value: showingBoxes)
     }
     
@@ -76,7 +79,8 @@ struct ImageViewer: View {
         }
         var opacity: CGFloat {
             guard shouldShow else { return 0 }
-            return shimmering ? 1 : 0.3
+            if shimmering || showingColumnPicker { return 1 }
+            return 0.3
         }
         return TextBoxesLayer(textBoxes: $textBoxes)
             .opacity(opacity)
