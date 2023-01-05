@@ -13,6 +13,7 @@ class LabelScannerViewModel: ObservableObject {
     let isCamera: Bool
     let imageHandler: (UIImage, ScanResult) -> ()
     let scanResultHandler: (ScanResult) -> ()
+    let dismissHandler: () -> ()
     var shimmeringStart: Double = 0
     
     @Published var hideCamera = false
@@ -41,12 +42,14 @@ class LabelScannerViewModel: ObservableObject {
         isCamera: Bool,
         animatingCollapse: Bool,
         imageHandler: @escaping (UIImage, ScanResult) -> (),
-        scanResultHandler: @escaping (ScanResult) -> ()
+        scanResultHandler: @escaping (ScanResult) -> (),
+        dismissHandler: @escaping () -> ()
     ) {
         self.animatingCollapse = animatingCollapse
         self.isCamera = isCamera
         self.imageHandler = imageHandler
         self.scanResultHandler = scanResultHandler
+        self.dismissHandler = dismissHandler
         
         self.hideCamera = !isCamera
 //        self.showingBlackBackground = !isCamera

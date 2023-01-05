@@ -4,13 +4,43 @@ import SwiftHaptics
 struct ColumnPickerOverlay: View {
     
     @Environment(\.colorScheme) var colorScheme
+    @Binding var isVisibleBinding: Bool
     @Binding var selectedColumn: Int
     let didTapDismiss: () -> ()
     let didTapAutofill: () -> ()
     
     var body: some View {
-        columnPickerButtonsLayer
-            .edgesIgnoringSafeArea(.all)
+        VStack {
+            if isVisibleBinding {
+                title
+                    .transition(.move(edge: .top))
+            }
+            Spacer()
+            if isVisibleBinding {
+                bottomVStack
+                    .transition(.move(edge: .bottom))
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 50)
+        .edgesIgnoringSafeArea(.all)
+    }
+    
+    var bottomVStack: some View {
+        VStack {
+            dismissButtonRow
+            segmentedPicker
+            autoFillButton
+        }
+    }
+    
+    var segmentedPicker: some View {
+        ZStack {
+            background
+            button
+            texts
+        }
+        .frame(height: 50)
     }
     
     var r: CGFloat { 3 }
@@ -160,22 +190,5 @@ struct ColumnPickerOverlay: View {
             }
             Spacer()
         }
-    }
-    
-    var columnPickerButtonsLayer: some View {
-        VStack {
-            title
-            Spacer()
-            dismissButtonRow
-            ZStack {
-                background
-                button
-                texts
-            }
-            .frame(height: 50)
-            autoFillButton
-        }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 50)
     }
 }

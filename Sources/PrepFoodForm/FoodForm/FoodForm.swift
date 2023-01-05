@@ -202,7 +202,6 @@ public struct FoodForm: View {
         }
     }
     
-    @ViewBuilder
     var labelScanner: some View {
         LabelScanner(
             isCamera: !labelScannerForImage,
@@ -210,8 +209,18 @@ public struct FoodForm: View {
             animatingCollapse: $animatingScannerCollapse,
             animateCollapse: animateScannerCollapse,
             imageHandler: imageHandler,
-            scanResultHandler: scanResultHandler
+            scanResultHandler: scanResultHandler,
+            dismissHandler: dismissHandler
         )
+    }
+    
+    func dismissHandler() {
+        withAnimation {
+            animateLabelScannerUp = false
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showingLabelScanner = false
+        }
     }
     
     func imageHandler(_ image: UIImage, scanResult: ScanResult) {
