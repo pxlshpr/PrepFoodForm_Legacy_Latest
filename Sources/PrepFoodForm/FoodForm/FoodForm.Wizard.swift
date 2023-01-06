@@ -70,7 +70,7 @@ extension FoodForm.Wizard {
                         .padding(.horizontal, 20)
                     HStack {
                         Button {
-                            tapHandler(.takePhotos)
+                            tapHandler(.scanAFoodLabel)
                         } label: {
                             VStack(spacing: 5) {
                                 Image(systemName: "camera")
