@@ -71,5 +71,44 @@ extension FoodForm {
             self.prefill(mfpFood)
             self.updateFormState()
         }
+        
+        /// Reset this by recreating what it would be with a fresh call to `init()` (for reuse as we have one `@StateObject` in the entire app
+        public func reset() {
+            
+            name = ""
+            emoji = randomFoodEmoji()
+            detail = ""
+            brand = ""
+            
+            amount = .init(fieldValue: DefaultAmount)
+            serving = .init(fieldValue: .serving())
+            energy = .init(fieldValue: .energy())
+            carb = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
+            fat = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
+            protein = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
+
+            standardSizes = []
+            volumePrefixedSizes = []
+            density = .init(fieldValue: .density(FieldValue.DensityValue()))
+
+            microsFats = []
+            microsFibers = []
+            microsSugars = []
+            microsMinerals = []
+            microsVitamins = []
+            microsMisc = []
+            
+            barcodes = []
+
+            shouldShowFoodLabel = false
+            shouldShowDensity = false
+            
+            canBeSaved = false
+            
+            extractedFieldValues = []
+            prefilledFood = nil
+
+            sizeBeingEdited = nil
+        }
     }
 }

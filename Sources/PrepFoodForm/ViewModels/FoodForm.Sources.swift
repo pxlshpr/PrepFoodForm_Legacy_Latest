@@ -30,6 +30,25 @@ extension FoodForm {
         public init() {
             
         }
+        
+        /// Reset this by recreating what it would be with a fresh call to `init()` (for reuse as we have one `@StateObject` in the entire app
+        public func reset() {
+            canBePublished = false
+
+            imageViewModels = []
+            imageSetStatus = .loading()
+            linkInfo = nil
+
+            columnSelectionInfo = nil
+            selectedScanResultsColumn = 1
+            
+            selectedPhotos = []
+
+            presentingImageIndex = 0
+            
+            didScanAllPickedImages = nil
+            autoFillHandler = nil
+        }
     }
 }
 
