@@ -19,7 +19,7 @@ extension LabelScanner {
             viewModel.shimmeringImage = true
         }
         
-        Haptics.successFeedback()
+//        Haptics.successFeedback()
         viewModel.begin(image)
     }
     
