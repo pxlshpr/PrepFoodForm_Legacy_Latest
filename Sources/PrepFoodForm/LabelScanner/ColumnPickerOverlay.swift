@@ -105,7 +105,8 @@ struct ColumnPickerOverlay: View {
         Button {
             didTapAutofill()
         } label: {
-            Text("Autofill this column")
+//            Text("Autofill this column")
+            Text("Use this column")
                 .font(.system(size: 22, weight: .semibold, design: .default))
 //                .font(.system(size: 18, weight: .semibold, design: .default))
                 .foregroundColor(.white)
@@ -123,10 +124,10 @@ struct ColumnPickerOverlay: View {
     var button: some View {
         RoundedRectangle(cornerRadius: 12, style: .continuous)
             .foregroundStyle(Color.accentColor.gradient)
-            .shadow(color: .black, radius: 2, x: 0, y: 2)
+            .shadow(color: innerTopLeftShadowColor, radius: 2, x: 0, y: 2)
             .padding(3)
             .frame(width: buttonWidth)
-            .position(x: buttonXPosition, y: 24)
+            .position(x: buttonXPosition, y: 25)
     }
 
     var texts: some View {
