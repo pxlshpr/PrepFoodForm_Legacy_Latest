@@ -66,7 +66,8 @@ extension TextPickerViewModel {
 //                    }
                 )
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                guard let self else { return }
                 withAnimation {
                     self.showingBoxes = true
                     self.selectedImageTexts = self.mode.selectedImageTexts

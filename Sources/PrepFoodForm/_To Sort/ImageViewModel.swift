@@ -123,11 +123,12 @@ class ImageViewModel: ObservableObject, Identifiable {
     
     func prepareThumbnails() {
         guard let image = image else { return }
-        Task {
+        Task { [weak self] in
             let smallThumbnail = image.preparingThumbnail(of: CGSize(width: 165, height: 165))
             let mediumThumbnail = image.preparingThumbnail(of: CGSize(width: 360, height: 360))
 
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 self.smallThumbnail = smallThumbnail
                 self.mediumThumbnail = mediumThumbnail
             }
@@ -154,8 +155,8 @@ class ImageViewModel: ObservableObject, Identifiable {
     }
     
     func startUploadTask() {
-        Task {
-            uploadStatus = .uploading
+        Task { [weak self] in
+            self?.uploadStatus = .uploading
             //TODO: Bring this back
 //            guard let imageData else {
 //                print("🌐 Couldn't get imageData")
@@ -179,7 +180,7 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.status = .scanning
         delegate?.imageDidStartScanning(self)
 
-        Task(priority: .userInitiated) {
+        Task(priority: .userInitiated) { [weak self] in
             
 //            try await taskSleep(Double.random(in: 1...6))
 //            await MainActor.run {
@@ -189,7 +190,8 @@ class ImageViewModel: ObservableObject, Identifiable {
             
             //TODO: Why is this a task within a task?
             
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
                 let result = try await FoodLabelScanner(image: image).scan()
                 
                 self.scanResult = result
@@ -204,7 +206,8 @@ class ImageViewModel: ObservableObject, Identifiable {
 #if targetEnvironment(simulator)
                     saveScanResultToJson()
 #endif
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
                     self.status = .scanned
                     self.delegate?.imageDidFinishScanning(self)
                     
@@ -219,7 +222,8 @@ class ImageViewModel: ObservableObject, Identifiable {
     }
     
     func startLoadTask(with item: PhotosPickerItem) {
-        Task(priority: .userInitiated) {
+        Task(priority: .userInitiated) { [weak self] in
+            guard let self else { return }
             guard let image = try await loadImage(pickerItem: item) else {
                 return
             }

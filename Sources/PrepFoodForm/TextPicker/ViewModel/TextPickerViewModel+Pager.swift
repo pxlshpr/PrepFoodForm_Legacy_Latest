@@ -26,12 +26,14 @@ extension TextPickerViewModel {
             currentIndex = index
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            guard let self else { return }
             self.setDefaultZoomBox(forImageAt: index)
         }
         
         /// Call this manually as it won't be called on our end
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard let self else { return }
             /// **Doing this here is too late**
 //            self.setDefaultZoomBox(forImageAt: index)
             self.pageDidChange(to: index)

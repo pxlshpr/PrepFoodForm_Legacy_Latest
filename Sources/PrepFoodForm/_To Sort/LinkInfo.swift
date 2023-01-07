@@ -25,14 +25,14 @@ class LinkInfo: ObservableObject {
     }
     
     func getTitle() {
-        Task {
+        Task { [weak self] in
             let content = try String(contentsOf: url, encoding: .utf8)
             guard let htmlTitle = content.htmlTitle else {
                 return
             }
-            await MainActor.run {
+            await MainActor.run { [weak self] in
                 withAnimation {
-                    self.title = String(htmlEncodedString: htmlTitle)
+                    self?.title = String(htmlEncodedString: htmlTitle)
                 }
             }
         }
@@ -43,7 +43,7 @@ class LinkInfo: ObservableObject {
         guard let url = URL(string: urlString) else {
             return
         }
-        Task {
+        Task { [weak self] in
             let request = URLRequest.init(url: url)
             let (data, response) = try await URLSession.shared.data(for: request)
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
@@ -52,9 +52,9 @@ class LinkInfo: ObservableObject {
             guard let image = UIImage(data: data) else {
                 return
             }
-            await MainActor.run {
+            await MainActor.run { [weak self] in
                 withAnimation {
-                    self.faviconImage = image
+                    self?.faviconImage = image
                 }
             }
         }
