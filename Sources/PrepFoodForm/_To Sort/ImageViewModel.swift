@@ -21,6 +21,13 @@ class ImageViewModel: ObservableObject, Identifiable {
     @Published var smallThumbnail: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
     
+//    deinit {
+//        image = nil
+//        mediumThumbnail = nil
+//        smallThumbnail = nil
+//        photosPickerItem = nil
+//    }
+    
     var isProcessed: Bool = false
     var scanResult: ScanResult? = nil
     

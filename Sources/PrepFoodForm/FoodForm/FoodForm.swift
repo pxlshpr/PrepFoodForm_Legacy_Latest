@@ -37,7 +37,6 @@ public struct FoodForm: View {
     /// Menus
     @State var showingFoodLabel = false
 
-
     /// Wizard
     @State var shouldShowWizard: Bool
     @State var showingWizard = true

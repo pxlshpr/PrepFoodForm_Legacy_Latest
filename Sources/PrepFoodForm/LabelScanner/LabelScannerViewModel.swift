@@ -41,6 +41,11 @@ class LabelScannerViewModel: ObservableObject {
     @Published var animatingCollapse: Bool
     @Published var clearSelectedImage: Bool = false
     
+//    deinit {
+//        image = nil
+//        print("LabelScannerViewModel.deinit: removed image")
+//    }
+
     init(
         isCamera: Bool,
         animatingCollapse: Bool,
