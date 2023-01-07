@@ -109,10 +109,9 @@ extension LabelScannerViewModel {
             self.showingColumnPickerUI = false
         }
         
-        Task.detached {
-            
+        Task.detached { [weak self] in
             /// Now continue our scan sequence by first cropping images
-            try await self.cropImages()
+            try await self?.cropImages()
         }
     }
 }

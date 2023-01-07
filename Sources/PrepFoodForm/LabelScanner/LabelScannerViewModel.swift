@@ -76,21 +76,23 @@ class LabelScannerViewModel: ObservableObject {
     
     func startScan(_ image: UIImage) {
 
-        Task.detached {
+        Task.detached { [weak self] in
+            
+            guard let self else { return }
             
             Haptics.selectionFeedback()
             
             try await sleepTask(0.03, tolerance: 0.005)
             //        try await sleepTask(1.0, tolerance: 0.005)
             
-            await MainActor.run {
-                self.zoomOutCompletely(image)
+            await MainActor.run { [weak self] in
+                self?.zoomOutCompletely(image)
             }
             
             if self.isCamera {
-                await MainActor.run {
+                await MainActor.run { [weak self] in
                     withAnimation {
-                        self.hideCamera = true
+                        self?.hideCamera = true
                     }
                 }
             } else {
@@ -114,7 +116,8 @@ class LabelScannerViewModel: ObservableObject {
             Haptics.selectionFeedback()
             
             /// **VisionKit Scan Completed**: Show all `RecognizedText`'s
-            await MainActor.run {
+            await MainActor.run {  [weak self] in
+                guard let self else { return }
                 self.shimmeringStart = CFAbsoluteTimeGetCurrent()
                 withAnimation {
                     self.shimmeringImage = false
@@ -125,8 +128,8 @@ class LabelScannerViewModel: ObservableObject {
             }
             
             try await sleepTask(0.2, tolerance: 0.005)
-            await MainActor.run {
-                self.shimmering = true
+            await MainActor.run { [weak self] in
+                self?.shimmering = true
             }
 
             try await sleepTask(1, tolerance: 0.005)
@@ -137,10 +140,12 @@ class LabelScannerViewModel: ObservableObject {
     
     func scan(textSet: RecognizedTextSet) async throws {
         
-        Task.detached {
+        Task.detached { [weak self] in
+            guard let self else { return }
             let scanResult = textSet.scanResult
 
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 self.scanResult = scanResult
                 self.showingBlackBackground = false
             }
@@ -185,9 +190,12 @@ class LabelScannerViewModel: ObservableObject {
     func cropImages() async throws {
         guard let image else { return }
         
-        Task.detached {
+        Task.detached { [weak self] in
 
-            await MainActor.run {
+            guard let self else { return }
+            
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 if self.showingColumnPicker {
                     self.zoomOutCompletely(image, animated: true)
                 }
@@ -273,13 +281,15 @@ class LabelScannerViewModel: ObservableObject {
             
             Haptics.selectionFeedback()
             
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 withAnimation {
                     self.textBoxes = []
                     self.showingCroppedImages = true
 //                    self.scannedTextBoxes = scanResult.textBoxes
                     self.scannedTextBoxes = self.getScannedTextBoxes
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                        guard let self else { return }
                         self.showingCutouts = true
                         self.animatingLiftingUpOfCroppedImages = true
                     }
@@ -290,7 +300,8 @@ class LabelScannerViewModel: ObservableObject {
 
             let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
             
-            await MainActor.run {
+            await MainActor.run { [weak self] in
+                guard let self else { return }
                 Haptics.feedback(style: .soft)
                 withAnimation(Bounce) {
                     self.stackedOnTop = true

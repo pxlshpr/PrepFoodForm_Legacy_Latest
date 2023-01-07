@@ -30,7 +30,10 @@ extension LabelCamera.ViewModel {
     }
     
     func simulateScan() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            
+            guard let self else { return }
+            
             guard let mockData = self.mockData else {
                 self.shouldDismiss = true
                 return

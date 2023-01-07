@@ -1,5 +1,6 @@
 import SwiftUI
 import FoodLabelScanner
+import SwiftSugar
 
 class Field: ObservableObject, Identifiable {
     
@@ -69,20 +70,17 @@ class Field: ObservableObject, Identifiable {
             }
             return
         }
-        Task {
-//            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: value.fill) else {
+        Task { [weak self] in
             guard let croppedImage = await FoodForm.Sources.shared.croppedImage(for: value.fill) else {
-                print("⚠️ Couldn't get cropped image for: \(self.value.description)")
                 return
             }
 
 //            try await sleepTask(2)
             
-            await MainActor.run {
+            await MainActor.run { [weak self] in
                 withAnimation {
-                    print("✂️ Got cropped image for: \(self.value.description)")
-                    self.image = croppedImage
-                    self.isCropping = false
+                    self?.image = croppedImage
+                    self?.isCropping = false
                 }
             }
         }
