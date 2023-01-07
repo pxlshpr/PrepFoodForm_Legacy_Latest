@@ -13,12 +13,19 @@ extension LabelCamera {
         let imageHandler: ImageHandler
         let mockData: (ScanResult, UIImage)?
         
+        let id = UUID()
+        
         init(
             mockData: (ScanResult, UIImage)? = nil,
             imageHandler: @escaping ImageHandler
         ) {
             self.imageHandler = imageHandler
             self.mockData = mockData
+            print("🔄 LabelCamera.ViewModel \(self.id) was _inited 🌱")
+        }
+        
+        deinit {
+            print("🔄 LabelCamera.ViewModel \(self.id) was _deinited 🔥")
         }
     }
 }

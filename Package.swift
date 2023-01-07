@@ -19,7 +19,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.30"),
         .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.43"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.95"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.96"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.62"),
         .package(url: "https://github.com/pxlshpr/MFPSearch", from: "0.0.15"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.20"),
@@ -31,7 +31,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.41"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.321"),
         .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.42"),
-        .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.75"),
+        .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.76"),
         
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),

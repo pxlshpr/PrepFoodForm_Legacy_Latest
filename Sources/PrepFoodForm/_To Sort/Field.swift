@@ -14,10 +14,6 @@ class Field: ObservableObject, Identifiable {
         self.value = fieldValue
     }
     
-//    deinit {
-//        image = nil
-//    }
-    
     func fill(with fieldValue: FieldValue) {
         self.value = fieldValue
         resetAndCropImage()

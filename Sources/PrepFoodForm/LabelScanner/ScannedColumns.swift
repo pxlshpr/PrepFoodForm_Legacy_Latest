@@ -9,16 +9,24 @@ class ScannedColumns: ObservableObject {
     
     @Published var selectedColumnIndex: Int
     
+    let id = UUID()
+    
     init() {
         self.column1 = .init(column: 1, name: "", imageTexts: [])
         self.column2 = .init(column: 2, name: "", imageTexts: [])
         self.selectedColumnIndex = 1
+        print("🔄 ScannedColumns \(self.id) was _inited 🌱")
     }
     
     init(column1: TextColumn, column2: TextColumn, selectedColumnIndex: Int) {
         self.column1 = column1
         self.column2 = column2
         self.selectedColumnIndex = selectedColumnIndex
+        print("🔄 ScannedColumns \(self.id) was _inited 🌱")
+    }
+    
+    deinit {
+        print("🔄 ScannedColumns \(self.id) was deinited 🔥")
     }
     
     var selectedColumn: TextColumn {

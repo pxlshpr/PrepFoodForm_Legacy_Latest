@@ -32,6 +32,7 @@ public struct LabelScanner: View {
         _selectedImage = image
         _animatingCollapse = animatingCollapse ?? .constant(false)
         
+        print("🐣 LabelScanner.init")
         let viewModel = LabelScannerViewModel(
             isCamera: isCamera,
             animatingCollapse: animatingCollapse?.wrappedValue ?? false,

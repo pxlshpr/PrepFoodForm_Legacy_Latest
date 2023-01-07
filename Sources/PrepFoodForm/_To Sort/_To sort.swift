@@ -94,9 +94,7 @@ extension Field {
     func isSizeNamed(_ name: String) -> Bool {
         size?.name == name
     }
-}
-
-extension Field {
+    
     var doubleValueDescription: String {
         guard !value.isEmpty else {
             return ""

@@ -41,11 +41,8 @@ class LabelScannerViewModel: ObservableObject {
     @Published var animatingCollapse: Bool
     @Published var clearSelectedImage: Bool = false
     
-//    deinit {
-//        image = nil
-//        print("LabelScannerViewModel.deinit: removed image")
-//    }
-
+    let id = UUID()
+    
     init(
         isCamera: Bool,
         animatingCollapse: Bool,
@@ -62,6 +59,11 @@ class LabelScannerViewModel: ObservableObject {
         self.hideCamera = !isCamera
 //        self.showingBlackBackground = !isCamera
         self.showingBlackBackground = true
+        print("🔄 LabelScannerViewModel \(self.id) was _inited 🌱")
+    }
+    
+    deinit {
+        print("🔄 LabelScannerViewModel \(self.id) was deinited 🔥")
     }
     
     func begin(_ image: UIImage) {
