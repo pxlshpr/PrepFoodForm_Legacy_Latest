@@ -9,14 +9,10 @@ import VisionSugar
 
 public struct LabelScanner: View {
     
-    @Binding var animatingCollapse: Bool
     @Binding var selectedImage: UIImage?
 
     //TODO: Remove these after moving to ViewModel
 
-    //TODO: Deal with these
-    let animateCollapse: (() -> ())?
-    
 //    @StateObject var viewModel: LabelScannerViewModel
     @ObservedObject var viewModel: LabelScannerViewModel
 
@@ -46,23 +42,18 @@ public struct LabelScanner: View {
     
     public init(
         scanner: LabelScannerViewModel,
-        image: Binding<UIImage?> = .constant(nil),
-        animatingCollapse: Binding<Bool>? = nil,
-        animateCollapse: (() -> ())? = nil
+        image: Binding<UIImage?> = .constant(nil)
     ) {
-        self.animateCollapse = animateCollapse
         _selectedImage = image
-        _animatingCollapse = animatingCollapse ?? .constant(false)
-        
         self.viewModel = scanner
     }
     
     public var body: some View {
         ZStack {
-            if viewModel.showingBlackBackground {
-                Color.black
-                    .edgesIgnoringSafeArea(.all)
-            }
+//            if viewModel.showingBlackBackground {
+//                Color.black
+//                    .edgesIgnoringSafeArea(.all)
+//            }
 //            imageLayer
             imageViewerLayer
             cameraLayer
@@ -72,11 +63,11 @@ public struct LabelScanner: View {
             guard let newValue else { return }
             handleCapturedImage(newValue)
         }
-        .onChange(of: viewModel.animatingCollapse) { newValue in
-            withAnimation {
-                self.animatingCollapse = newValue
-            }
-        }
+//        .onChange(of: viewModel.animatingCollapse) { newValue in
+//            withAnimation {
+//                self.animatingCollapse = newValue
+//            }
+//        }
         .onChange(of: viewModel.clearSelectedImage) { newValue in
             guard newValue else { return }
             withAnimation {

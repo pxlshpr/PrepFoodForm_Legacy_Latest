@@ -11,10 +11,9 @@ import VisionSugar
 public class LabelScannerViewModel: ObservableObject {
 
     var isCamera: Bool
-    var imageHandler: (UIImage, ScanResult) -> ()
-    var scanResultHandler: (ScanResult, Int?) -> ()
-    var dismissHandler: () -> ()
-    @Published var animatingCollapse: Bool
+    var imageHandler: ((UIImage, ScanResult) -> ())?
+    var scanResultHandler: ((ScanResult, Int?) -> ())?
+    var dismissHandler: (() -> ())?
 
     @Published var hideCamera = false
     @Published var textBoxes: [TextBox] = []
@@ -23,6 +22,7 @@ public class LabelScannerViewModel: ObservableObject {
     @Published var images: [(UIImage, CGRect, UUID, Angle)] = []
     @Published var stackedOnTop: Bool = false
     @Published var scannedTextBoxes: [TextBox] = []
+    @Published var animatingCollapse: Bool = false
     @Published var animatingCollapseOfCutouts = false
     @Published var animatingCollapseOfCroppedImages = false
     @Published var animatingLiftingUpOfCroppedImages = false
@@ -43,12 +43,10 @@ public class LabelScannerViewModel: ObservableObject {
     
     public init(
         isCamera: Bool,
-        animatingCollapse: Bool,
         imageHandler: @escaping (UIImage, ScanResult) -> (),
         scanResultHandler: @escaping (ScanResult, Int?) -> (),
         dismissHandler: @escaping () -> ()
     ) {
-        self.animatingCollapse = animatingCollapse
         self.isCamera = isCamera
         self.imageHandler = imageHandler
         self.scanResultHandler = scanResultHandler
@@ -57,13 +55,11 @@ public class LabelScannerViewModel: ObservableObject {
         self.hideCamera = !isCamera
 //        self.showingBlackBackground = !isCamera
         self.showingBlackBackground = true
-        print("🔄 LabelScannerViewModel \(self.id) was _inited 🌱")
     }
     
     public convenience init() {
         self.init(
             isCamera: false,
-            animatingCollapse: false,
             imageHandler: { _, _ in },
             scanResultHandler:  { _, _ in },
             dismissHandler: { }
@@ -72,6 +68,7 @@ public class LabelScannerViewModel: ObservableObject {
     
     func reset() {
         hideCamera = false
+        animatingCollapse = false
         animatingCollapseOfCutouts = false
         animatingCollapseOfCroppedImages = false
         animatingLiftingUpOfCroppedImages = false
@@ -96,14 +93,23 @@ public class LabelScannerViewModel: ObservableObject {
         clearSelectedImage = false
     }
     
-    deinit {
-        print("🔄 LabelScannerViewModel \(self.id) was deinited 🔥")
-    }
-    
     func begin(_ image: UIImage) {
         self.startScan(image)
     }
-    
+
+    func begin_test(_ image: UIImage) {
+        Task.detached { [weak self] in
+            guard let self else { return }
+            try await sleepTask(1.0, tolerance: 0.1)
+            await self.dismissHandler?()
+//            try await self.collapse()
+            
+//            let textSet = try await image.recognizedTextSet(for: .accurate, includeBarcodes: true)
+//            let scanResult = textSet.scanResult
+            
+        }
+    }
+
     func zoomOutCompletely(_ image: UIImage, animated: Bool = false) {
         let zoomBox = self.getZoomBox(for: image, animated: animated)
         let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: zoomBox]
@@ -118,8 +124,9 @@ public class LabelScannerViewModel: ObservableObject {
             
             Haptics.selectionFeedback()
             
-            try await sleepTask(0.03, tolerance: 0.005)
-            //        try await sleepTask(1.0, tolerance: 0.005)
+//            try await sleepTask(0.03, tolerance: 0.005)
+//            try await sleepTask(0.75, tolerance: 0.005)
+//            try await sleepTask(1.0, tolerance: 0.005)
             
             await MainActor.run { [weak self] in
                 self?.zoomOutCompletely(image)
@@ -150,7 +157,7 @@ public class LabelScannerViewModel: ObservableObject {
             }
             
             Haptics.selectionFeedback()
-            
+
             /// **VisionKit Scan Completed**: Show all `RecognizedText`'s
             await MainActor.run {  [weak self] in
                 guard let self else { return }
@@ -158,10 +165,9 @@ public class LabelScannerViewModel: ObservableObject {
                     self.shimmeringImage = false
                     self.textBoxes = textBoxes
                     self.showingBoxes = true
-                    print("🟢 DONE")
                 }
             }
-            
+
             try await sleepTask(0.2, tolerance: 0.005)
             await MainActor.run { [weak self] in
                 self?.shimmering = true
@@ -325,14 +331,15 @@ public class LabelScannerViewModel: ObservableObject {
                     self.showingCroppedImages = true
 //                    self.scannedTextBoxes = scanResult.textBoxes
                     self.scannedTextBoxes = self.getScannedTextBoxes
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-                        guard let self else { return }
-                        self.showingCutouts = true
-                        self.animatingLiftingUpOfCroppedImages = true
-                    }
+                    
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+//                        guard let self else { return }
+//                        self.showingCutouts = true
+//                        self.animatingLiftingUpOfCroppedImages = true
+//                    }
                 }
             }
-
+            
             try await sleepTask(0.5, tolerance: 0.01)
 
             let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
@@ -354,9 +361,12 @@ public class LabelScannerViewModel: ObservableObject {
     @MainActor
     func collapse() async throws {
         withAnimation {
-            self.animatingCollapse = true
-            self.animatingCollapseOfCutouts = true
-            imageHandler(image!, scanResult!)
+            animatingCollapse = true
+            animatingCollapseOfCutouts = true
+            if let image, let scanResult {
+                imageHandler?(image, scanResult)
+                imageHandler = nil
+            }
         }
         
         try await sleepTask(0.5, tolerance: 0.01)
@@ -369,12 +379,15 @@ public class LabelScannerViewModel: ObservableObject {
 
         withAnimation {
             //TODO: Handle this in LabelScanner with a local variable an an onChange modifier since it's a binding
-            self.clearSelectedImage = true
+            clearSelectedImage = true
             
-            if showingColumnPicker {
-                scanResultHandler(scanResult!, columns.selectedColumnIndex)
-            } else {
-                scanResultHandler(scanResult!, nil)
+            if let scanResult {
+                if showingColumnPicker {
+                    scanResultHandler?(scanResult, columns.selectedColumnIndex)
+                } else {
+                    scanResultHandler?(scanResult, nil)
+                }
+                scanResultHandler = nil
             }
         }
     }

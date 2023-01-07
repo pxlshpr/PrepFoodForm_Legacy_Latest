@@ -159,11 +159,12 @@ extension TextPicker {
            index < textPickerViewModel.zoomBoxes.count,
            let image = imageViewModel.image
         {
-            ZoomableScrollView(
-                id: textPickerViewModel.imageViewModels[index].id,
-                zoomBox: $textPickerViewModel.zoomBoxes[index],
-                backgroundColor: .black
-            ) {
+            ZoomableScrollView {
+//            ZoomableScrollView(
+//                id: textPickerViewModel.imageViewModels[index].id,
+//                zoomBox: $textPickerViewModel.zoomBoxes[index],
+//                backgroundColor: .black
+//            ) {
                 imageView(image)
                     .overlay(textBoxesLayer(for: imageViewModel))
             }

@@ -156,12 +156,7 @@ extension FoodForm {
         case .takePhotos:
             showingCamera = true
         case .scanAFoodLabel:
-            
-            showingLabelScanner = true
-            withAnimation {
-                animateLabelScannerUp = true
-            }
-            
+            presentLabelScanner(forCamera: true)
         case .choosePhotos:
             showingPhotosPicker = true
         case .prefill:

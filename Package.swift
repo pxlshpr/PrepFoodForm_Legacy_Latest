@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.86"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.41"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.321"),
-        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.42"),
+        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.53"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.76"),
         
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),

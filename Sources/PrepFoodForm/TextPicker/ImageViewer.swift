@@ -45,20 +45,16 @@ struct ImageViewer: View {
     }
     
     var body: some View {
-        zoomableScrollView
-            .background(.black)
-//            .onChange(of: zoomBox) { newValue in
-//                print("Zoombox changed")
-//            }
+        ZStack {
+            Color.black
+            zoomableScrollView
+        }
+        .edgesIgnoringSafeArea(.all)
     }
     
     
     var zoomableScrollView: some View {
-        ZoomableScrollView(
-            id: id,
-            zoomBox: $zoomBox,
-            backgroundColor: .black
-        ) {
+        ZoomableScrollView {
             imageView(image)
                 .overlay(textBoxesLayer)
                 .overlay(scannedTextBoxesLayer)

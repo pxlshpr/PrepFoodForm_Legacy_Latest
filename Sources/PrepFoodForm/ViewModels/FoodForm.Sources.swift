@@ -30,13 +30,8 @@ extension FoodForm {
         let id = UUID()
         
         public init() {
-            print("🔄 FoodForm.Source \(self.id) was _inited 🌱")
         }
-        
-        deinit {
-            print("🔄 FoodForm.Source \(self.id) was deinited 🔥")
-        }
-        
+                
         /// Reset this by recreating what it would be with a fresh call to `init()` (for reuse as we have one `@StateObject` in the entire app
         public func reset() {
             canBePublished = false

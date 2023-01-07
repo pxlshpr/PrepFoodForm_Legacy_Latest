@@ -78,6 +78,7 @@ public struct LabelCamera: View {
     }
     
     func handleCapturedImage(_ image: UIImage) {
-        viewModel.imageHandler(image)
+        viewModel.imageHandler?(image)
+        viewModel.imageHandler = nil
     }
 }

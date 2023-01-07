@@ -6,7 +6,7 @@ struct ColumnPickerOverlay: View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var isVisibleBinding: Bool
     @Binding var selectedColumn: Int
-    let didTapDismiss: () -> ()
+    var didTapDismiss: (() -> ())?
     let didTapAutofill: () -> ()
     
     var body: some View {
@@ -176,7 +176,7 @@ struct ColumnPickerOverlay: View {
     var dismissButtonRow: some View {
         HStack {
             Button {
-                didTapDismiss()
+                didTapDismiss?()
             } label: {
                 Image(systemName: "chevron.down")
                     .imageScale(.medium)

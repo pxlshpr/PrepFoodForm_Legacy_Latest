@@ -30,8 +30,6 @@ public struct FoodForm: View {
     @State var showingLabelScanner: Bool
     @State var animateLabelScannerUp: Bool
 
-    @State var animatingScannerCollapse = false
-    
     @State var selectedPhoto: UIImage? = nil
 
     /// Menus
@@ -189,29 +187,19 @@ public struct FoodForm: View {
         scanner.imageHandler = imageHandler
         scanner.scanResultHandler = scanResultHandler
         scanner.dismissHandler = dismissHandler
-        scanner.animatingCollapse = animatingScannerCollapse
         
         showingLabelScanner = true
-        withAnimation {
-            animateLabelScannerUp = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            withAnimation {
+                animateLabelScannerUp = true
+            }
         }
     }
 
     var labelScanner: some View {
-//        LabelScanner(
-//            isCamera: !labelScannerForImage,
-//            image: $selectedPhoto,
-//            animatingCollapse: $animatingScannerCollapse,
-//            animateCollapse: animateScannerCollapse,
-//            imageHandler: imageHandler,
-//            scanResultHandler: scanResultHandler,
-//            dismissHandler: dismissHandler
-//        )
         LabelScanner(
             scanner: scanner,
-            image: $selectedPhoto,
-            animatingCollapse: $animatingScannerCollapse,
-            animateCollapse: animateScannerCollapse
+            image: $selectedPhoto
         )
     }
     
@@ -230,33 +218,15 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var scannerLayer: some View {
-        if showingLabelScanner {
+//        if showingLabelScanner {
             labelScanner
-//                .transition(.move(edge: .bottom))
-//                .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                    labelScannerHasAppeared = true
-//                }}
-//                .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
-//                .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
                 .offset(y: animateLabelScannerUp ? 0 : UIScreen.main.bounds.height)
-//                .transition(.move(edge: .bottom))
                 .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     labelScannerHasAppeared = true
                 }}
-//                .scaleEffect(animatingScannerCollapse ? 0 : 1)
-//                .padding(.top, animatingScannerCollapse ? 400 : 0)
-                .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
-                .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
-        }
-    }
-    
-    func animateScannerCollapse() {
-        withAnimation {
-            animatingScannerCollapse = true
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            showingLabelScanner = false
-        }
+//                .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
+//                .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
+//        }
     }
     
     func dismissHandler() {
@@ -490,21 +460,11 @@ public struct FoodForm: View {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if let statusMessage {
-                Text(statusMessage)
-                    .foregroundColor(Color(.tertiaryLabel).opacity(0.8))
-                    .font(.caption)
-            }
         }
     }
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-//            Button {
-//                dismiss()
-//            } label: {
-//                closeButtonLabel
-//            }
         }
     }
 }

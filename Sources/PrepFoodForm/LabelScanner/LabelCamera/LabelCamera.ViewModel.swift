@@ -10,7 +10,7 @@ extension LabelCamera {
         
         @Published var shouldDismiss = false
         @Published var started: Bool = false
-        let imageHandler: ImageHandler
+        var imageHandler: ImageHandler?
         let mockData: (ScanResult, UIImage)?
         
         let id = UUID()
@@ -21,12 +21,7 @@ extension LabelCamera {
         ) {
             self.imageHandler = imageHandler
             self.mockData = mockData
-            print("🔄 LabelCamera.ViewModel \(self.id) was _inited 🌱")
-        }
-        
-        deinit {
-            print("🔄 LabelCamera.ViewModel \(self.id) was _deinited 🔥")
-        }
+        }        
     }
 }
 
@@ -46,7 +41,8 @@ extension LabelCamera.ViewModel {
                 return
             }
             Haptics.successFeedback()
-            self.imageHandler(mockData.1)
+            self.imageHandler?(mockData.1)
+            self.imageHandler = nil
         }
     }
 }

@@ -24,36 +24,25 @@ extension LabelScanner {
                 showingColumnPicker: $viewModel.showingColumnPicker
             )
             .edgesIgnoringSafeArea(.all)
-            .background(.black)
-            .scaleEffect(animatingCollapse ? 0 : 1)
+//            .background(.black)
+            .scaleEffect(viewModel.animatingCollapse ? 0 : 1)
             .opacity(viewModel.shimmeringImage ? 0.4 : 1)
         }
         
         return Group {
-//            if isCamera, let image {
             if let image = viewModel.image {
                 ZStack {
-                    ZStack {
-                        Color.clear
-                        imageViewer(image)
-                    }
-//                    Color.clear
-//                        .background(.thinMaterial)
-//                    Color.black
-//                        .opacity(shimmeringImage ? 0.8 : 0)
-//                    croppedImagesCutoutLayer
-//                        .scaleEffect(animatingCollapseOfCutouts ? 0 : 1)
-//                        .opacity(animatingCollapseOfCutouts ? 0 : 1)
-//                        .padding(.top, animatingCollapseOfCutouts ? 400 : 0)
-//                        .padding(.trailing, animatingCollapseOfCutouts ? 300 : 0)
+                    imageViewer(image)
                     croppedImagesLayer
                         .scaleEffect(viewModel.animatingCollapseOfCroppedImages ? 0 : 1)
                         .padding(.top, viewModel.animatingCollapseOfCroppedImages ? 0 : 0)
                         .padding(.trailing, viewModel.animatingCollapseOfCroppedImages ? 300 : 0)
                 }
-                .edgesIgnoringSafeArea(.all)
-                .transition(.opacity)
+//            } else {
+//                Color.black
             }
         }
-    }    
+//        .edgesIgnoringSafeArea(.all)
+        .transition(.opacity)
+    }
 }
