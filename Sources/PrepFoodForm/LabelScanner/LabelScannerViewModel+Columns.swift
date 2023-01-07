@@ -19,7 +19,8 @@ extension LabelScannerViewModel {
             imageSize: imageSize
         )
 
-        await MainActor.run {
+        await MainActor.run { [weak self] in
+            guard let _ = self else { return }
             NotificationCenter.default.post(
                 name: .zoomZoomableScrollView,
                 object: nil,
@@ -63,7 +64,8 @@ extension LabelScannerViewModel {
         let allowsTaps = !columns.selectedColumn.contains(text)
         guard allowsTaps else { return nil }
         
-        return {
+        return { [weak self] in
+            guard let self else { return }
             withAnimation(.interactiveSpring()) {
                 print("🥑 Before toggling \(self.columns.selectedColumnIndex)")
                 Haptics.feedback(style: .soft)
@@ -91,8 +93,12 @@ extension LabelScannerViewModel {
     
     var selectedColumnBinding: Binding<Int> {
         Binding<Int>(
-            get: { self.columns.selectedColumnIndex },
-            set: { newValue in
+            get: { [weak self] in
+                guard let self else { return 0 }
+                return self.columns.selectedColumnIndex
+            },
+            set: { [weak self] newValue in
+                guard let self else { return }
                 print("Setting column to \(newValue)")
 //                withAnimation {
                     self.columns.selectedColumnIndex = newValue

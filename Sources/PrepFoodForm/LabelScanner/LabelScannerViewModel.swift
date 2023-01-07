@@ -8,14 +8,14 @@ import Shimmer
 import VisionSugar
 
 @MainActor
-class LabelScannerViewModel: ObservableObject {
+public class LabelScannerViewModel: ObservableObject {
 
-    let isCamera: Bool
-    let imageHandler: (UIImage, ScanResult) -> ()
-    let scanResultHandler: (ScanResult, Int?) -> ()
-    let dismissHandler: () -> ()
-    var shimmeringStart: Double = 0
-    
+    var isCamera: Bool
+    var imageHandler: (UIImage, ScanResult) -> ()
+    var scanResultHandler: (ScanResult, Int?) -> ()
+    var dismissHandler: () -> ()
+    @Published var animatingCollapse: Bool
+
     @Published var hideCamera = false
     @Published var textBoxes: [TextBox] = []
     @Published var scanResult: ScanResult? = nil
@@ -37,13 +37,11 @@ class LabelScannerViewModel: ObservableObject {
     @Published var showingBlackBackground = false
     @Published var showingBoxes = false
     @Published var showingCutouts = false
-    
-    @Published var animatingCollapse: Bool
     @Published var clearSelectedImage: Bool = false
     
     let id = UUID()
     
-    init(
+    public init(
         isCamera: Bool,
         animatingCollapse: Bool,
         imageHandler: @escaping (UIImage, ScanResult) -> (),
@@ -60,6 +58,42 @@ class LabelScannerViewModel: ObservableObject {
 //        self.showingBlackBackground = !isCamera
         self.showingBlackBackground = true
         print("🔄 LabelScannerViewModel \(self.id) was _inited 🌱")
+    }
+    
+    public convenience init() {
+        self.init(
+            isCamera: false,
+            animatingCollapse: false,
+            imageHandler: { _, _ in },
+            scanResultHandler:  { _, _ in },
+            dismissHandler: { }
+        )
+    }
+    
+    func reset() {
+        hideCamera = false
+        animatingCollapseOfCutouts = false
+        animatingCollapseOfCroppedImages = false
+        animatingLiftingUpOfCroppedImages = false
+        
+        shimmering = false
+        shimmeringImage = false
+        showingColumnPicker = false
+        showingColumnPickerUI = false
+        showingCroppedImages = false
+        showingBlackBackground = false
+        showingBoxes = false
+        showingCutouts = false
+        textBoxes = []
+        scanResult = nil
+        image = nil
+        images = []
+        stackedOnTop = false
+        scannedTextBoxes = []
+        columns = ScannedColumns()
+        selectedImageTexts = []
+        zoomBox = nil
+        clearSelectedImage = false
     }
     
     deinit {
@@ -91,7 +125,7 @@ class LabelScannerViewModel: ObservableObject {
                 self?.zoomOutCompletely(image)
             }
             
-            if self.isCamera {
+            if await self.isCamera {
                 await MainActor.run { [weak self] in
                     withAnimation {
                         self?.hideCamera = true
@@ -120,7 +154,6 @@ class LabelScannerViewModel: ObservableObject {
             /// **VisionKit Scan Completed**: Show all `RecognizedText`'s
             await MainActor.run {  [weak self] in
                 guard let self else { return }
-                self.shimmeringStart = CFAbsoluteTimeGetCurrent()
                 withAnimation {
                     self.shimmeringImage = false
                     self.textBoxes = textBoxes
@@ -214,7 +247,7 @@ class LabelScannerViewModel: ObservableObject {
                 let screen = await UIScreen.main.bounds
                 
                 let correctedRect: CGRect
-                if self.isCamera {
+                if await self.isCamera {
                     let scaledWidth: CGFloat = (image.size.width * screen.height) / image.size.height
                     let scaledSize = CGSize(width: scaledWidth, height: screen.height)
                     let rectForSize = text.boundingBox.rectForSize(scaledSize)
@@ -268,7 +301,9 @@ class LabelScannerViewModel: ObservableObject {
                     
                 }
                 
-                await MainActor.run {
+                await MainActor.run { [weak self] in
+                    
+                    guard let self else { return }
                     
                     if !self.images.contains(where: { $0.2 == text.id }) {
                         self.images.append((

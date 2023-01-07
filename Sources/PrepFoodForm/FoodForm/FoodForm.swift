@@ -15,6 +15,7 @@ public struct FoodForm: View {
     /// ViewModels
     @ObservedObject var fields: Fields
     @ObservedObject var sources: Sources
+    @ObservedObject var scanner: LabelScannerViewModel
 
     /// Sheets
     @State var showingEmojiPicker = false
@@ -32,7 +33,6 @@ public struct FoodForm: View {
     @State var animatingScannerCollapse = false
     
     @State var selectedPhoto: UIImage? = nil
-    @State var labelScannerForImage = false
 
     /// Menus
     @State var showingFoodLabel = false
@@ -55,11 +55,19 @@ public struct FoodForm: View {
     @State var mockScanResult: ScanResult?
     @State var mockScanImage: UIImage?
 
-    public init(mockScanResult: ScanResult, mockScanImage: UIImage, fields: FoodForm.Fields, sources: FoodForm.Sources, didSave: @escaping (FoodFormOutput) -> ()) {
+    public init(
+        mockScanResult: ScanResult,
+        mockScanImage: UIImage,
+        fields: FoodForm.Fields,
+        sources: FoodForm.Sources,
+        scanner: LabelScannerViewModel,
+        didSave: @escaping (FoodFormOutput) -> ()
+    ) {
         Fields.shared = fields
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.scanner = scanner
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
@@ -73,6 +81,7 @@ public struct FoodForm: View {
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
+        scanner: LabelScannerViewModel,
         startWithLabelScanner: Bool = false,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
@@ -80,6 +89,7 @@ public struct FoodForm: View {
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.scanner = scanner
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
@@ -90,11 +100,19 @@ public struct FoodForm: View {
         _shouldShowWizard = State(initialValue: !startWithLabelScanner)
     }
     
-    public init(fields: FoodForm.Fields, sources: FoodForm.Sources, scanResult: ScanResult, image: UIImage, didSave: @escaping (FoodFormOutput) -> ()) {
+    public init(
+        fields: FoodForm.Fields,
+        sources: FoodForm.Sources,
+        scanResult: ScanResult,
+        scanner: LabelScannerViewModel,
+        image: UIImage,
+        didSave: @escaping (FoodFormOutput) -> ()
+    ) {
         Fields.shared = fields
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.scanner = scanner
         self.didSave = didSave
         _shouldShowWizard = State(initialValue: false)
         _initialScanResult = State(initialValue: scanResult)
@@ -156,23 +174,47 @@ public struct FoodForm: View {
     }
 
     func selectedPhotosChanged(to items: [PhotosPickerItem]) {
-        
         guard let item = items.first else { return }
-        labelScannerForImage = true
+        presentLabelScanner(forCamera: false)
+        let _ = ImageViewModel(photosPickerItem: item) { image in
+                self.selectedPhoto = image
+        }
+        sources.selectedPhotos = []
+    }
+    
+    func presentLabelScanner(forCamera: Bool) {
+        
+        scanner.reset()
+        scanner.isCamera = forCamera
+        scanner.imageHandler = imageHandler
+        scanner.scanResultHandler = scanResultHandler
+        scanner.dismissHandler = dismissHandler
+        scanner.animatingCollapse = animatingScannerCollapse
+        
         showingLabelScanner = true
         withAnimation {
             animateLabelScannerUp = true
         }
-        
-        let _ = ImageViewModel(photosPickerItem: item) { image in
-//            withAnimation(.easeInOut(duration: 0.7)) {
-                self.selectedPhoto = image
-//            }
-        }
-//        updateCanBePublished()
-        sources.selectedPhotos = []
     }
 
+    var labelScanner: some View {
+//        LabelScanner(
+//            isCamera: !labelScannerForImage,
+//            image: $selectedPhoto,
+//            animatingCollapse: $animatingScannerCollapse,
+//            animateCollapse: animateScannerCollapse,
+//            imageHandler: imageHandler,
+//            scanResultHandler: scanResultHandler,
+//            dismissHandler: dismissHandler
+//        )
+        LabelScanner(
+            scanner: scanner,
+            image: $selectedPhoto,
+            animatingCollapse: $animatingScannerCollapse,
+            animateCollapse: animateScannerCollapse
+        )
+    }
+    
     var formContent: some View {
         ZStack {
             formLayer
@@ -215,18 +257,6 @@ public struct FoodForm: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             showingLabelScanner = false
         }
-    }
-    
-    var labelScanner: some View {
-        LabelScanner(
-            isCamera: !labelScannerForImage,
-            image: $selectedPhoto,
-            animatingCollapse: $animatingScannerCollapse,
-            animateCollapse: animateScannerCollapse,
-            imageHandler: imageHandler,
-            scanResultHandler: scanResultHandler,
-            dismissHandler: dismissHandler
-        )
     }
     
     func dismissHandler() {

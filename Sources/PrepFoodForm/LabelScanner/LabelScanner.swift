@@ -17,30 +17,44 @@ public struct LabelScanner: View {
     //TODO: Deal with these
     let animateCollapse: (() -> ())?
     
-    @StateObject var viewModel: LabelScannerViewModel
+//    @StateObject var viewModel: LabelScannerViewModel
+    @ObservedObject var viewModel: LabelScannerViewModel
+
+//    public init(
+//        isCamera: Bool = true,
+//        image: Binding<UIImage?> = .constant(nil),
+//        animatingCollapse: Binding<Bool>? = nil,
+//        animateCollapse: (() -> ())? = nil,
+//        imageHandler: @escaping (UIImage, ScanResult) -> (),
+//        scanResultHandler: @escaping (ScanResult, Int?) -> (),
+//        dismissHandler: @escaping () -> ()
+//    ) {
+//        self.animateCollapse = animateCollapse
+//        _selectedImage = image
+//        _animatingCollapse = animatingCollapse ?? .constant(false)
+//
+//
+//        let viewModel = LabelScannerViewModel(
+//            isCamera: isCamera,
+//            animatingCollapse: animatingCollapse?.wrappedValue ?? false,
+//            imageHandler: imageHandler,
+//            scanResultHandler: scanResultHandler,
+//            dismissHandler: dismissHandler
+//        )
+//        _viewModel = StateObject(wrappedValue: viewModel)
+//    }
     
     public init(
-        isCamera: Bool = true,
+        scanner: LabelScannerViewModel,
         image: Binding<UIImage?> = .constant(nil),
         animatingCollapse: Binding<Bool>? = nil,
-        animateCollapse: (() -> ())? = nil,
-        imageHandler: @escaping (UIImage, ScanResult) -> (),
-        scanResultHandler: @escaping (ScanResult, Int?) -> (),
-        dismissHandler: @escaping () -> ()
+        animateCollapse: (() -> ())? = nil
     ) {
         self.animateCollapse = animateCollapse
         _selectedImage = image
         _animatingCollapse = animatingCollapse ?? .constant(false)
         
-        print("🐣 LabelScanner.init")
-        let viewModel = LabelScannerViewModel(
-            isCamera: isCamera,
-            animatingCollapse: animatingCollapse?.wrappedValue ?? false,
-            imageHandler: imageHandler,
-            scanResultHandler: scanResultHandler,
-            dismissHandler: dismissHandler
-        )
-        _viewModel = StateObject(wrappedValue: viewModel)
+        self.viewModel = scanner
     }
     
     public var body: some View {
