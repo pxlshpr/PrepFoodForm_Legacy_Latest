@@ -19,13 +19,19 @@ public class LabelScannerViewModel: ObservableObject {
     @Published var textBoxes: [TextBox] = []
     @Published var scanResult: ScanResult? = nil
     @Published var image: UIImage? = nil
-    @Published var images: [(UIImage, CGRect, UUID, Angle)] = []
+    @Published var images: [(UIImage, CGRect, UUID, Angle, (Angle, Angle, Angle, Angle))] = []
     @Published var stackedOnTop: Bool = false
     @Published var scannedTextBoxes: [TextBox] = []
     @Published var animatingCollapse: Bool = false
     @Published var animatingCollapseOfCutouts = false
     @Published var animatingCollapseOfCroppedImages = false
     @Published var animatingLiftingUpOfCroppedImages = false
+    
+    @Published var animatingFirstWiggleOfCroppedImages = false
+    @Published var animatingSecondWiggleOfCroppedImages = false
+    @Published var animatingThirdWiggleOfCroppedImages = false
+    @Published var animatingFourthWiggleOfCroppedImages = false
+
     @Published var columns: ScannedColumns = ScannedColumns()
     @Published var selectedImageTexts: [ImageText] = []
     @Published var zoomBox: ZoomBox? = nil
@@ -311,13 +317,15 @@ public class LabelScannerViewModel: ObservableObject {
                     
                     guard let self else { return }
                     
+                    let randomWiggleAngles = self.randomWiggleAngles
                     if !self.images.contains(where: { $0.2 == text.id }) {
                         self.images.append((
                             cropped,
                             correctedRect,
                             text.id,
-                            Angle.degrees(CGFloat.random(in: -20...20)))
-                        )
+                            Angle.degrees(CGFloat.random(in: -20...20)),
+                            randomWiggleAngles
+                        ))
                     }
                 }
             }
@@ -331,30 +339,91 @@ public class LabelScannerViewModel: ObservableObject {
                     self.showingCroppedImages = true
 //                    self.scannedTextBoxes = scanResult.textBoxes
                     self.scannedTextBoxes = self.getScannedTextBoxes
-                    
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-//                        guard let self else { return }
-//                        self.showingCutouts = true
-//                        self.animatingLiftingUpOfCroppedImages = true
-//                    }
                 }
             }
-            
-            try await sleepTask(0.5, tolerance: 0.01)
+
+            try await sleepTask(0.1, tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                withAnimation {
+                    self.showingCutouts = true
+                    self.animatingLiftingUpOfCroppedImages = true
+                }
+            }
 
             let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
-            
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingFirstWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingFirstWiggleOfCroppedImages = false
+                    self.animatingSecondWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingSecondWiggleOfCroppedImages = false
+                    self.animatingThirdWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingThirdWiggleOfCroppedImages = false
+                    self.animatingFourthWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.3...0.5), tolerance: 0.01)
+
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 Haptics.feedback(style: .soft)
                 withAnimation(Bounce) {
+                    self.animatingFourthWiggleOfCroppedImages = false
                     self.stackedOnTop = true
                 }
             }
             
-            try await sleepTask(0.5, tolerance: 0.01)
+            try await sleepTask(0.8, tolerance: 0.01)
             
             try await self.collapse()
+        }
+    }
+    
+    var randomWiggleAngles: (Angle, Angle, Angle, Angle) {
+        let left1 = Angle.degrees(CGFloat.random(in: (-8)...(-2)))
+        let right1 = Angle.degrees(CGFloat.random(in: 2...8))
+        let left2 = Angle.degrees(CGFloat.random(in: (-8)...(-2)))
+        let right2 = Angle.degrees(CGFloat.random(in: 2...8))
+        let leftFirst = Bool.random()
+        if leftFirst {
+            return (left1, right1, left2, right2)
+        } else {
+            return (right1, left1, right2, left2)
         }
     }
     

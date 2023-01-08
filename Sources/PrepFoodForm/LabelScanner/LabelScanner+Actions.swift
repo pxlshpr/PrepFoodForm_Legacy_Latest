@@ -17,7 +17,9 @@ extension LabelScanner {
 //            viewModel.shimmeringImage = true
 //        }
         
-        viewModel.begin(image)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            viewModel.begin(image)
+        }
     }
     
 //    func getZoomBox(for image: UIImage) -> ZoomBox {

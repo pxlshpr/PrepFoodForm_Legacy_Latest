@@ -7,18 +7,65 @@ import SwiftSugar
 import Shimmer
 import VisionSugar
 
+extension ScanResult {
+
+    var columnsTexts: [RecognizedText] {
+        var texts: [RecognizedText] = []
+        texts = headerTexts
+        for nutrient in nutrients.rows {
+            if let text = nutrient.valueText1?.text {
+                texts.append(text)
+            }
+            if let text = nutrient.valueText2?.text {
+                texts.append(text)
+            }
+        }
+        return texts
+    }
+
+    var columnsBoundingBox: CGRect {
+        columnsTexts
+            .filter { $0.id != defaultUUID }
+            .boundingBox
+    }
+}
+
+extension CGRect {
+    /// Assuming this was a `boundingBox` (ie with the y coordinate starting from the bottom)
+    /// it gets converted to one with the y coordinate starting from the top.
+//    var boundingRect: CGRect {
+//
+//    }
+}
+
+extension Array where Element == RecognizedText {
+    var topMostText: RecognizedText? {
+        sorted(by: { $0.boundingBox.minY < $1.boundingBox.minY }).first
+    }
+    
+    var bottomMostText: RecognizedText? {
+        sorted(by: { $0.boundingBox.maxY > $1.boundingBox.maxY }).first
+    }
+}
 extension LabelScannerViewModel {
     
     func zoomToColumns() async {
-        guard let imageSize = image?.size else { return }
-        let zoomRect = columns.boundingBox
+        guard let imageSize = image?.size,
+              let boundingBox = scanResult?.columnsBoundingBox
+        else { return }
+        
+//        let zoomRect = columns.boundingBox
+//        let zoomRect = CGRectMake(0.3537906976744186, 0.3771300995936023, 0.6, 0.2529084471421345)
+
         let columnZoomBox = ZoomBox(
-            boundingBox: zoomRect,
+            boundingBox: boundingBox,
             animated: true,
-            padded: true,
+//            padded: true,
+            padded: false,
             imageSize: imageSize
         )
 
+        print("🏎 zooming to boundingBox: \(boundingBox)")
         await MainActor.run { [weak self] in
             guard let _ = self else { return }
             NotificationCenter.default.post(

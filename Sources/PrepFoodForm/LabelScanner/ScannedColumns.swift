@@ -79,4 +79,5 @@ extension ScanResult {
             selectedColumnIndex: bestColumn
         )
     }
+    
 }
