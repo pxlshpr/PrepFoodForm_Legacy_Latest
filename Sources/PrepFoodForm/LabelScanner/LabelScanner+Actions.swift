@@ -9,10 +9,10 @@ import Shimmer
 extension LabelScanner {
 
     func handleCapturedImage(_ image: UIImage) {
-//        withAnimation(.easeInOut(duration: 0.7)) {
+        withAnimation(.easeInOut(duration: 0.7)) {
             viewModel.image = image
-//        }
-//        
+        }
+//
 //        withAnimation(.easeInOut(duration: 0.4).repeatForever()) {
 //            viewModel.shimmeringImage = true
 //        }

@@ -50,10 +50,10 @@ public struct LabelScanner: View {
     
     public var body: some View {
         ZStack {
-//            if viewModel.showingBlackBackground {
-//                Color.black
-//                    .edgesIgnoringSafeArea(.all)
-//            }
+            if viewModel.showingBlackBackground {
+                Color.black
+                    .edgesIgnoringSafeArea(.all)
+            }
 //            imageLayer
             imageViewerLayer
             cameraLayer

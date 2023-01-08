@@ -40,7 +40,7 @@ public class LabelScannerViewModel: ObservableObject {
     @Published var showingColumnPicker = false
     @Published var showingColumnPickerUI = false
     @Published var showingCroppedImages = false
-    @Published var showingBlackBackground = false
+    @Published var showingBlackBackground = true
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
@@ -60,7 +60,6 @@ public class LabelScannerViewModel: ObservableObject {
         
         self.hideCamera = !isCamera
 //        self.showingBlackBackground = !isCamera
-        self.showingBlackBackground = true
     }
     
     public convenience init() {
@@ -84,7 +83,7 @@ public class LabelScannerViewModel: ObservableObject {
         showingColumnPicker = false
         showingColumnPickerUI = false
         showingCroppedImages = false
-        showingBlackBackground = false
+        showingBlackBackground = true
         showingBoxes = false
         showingCutouts = false
         textBoxes = []

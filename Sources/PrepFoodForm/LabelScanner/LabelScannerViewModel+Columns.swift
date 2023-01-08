@@ -13,6 +13,7 @@ extension ScanResult {
         var texts: [RecognizedText] = []
         texts = headerTexts
         for nutrient in nutrients.rows {
+//            texts.append(nutrient.attributeText.text)
             if let text = nutrient.valueText1?.text {
                 texts.append(text)
             }
