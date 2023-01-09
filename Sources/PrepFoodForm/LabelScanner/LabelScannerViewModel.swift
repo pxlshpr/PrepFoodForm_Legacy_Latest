@@ -44,7 +44,9 @@ public class LabelScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
-    
+    var lastContentOffset: CGPoint? = nil
+    var lastContentSize: CGSize? = nil
+
     let id = UUID()
     
     public init(
@@ -60,6 +62,23 @@ public class LabelScannerViewModel: ObservableObject {
         
         self.hideCamera = !isCamera
 //        self.showingBlackBackground = !isCamera
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(zoomableScrollViewDidEndZooming),
+            name: .zoomableScrollViewDidEndZooming,
+            object: nil
+        )
+    }
+    
+    @objc func zoomableScrollViewDidEndZooming(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let contentOffset = userInfo[Notification.ZoomableScrollViewKeys.contentOffset] as? CGPoint,
+              let contentSize = userInfo[Notification.ZoomableScrollViewKeys.contentSize] as? CGSize
+        else { return }
+        lastContentOffset = contentOffset
+        lastContentSize = contentSize
+        print("LabelScannerViewModel: 🚠 scrollViewDidEndZooming — offset: \(contentOffset) size: \(contentSize)")
     }
     
     public convenience init() {
@@ -96,6 +115,8 @@ public class LabelScannerViewModel: ObservableObject {
         selectedImageTexts = []
         zoomBox = nil
         clearSelectedImage = false
+        lastContentOffset = nil
+        lastContentSize = nil
     }
     
     func begin(_ image: UIImage) {
@@ -232,6 +253,87 @@ public class LabelScannerViewModel: ObservableObject {
             )
         }
     }
+
+    func getRectForText(_ text: RecognizedText, contentSize: CGSize, contentOffset: CGPoint) -> CGRect {
+        /// Get the bounding box in terms of the (scaled) image dimensions
+        let rect = text.boundingBox.rectForSize(contentSize)
+        
+        /// Now offset it by the scrollview's current offset to get it's current position
+        return CGRect(
+            x: rect.origin.x - contentOffset.x,
+            y: rect.origin.y - contentOffset.y,
+            width: rect.size.width,
+            height: rect.size.height
+        )
+    }
+    
+    func rectForText(_ text: RecognizedText) -> CGRect {
+        
+        if let lastContentSize, let lastContentOffset {
+            return getRectForText(text, contentSize: lastContentSize, contentOffset: lastContentOffset)
+        }
+        
+        //TODO: Try and always have lastContentSize and lastContentOffset and calculate using those
+        let boundingBox = text.boundingBox
+        guard let image else { return .zero }
+        
+        let screen = UIScreen.main.bounds
+        
+        let correctedRect: CGRect
+        if self.isCamera {
+            let scaledWidth: CGFloat = (image.size.width * screen.height) / image.size.height
+            let scaledSize = CGSize(width: scaledWidth, height: screen.height)
+            let rectForSize = boundingBox.rectForSize(scaledSize)
+            
+            correctedRect = CGRect(
+                x: rectForSize.origin.x - ((scaledWidth - screen.width) / 2.0),
+                y: rectForSize.origin.y,
+                width: rectForSize.size.width,
+                height: rectForSize.size.height
+            )
+            
+            print("🌱 box.boundingBox: \(boundingBox)")
+            print("🌱 scaledSize: \(scaledSize)")
+            print("🌱 rectForSize: \(rectForSize)")
+            print("🌱 correctedRect: \(correctedRect)")
+            print("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
+            
+            
+        } else {
+            
+            let rectForSize: CGRect
+            let x: CGFloat
+            let y: CGFloat
+            
+            if image.size.widthToHeightRatio > screen.size.widthToHeightRatio {
+                /// This means we have empty strips at the top, and image gets width set to screen width
+                let scaledHeight = (image.size.height * screen.width) / image.size.width
+                let scaledSize = CGSize(width: screen.width, height: scaledHeight)
+                rectForSize = boundingBox.rectForSize(scaledSize)
+                x = rectForSize.origin.x
+                y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
+                
+                print("🌱 scaledSize: \(scaledSize)")
+            } else {
+                let scaledWidth = (image.size.width * screen.height) / image.size.height
+                let scaledSize = CGSize(width: scaledWidth, height: screen.height)
+                rectForSize = boundingBox.rectForSize(scaledSize)
+                x = rectForSize.origin.x + ((screen.width - scaledWidth) / 2.0)
+                y = rectForSize.origin.y
+            }
+            
+            correctedRect = CGRect(
+                x: x,
+                y: y,
+                width: rectForSize.size.width,
+                height: rectForSize.size.height
+            )
+            
+            print("🌱 rectForSize: \(rectForSize)")
+            print("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
+        }
+        return correctedRect
+    }
     
     func cropImages() async throws {
         guard let image else { return }
@@ -240,14 +342,12 @@ public class LabelScannerViewModel: ObservableObject {
 
             guard let self else { return }
             
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                if self.showingColumnPicker {
-                    self.zoomOutCompletely(image, animated: true)
-                }
-            }
-            
-//            let resultBoxes = scanResult.textBoxes
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                if self.showingColumnPicker {
+//                    self.zoomOutCompletely(image, animated: true)
+//                }
+//            }
             
             for text in await self.textsToCrop {
                 guard let cropped = await image.cropped(boundingBox: text.boundingBox) else {
@@ -255,68 +355,12 @@ public class LabelScannerViewModel: ObservableObject {
                     continue
                 }
                 
-                let screen = await UIScreen.main.bounds
-                
-                let correctedRect: CGRect
-                if await self.isCamera {
-                    let scaledWidth: CGFloat = (image.size.width * screen.height) / image.size.height
-                    let scaledSize = CGSize(width: scaledWidth, height: screen.height)
-                    let rectForSize = text.boundingBox.rectForSize(scaledSize)
-                    
-                    correctedRect = CGRect(
-                        x: rectForSize.origin.x - ((scaledWidth - screen.width) / 2.0),
-                        y: rectForSize.origin.y,
-                        width: rectForSize.size.width,
-                        height: rectForSize.size.height
-                    )
-                    
-                    print("🌱 box.boundingBox: \(text.boundingBox)")
-                    print("🌱 scaledSize: \(scaledSize)")
-                    print("🌱 rectForSize: \(rectForSize)")
-                    print("🌱 correctedRect: \(correctedRect)")
-                    print("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
-                    
-                    
-                } else {
-                    
-                    let rectForSize: CGRect
-                    let x: CGFloat
-                    let y: CGFloat
-                    
-                    if image.size.widthToHeightRatio > screen.size.widthToHeightRatio {
-                        /// This means we have empty strips at the top, and image gets width set to screen width
-                        let scaledHeight = (image.size.height * screen.width) / image.size.width
-                        let scaledSize = CGSize(width: screen.width, height: scaledHeight)
-                        rectForSize = text.boundingBox.rectForSize(scaledSize)
-                        x = rectForSize.origin.x
-                        y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
-                        
-                        print("🌱 scaledSize: \(scaledSize)")
-                    } else {
-                        let scaledWidth = (image.size.width * screen.height) / image.size.height
-                        let scaledSize = CGSize(width: scaledWidth, height: screen.height)
-                        rectForSize = text.boundingBox.rectForSize(scaledSize)
-                        x = rectForSize.origin.x + ((screen.width - scaledWidth) / 2.0)
-                        y = rectForSize.origin.y
-                    }
-                    
-                    correctedRect = CGRect(
-                        x: x,
-                        y: y,
-                        width: rectForSize.size.width,
-                        height: rectForSize.size.height
-                    )
-                    
-                    print("🌱 rectForSize: \(rectForSize)")
-                    print("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
-                    
-                }
+                let correctedRect = await self.rectForText(text)
                 
                 await MainActor.run { [weak self] in
-                    
                     guard let self else { return }
-                    
                     let randomWiggleAngles = self.randomWiggleAngles
+                    
                     if !self.images.contains(where: { $0.2 == text.id }) {
                         self.images.append((
                             cropped,
@@ -461,14 +505,16 @@ public class LabelScannerViewModel: ObservableObject {
     }
     
     func getZoomBox(for image: UIImage, animated: Bool) -> ZoomBox {
-        /// Zoom to ensure that the `ImageViewer` matches the camera preview layer when `isCamera` is true
-        let boundingBox = isCamera
-        ? image.boundingBoxForScreenFill
-        : CGRect(x: 0, y: 0, width: 1, height: 1)
+        let boundingBox: CGRect
+        let imageSize: CGSize
+        if isCamera {
+            boundingBox = image.boundingBoxForScreenFill
+            imageSize = image.size
+        } else {
+            boundingBox = CGRect(x: 0, y: 0, width: 1, height: 1)
+            imageSize = UIScreen.main.bounds.size
+        }
         
-        //TODO: Why isn't this screen bounds for camera as well?
-        let imageSize = isCamera ? image.size : UIScreen.main.bounds.size
-
         /// Having `padded` as true for picked images is crucial to make sure we don't get the bug
         /// where the initial zoom causes the image to scroll way off screen (and hence disappear)
         let padded = !isCamera
@@ -482,3 +528,58 @@ public class LabelScannerViewModel: ObservableObject {
     }
     
 }
+
+//                if await self.isCamera {
+//                    let scaledWidth: CGFloat = (image.size.width * screen.height) / image.size.height
+//                    let scaledSize = CGSize(width: scaledWidth, height: screen.height)
+//                    let rectForSize = text.boundingBox.rectForSize(scaledSize)
+//
+//                    correctedRect = CGRect(
+//                        x: rectForSize.origin.x - ((scaledWidth - screen.width) / 2.0),
+//                        y: rectForSize.origin.y,
+//                        width: rectForSize.size.width,
+//                        height: rectForSize.size.height
+//                    )
+//
+//                    print("🌱 box.boundingBox: \(text.boundingBox)")
+//                    print("🌱 scaledSize: \(scaledSize)")
+//                    print("🌱 rectForSize: \(rectForSize)")
+//                    print("🌱 correctedRect: \(correctedRect)")
+//                    print("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
+//
+//
+//                } else {
+//
+//                    let rectForSize: CGRect
+//                    let x: CGFloat
+//                    let y: CGFloat
+//
+//                    if image.size.widthToHeightRatio > screen.size.widthToHeightRatio {
+//                        /// This means we have empty strips at the top, and image gets width set to screen width
+//                        let scaledHeight = (image.size.height * screen.width) / image.size.width
+//                        let scaledSize = CGSize(width: screen.width, height: scaledHeight)
+//                        rectForSize = text.boundingBox.rectForSize(scaledSize)
+//                        x = rectForSize.origin.x
+//                        y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
+//
+//                        print("🌱 scaledSize: \(scaledSize)")
+//                    } else {
+//                        let scaledWidth = (image.size.width * screen.height) / image.size.height
+//                        let scaledSize = CGSize(width: scaledWidth, height: screen.height)
+//                        rectForSize = text.boundingBox.rectForSize(scaledSize)
+//                        x = rectForSize.origin.x + ((screen.width - scaledWidth) / 2.0)
+//                        y = rectForSize.origin.y
+//                    }
+//
+//                    correctedRect = CGRect(
+//                        x: x,
+//                        y: y,
+//                        width: rectForSize.size.width,
+//                        height: rectForSize.size.height
+//                    )
+//
+//                    print("🌱 rectForSize: \(rectForSize)")
+//                    print("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
+//
+//                }
+                

@@ -55,14 +55,10 @@ extension LabelScannerViewModel {
               let boundingBox = scanResult?.columnsBoundingBox
         else { return }
         
-//        let zoomRect = columns.boundingBox
-//        let zoomRect = CGRectMake(0.3537906976744186, 0.3771300995936023, 0.6, 0.2529084471421345)
-
         let columnZoomBox = ZoomBox(
             boundingBox: boundingBox,
             animated: true,
-//            padded: true,
-            padded: false,
+            padded: true,
             imageSize: imageSize
         )
 
