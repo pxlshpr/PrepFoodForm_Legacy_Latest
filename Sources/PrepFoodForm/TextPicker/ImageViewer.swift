@@ -593,6 +593,17 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
             self.scrollView.shouldPositionContent = false
         }
         
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            NotificationCenter.default.post(name: .zoomableScrollViewDidEndScrollingAnimation, object: nil, userInfo: [
+                Notification.ZoomableScrollViewKeys.contentSize: scrollView.contentSize,
+                Notification.ZoomableScrollViewKeys.contentOffset: scrollView.contentOffset
+            ])
+        }
+        
+        func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+            print("🟣 scrollViewDidEndDragging")
+        }
+        
         @objc func zoomZoomableScrollView(notification: Notification) {
             guard let zoomBox = notification.userInfo?[Notification.ZoomableScrollViewKeys.zoomBox] as? ZoomBox
             else { return }
@@ -620,6 +631,7 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
 
 extension Notification.Name {
     public static var zoomableScrollViewDidEndZooming: Notification.Name { return .init("zoomableScrollViewDidEndZooming") }
+    public static var zoomableScrollViewDidEndScrollingAnimation: Notification.Name { return .init("zoomableScrollViewDidEndScrollingAnimation") }
 }
 
 extension Notification {

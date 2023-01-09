@@ -46,7 +46,8 @@ public class LabelScannerViewModel: ObservableObject {
     @Published var clearSelectedImage: Bool = false
     var lastContentOffset: CGPoint? = nil
     var lastContentSize: CGSize? = nil
-
+    var waitingForZoomToEndToCropImages = false
+    
     let id = UUID()
     
     public init(
@@ -69,6 +70,13 @@ public class LabelScannerViewModel: ObservableObject {
             name: .zoomableScrollViewDidEndZooming,
             object: nil
         )
+        
+//        NotificationCenter.default.addObserver(
+//            self,
+//            selector: #selector(zoomableScrollViewDidEndZooming),
+//            name: .zoomableScrollViewDidEndScrollingAnimation,
+//            object: nil
+//        )
     }
     
     @objc func zoomableScrollViewDidEndZooming(_ notification: Notification) {
@@ -79,6 +87,14 @@ public class LabelScannerViewModel: ObservableObject {
         lastContentOffset = contentOffset
         lastContentSize = contentSize
         print("LabelScannerViewModel: 🚠 scrollViewDidEndZooming — offset: \(contentOffset) size: \(contentSize)")
+        
+        if waitingForZoomToEndToCropImages {
+            waitingForZoomToEndToCropImages = false
+            
+            Task.detached { [weak self] in
+                try await self?.cropImages()
+            }
+        }
     }
     
     public convenience init() {
@@ -117,6 +133,7 @@ public class LabelScannerViewModel: ObservableObject {
         clearSelectedImage = false
         lastContentOffset = nil
         lastContentSize = nil
+        waitingForZoomToEndToCropImages = false
     }
     
     func begin(_ image: UIImage) {
@@ -129,10 +146,8 @@ public class LabelScannerViewModel: ObservableObject {
             try await sleepTask(1.0, tolerance: 0.1)
             await self.dismissHandler?()
 //            try await self.collapse()
-            
 //            let textSet = try await image.recognizedTextSet(for: .accurate, includeBarcodes: true)
 //            let scanResult = textSet.scanResult
-            
         }
     }
 
@@ -220,9 +235,24 @@ public class LabelScannerViewModel: ObservableObject {
             if scanResult.columnCount == 2 {
                 try await self.showColumnPicker()
             } else {
-                try await self.cropImages()
+                
+                /// If we're not showing the column picker—zoom into the texts we'll be extracting, and wait for long enough to get the new `contentOffset` and `contentSize`
+                if await self.shouldZoomToTextsToCrop == true {
+                    await self.zoomToTextsToCrop()
+                    await MainActor.run { [weak self] in
+                        self?.waitingForZoomToEndToCropImages = true
+                    }
+                } else {
+                    try await self.cropImages()
+                }
             }
         }
+    }
+    
+    var shouldZoomToTextsToCrop: Bool {
+        guard !showingColumnPicker else { return false }
+        let boundingBox = textsToCrop.boundingBox
+        return boundingBox.height < 0.6
     }
     
     var textsToCrop: [RecognizedText] {
@@ -257,7 +287,9 @@ public class LabelScannerViewModel: ObservableObject {
     func getRectForText(_ text: RecognizedText, contentSize: CGSize, contentOffset: CGPoint) -> CGRect {
         /// Get the bounding box in terms of the (scaled) image dimensions
         let rect = text.boundingBox.rectForSize(contentSize)
-        
+
+        print("    📐 Getting rectForSize for: \(text.string) \(rect)")
+
         /// Now offset it by the scrollview's current offset to get it's current position
         return CGRect(
             x: rect.origin.x - contentOffset.x,
@@ -270,9 +302,11 @@ public class LabelScannerViewModel: ObservableObject {
     func rectForText(_ text: RecognizedText) -> CGRect {
         
         if let lastContentSize, let lastContentOffset {
+            print("    📐 Have contentSize and contentOffset, so calculating")
             return getRectForText(text, contentSize: lastContentSize, contentOffset: lastContentOffset)
         }
-        
+        print("    📐 DON'T Have contentSize and contentOffset, doing it manually")
+
         //TODO: Try and always have lastContentSize and lastContentOffset and calculate using those
         let boundingBox = text.boundingBox
         guard let image else { return .zero }
@@ -335,6 +369,28 @@ public class LabelScannerViewModel: ObservableObject {
         return correctedRect
     }
     
+    func zoomToTextsToCrop() async {
+        guard let imageSize = image?.size else { return }
+        let boundingBox = self.textsToCrop.filter({ $0.id != defaultUUID }).boundingBox
+        
+        let columnZoomBox = ZoomBox(
+            boundingBox: boundingBox,
+            animated: true,
+            padded: true,
+            imageSize: imageSize
+        )
+
+        print("🏎 zooming to boundingBox: \(boundingBox)")
+        await MainActor.run { [weak self] in
+            guard let _ = self else { return }
+            NotificationCenter.default.post(
+                name: .zoomZoomableScrollView,
+                object: nil,
+                userInfo: [Notification.ZoomableScrollViewKeys.zoomBox: columnZoomBox]
+            )
+        }
+    }
+    
     func cropImages() async throws {
         guard let image else { return }
         
@@ -342,19 +398,13 @@ public class LabelScannerViewModel: ObservableObject {
 
             guard let self else { return }
             
-//            await MainActor.run { [weak self] in
-//                guard let self else { return }
-//                if self.showingColumnPicker {
-//                    self.zoomOutCompletely(image, animated: true)
-//                }
-//            }
-            
             for text in await self.textsToCrop {
                 guard let cropped = await image.cropped(boundingBox: text.boundingBox) else {
                     print("Couldn't get image for box: \(text)")
                     continue
                 }
                 
+                print("📐 Getting rect for: \(text.string)")
                 let correctedRect = await self.rectForText(text)
                 
                 await MainActor.run { [weak self] in
