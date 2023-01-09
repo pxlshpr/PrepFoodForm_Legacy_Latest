@@ -235,7 +235,6 @@ public class LabelScannerViewModel: ObservableObject {
             if scanResult.columnCount == 2 {
                 try await self.showColumnPicker()
             } else {
-                
                 /// If we're not showing the column picker—zoom into the texts we'll be extracting, and wait for long enough to get the new `contentOffset` and `contentSize`
                 if await self.shouldZoomToTextsToCrop == true {
                     await self.zoomToTextsToCrop()
