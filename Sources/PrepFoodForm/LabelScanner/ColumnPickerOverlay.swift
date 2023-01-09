@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftHaptics
 
-struct ColumnPickerOverlay: View {
+public struct ColumnPickerOverlay: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Binding var isVisibleBinding: Bool
@@ -9,7 +9,19 @@ struct ColumnPickerOverlay: View {
     var didTapDismiss: (() -> ())?
     let didTapAutofill: () -> ()
     
-    var body: some View {
+    public init(
+        isVisibleBinding: Binding<Bool>,
+        selectedColumn: Binding<Int>,
+        didTapDismiss: (() -> ())? = nil,
+        didTapAutofill: @escaping () -> ()
+    ) {
+        _isVisibleBinding = isVisibleBinding
+        _selectedColumn = selectedColumn
+        self.didTapDismiss = didTapDismiss
+        self.didTapAutofill = didTapAutofill
+    }
+    
+    public var body: some View {
         VStack {
             if isVisibleBinding {
                 title
@@ -19,20 +31,27 @@ struct ColumnPickerOverlay: View {
             if isVisibleBinding {
                 bottomVStack
                     .transition(.move(edge: .bottom))
+                    .padding(.bottom, 50)
             }
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 50)
         .edgesIgnoringSafeArea(.all)
     }
     
     var bottomVStack: some View {
         VStack {
-            dismissButtonRow
+//            dismissButtonRow
             segmentedPicker
-            autoFillButton
+            HStack {
+                /// Blank space for dismiss button to show up
+                Color.clear
+                    .frame(width: 50, height: 50)
+                autoFillButton
+            }
         }
     }
+    
+    @State private var dragTranslationX: CGFloat?
     
     var segmentedPicker: some View {
         ZStack {
@@ -41,6 +60,8 @@ struct ColumnPickerOverlay: View {
             texts
         }
         .frame(height: 50)
+        .highPriorityGesture(dragGesture)
+//        .gesture(dragGesture)
     }
     
     var r: CGFloat { 3 }
@@ -97,6 +118,7 @@ struct ColumnPickerOverlay: View {
             Text("Per 100")
                 .font(.system(size: 18, weight: .semibold, design: .default))
                 .foregroundColor(selectedColumn == 2 ? .white : .secondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
         }
     }
@@ -115,12 +137,80 @@ struct ColumnPickerOverlay: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .foregroundStyle(Color.accentColor.gradient)
-                        .shadow(color: .black, radius: 2, x: 0, y: 2)
+//                        .shadow(color: .black, radius: 2, x: 0, y: 2)
+//                        .shadow(color: innerTopLeftShadowColor, radius: 2, x: 0, y: 2)
+                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
                 )
                 .contentShape(Rectangle())
         }
     }
+
+    func dragChanged(_ value: DragGesture.Value) {
+        print("👉🏽 drag.translation: \(value.translation)")
+        var translation = value.translation.width
+        if selectedColumn == 1 {
+            translation = max(0, translation)
+            translation = min(translation, buttonWidth)
+        } else {
+            translation = max(-buttonWidth, translation)
+            translation = min(0, buttonWidth)
+        }
+        self.dragTranslationX = translation
+    }
     
+    var buttonIsOnRight: Bool {
+        buttonXPosition > buttonWidth
+    }
+    func dragEnded(_ value: DragGesture.Value) {
+        var transitionAnimation: Animation {
+            .interactiveSpring()
+//            .default
+        }
+        
+        var cancelAnimation: Animation {
+            .interactiveSpring()
+        }
+//        print("👉🏽 drag.translation: \(value.translation)")
+        let predictedTranslationX = value.predictedEndTranslation.width
+        let predictedButtonX = (buttonWidth / 2.0) + (selectedColumn == 2 ? buttonWidth : 0) + predictedTranslationX
+        let predictedButtonIsOnRight = predictedButtonX > buttonWidth
+        
+        if predictedButtonIsOnRight {
+            if selectedColumn == 1 {
+                Haptics.feedback(style: .soft)
+                withAnimation(transitionAnimation) {
+                    dragTranslationX = buttonWidth
+                }
+                dragTranslationX = nil
+                selectedColumn = 2
+            } else {
+                withAnimation(cancelAnimation) {
+                    dragTranslationX = nil
+                }
+            }
+        } else {
+            if selectedColumn == 2 {
+                Haptics.feedback(style: .soft)
+                dragTranslationX = nil
+                withAnimation(transitionAnimation) {
+                    dragTranslationX = -buttonWidth
+                }
+                dragTranslationX = nil
+                selectedColumn = 1
+            } else {
+                withAnimation(cancelAnimation) {
+                    dragTranslationX = nil
+                }
+            }
+        }
+    }
+    
+    var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged(dragChanged)
+            .onEnded(dragEnded)
+    }
+
     var button: some View {
         RoundedRectangle(cornerRadius: 12, style: .continuous)
             .foregroundStyle(Color.accentColor.gradient)
@@ -128,6 +218,7 @@ struct ColumnPickerOverlay: View {
             .padding(3)
             .frame(width: buttonWidth)
             .position(x: buttonXPosition, y: 25)
+//            .gesture(dragGesture)
     }
 
     var texts: some View {
@@ -150,7 +241,11 @@ struct ColumnPickerOverlay: View {
     }
     
     var buttonXPosition: CGFloat {
-        (buttonWidth / 2.0) + (selectedColumn == 2 ? buttonWidth : 0)
+        var x = (buttonWidth / 2.0) + (selectedColumn == 2 ? buttonWidth : 0)
+        if let dragTranslationX {
+            x += dragTranslationX
+        }
+        return x
     }
     
     var title: some View {

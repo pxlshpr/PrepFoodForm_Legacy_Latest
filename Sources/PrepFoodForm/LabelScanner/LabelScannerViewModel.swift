@@ -51,6 +51,14 @@ public class LabelScannerViewModel: ObservableObject {
     var croppingStatus: CroppingStatus = .idle
     var waitingToShowCroppedImages = false
 
+    var scanTask: Task<(), Error>? = nil
+    var scanProcessTask: Task<(), Error>? = nil
+    var croppingTask: Task<(), Error>? = nil
+    var showingCroppedImagesTask: Task<(), Error>? = nil
+    var stackingCroppedImagesOnTopTask: Task<(), Error>? = nil
+    var zoomEndHandlerTask: Task<(), Error>? = nil
+    var columnSelectionHandlerTask: Task<(), Error>? = nil
+
     enum CroppingStatus {
         case idle
         case started
@@ -87,7 +95,7 @@ public class LabelScannerViewModel: ObservableObject {
             object: nil
         )
     }
-    
+
     @objc func zoomableScrollViewDidEndZooming(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let contentOffset = userInfo[Notification.ZoomableScrollViewKeys.contentOffset] as? CGPoint,
@@ -98,25 +106,32 @@ public class LabelScannerViewModel: ObservableObject {
         lastContentSize = contentSize
         print("LabelScannerViewModel: 🚠 scrollViewDidEndZooming — offset: \(contentOffset) size: \(contentSize)")
         
-        if waitingForZoomToEndToShowCroppedImages {
-            waitingForZoomToEndToShowCroppedImages = false
-            
-            Task.detached { [weak self] in
-                guard let self else { return }
-                switch await self.croppingStatus {
-                case .complete:
-                    print("✂️ didEndZooming with CroppingStatus.complete — Now show cropped images")
-                    await self.showCroppedImages()
-                case .started:
-                    print("✂️ didEndZooming with CroppingStatus.started — Wait till cropping is done")
-                    await MainActor.run { [weak self] in
-                        self?.waitingToShowCroppedImages = true
-                    }
-                case .idle:
-                    print("✂️ didEndZooming with CroppingStatus.idle — shouldn't ever get here")
+        handleZoomEndINeeded()
+    }
+    
+    func handleZoomEndINeeded() {
+        guard waitingForZoomToEndToShowCroppedImages else {
+            print("🫥 handleZoomEndINeeded – not waiting, so returning")
+            return
+        }
+        print("🫥 handleZoomEndINeeded – waiting, so setting it to false and continuing")
+        waitingForZoomToEndToShowCroppedImages = false
+        zoomEndHandlerTask = Task.detached { [weak self] in
+            guard let self else { return }
+            guard !Task.isCancelled else { return }
+            switch await self.croppingStatus {
+            case .complete:
+                print("✂️ didEndZooming with CroppingStatus.complete — Now show cropped images")
+                await self.showCroppedImages()
+            case .started:
+                print("✂️ didEndZooming with CroppingStatus.started — Wait till cropping is done")
+                await MainActor.run { [weak self] in
+                    self?.waitingToShowCroppedImages = true
                 }
-//                try await self?.cropImages()
+            case .idle:
+                print("✂️ didEndZooming with CroppingStatus.idle — shouldn't ever get here")
             }
+//                try await self?.cropImages()
         }
     }
     
@@ -160,6 +175,25 @@ public class LabelScannerViewModel: ObservableObject {
         croppedImages = [:]
         croppingStatus = .idle
         waitingToShowCroppedImages = false
+        
+        cancelAllTasks()
+        scanTask = nil
+        scanProcessTask = nil
+        croppingTask = nil
+        showingCroppedImagesTask = nil
+        stackingCroppedImagesOnTopTask = nil
+        zoomEndHandlerTask = nil
+        columnSelectionHandlerTask = nil
+    }
+    
+    func cancelAllTasks() {
+        scanTask?.cancel()
+        scanProcessTask?.cancel()
+        croppingTask?.cancel()
+        showingCroppedImagesTask?.cancel()
+        stackingCroppedImagesOnTopTask?.cancel()
+        zoomEndHandlerTask?.cancel()
+        columnSelectionHandlerTask?.cancel()
     }
     
     func begin(_ image: UIImage) {
@@ -185,20 +219,18 @@ public class LabelScannerViewModel: ObservableObject {
     
     func startScan(_ image: UIImage) {
 
-        Task.detached { [weak self] in
+        scanTask = Task.detached { [weak self] in
             
             guard let self else { return }
             
             Haptics.selectionFeedback()
             
-//            try await sleepTask(0.03, tolerance: 0.005)
-//            try await sleepTask(0.75, tolerance: 0.005)
-//            try await sleepTask(1.0, tolerance: 0.005)
-            
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 self?.zoomOutCompletely(image)
             }
             
+            guard !Task.isCancelled else { return }
             if await self.isCamera {
                 await MainActor.run { [weak self] in
                     withAnimation {
@@ -212,6 +244,7 @@ public class LabelScannerViewModel: ObservableObject {
             
             /// Now capture recognized texts
             /// - captures all the RecognizedTexts
+            guard !Task.isCancelled else { return }
             let textSet = try await image.recognizedTextSet(for: .accurate, includeBarcodes: true)
             let textBoxes = textSet.texts.map {
                 TextBox(
@@ -226,6 +259,7 @@ public class LabelScannerViewModel: ObservableObject {
             Haptics.selectionFeedback()
 
             /// **VisionKit Scan Completed**: Show all `RecognizedText`'s
+            guard !Task.isCancelled else { return }
             await MainActor.run {  [weak self] in
                 guard let self else { return }
                 withAnimation {
@@ -236,28 +270,32 @@ public class LabelScannerViewModel: ObservableObject {
             }
 
             try await sleepTask(0.2, tolerance: 0.005)
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 self?.shimmering = true
             }
 
             try await sleepTask(1, tolerance: 0.005)
             
+            guard !Task.isCancelled else { return }
             try await self.scan(textSet: textSet)
         }
     }
     
     func scan(textSet: RecognizedTextSet) async throws {
         
-        Task.detached { [weak self] in
+        scanProcessTask = Task.detached { [weak self] in
             guard let self else { return }
             let scanResult = textSet.scanResult
 
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.scanResult = scanResult
                 self.showingBlackBackground = false
             }
             
+            guard !Task.isCancelled else { return }
             await self.startCroppingImages()
 
             if scanResult.columnCount == 2 {
@@ -283,9 +321,10 @@ public class LabelScannerViewModel: ObservableObject {
     func startCroppingImages() {
         guard let image else { return }
 
-        Task.detached { [weak self] in
+        croppingTask = Task.detached { [weak self] in
             guard let self else { return }
             
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 self?.croppingStatus = .started
             }
@@ -293,6 +332,7 @@ public class LabelScannerViewModel: ObservableObject {
             
             var croppedImages: [RecognizedText : UIImage] = [:]
             for text in await self.allTexts {
+                guard !Task.isCancelled else { return }
                 guard let croppedImage = await image.cropped(boundingBox: text.boundingBox) else {
                     print("Couldn't get image for box: \(text)")
                     continue
@@ -301,6 +341,7 @@ public class LabelScannerViewModel: ObservableObject {
                 croppedImages[text] = croppedImage
             }
 
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self, croppedImages] in
                 print("✂️ Cropping completed, setting dict and status")
                 self?.croppedImages = croppedImages
@@ -316,11 +357,13 @@ public class LabelScannerViewModel: ObservableObject {
     
     func showCroppedImages() {
         print("✂️ Showing cropped images")
-        Task.detached { [weak self] in
+        showingCroppedImagesTask = Task.detached { [weak self] in
             
             guard let self else { return }
-            
+            guard !Task.isCancelled else { return }
+
             for (text, cropped) in await self.croppedImages {
+                guard !Task.isCancelled else { return }
                 guard await self.textsToCrop.contains(where: { $0.id == text.id }) else {
                     print("✂️ Not including: \(text.string) since it's not in textsToCrop")
                     continue
@@ -345,8 +388,10 @@ public class LabelScannerViewModel: ObservableObject {
                 }
             }
             
+            guard !Task.isCancelled else { return }
             Haptics.selectionFeedback()
             
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 withAnimation {
@@ -358,15 +403,17 @@ public class LabelScannerViewModel: ObservableObject {
             
             try await sleepTask(0.1, tolerance: 0.01)
 
+            guard !Task.isCancelled else { return }
             await self.stackCroppedImagesOnTop()
         }
     }
     
     func stackCroppedImagesOnTop() {
-        Task.detached { [weak self] in
+        stackingCroppedImagesOnTopTask = Task.detached { [weak self] in
             
             guard let self else { return }
-            
+            guard !Task.isCancelled else { return }
+
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 withAnimation {
@@ -379,6 +426,7 @@ public class LabelScannerViewModel: ObservableObject {
 
             try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
 
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 Haptics.selectionFeedback()
@@ -389,6 +437,7 @@ public class LabelScannerViewModel: ObservableObject {
 
             try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
 
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 Haptics.selectionFeedback()
@@ -400,6 +449,7 @@ public class LabelScannerViewModel: ObservableObject {
 
             try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
 
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 Haptics.selectionFeedback()
@@ -411,6 +461,7 @@ public class LabelScannerViewModel: ObservableObject {
 
             try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
 
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 Haptics.selectionFeedback()
@@ -422,6 +473,7 @@ public class LabelScannerViewModel: ObservableObject {
 
             try await sleepTask(Double.random(in: 0.3...0.5), tolerance: 0.01)
 
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 Haptics.feedback(style: .soft)
@@ -433,6 +485,7 @@ public class LabelScannerViewModel: ObservableObject {
             
             try await sleepTask(0.8, tolerance: 0.01)
             
+            guard !Task.isCancelled else { return }
             try await self.collapse()
         }
     }
@@ -721,9 +774,12 @@ public class LabelScannerViewModel: ObservableObject {
             return (right1, left1, right2, left2)
         }
     }
-    
+
     @MainActor
     func collapse() async throws {
+        
+        guard !Task.isCancelled else { return }
+
         withAnimation {
             animatingCollapse = true
             animatingCollapseOfCutouts = true
@@ -735,12 +791,14 @@ public class LabelScannerViewModel: ObservableObject {
         
         try await sleepTask(0.5, tolerance: 0.01)
         
+        guard !Task.isCancelled else { return }
         withAnimation {
             self.animatingCollapseOfCroppedImages = true
         }
 
         try await sleepTask(0.2, tolerance: 0.01)
 
+        guard !Task.isCancelled else { return }
         withAnimation {
             //TODO: Handle this in LabelScanner with a local variable an an onChange modifier since it's a binding
             clearSelectedImage = true
@@ -752,6 +810,7 @@ public class LabelScannerViewModel: ObservableObject {
                     scanResultHandler?(scanResult, nil)
                 }
                 scanResultHandler = nil
+                dismissHandler?()
             }
         }
     }

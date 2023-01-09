@@ -58,6 +58,10 @@ public struct LabelScanner: View {
             imageViewerLayer
             cameraLayer
             columnPickerLayer
+            if !viewModel.animatingCollapse {
+                dismissLayer
+                    .transition(.scale)
+            }
         }
         .onChange(of: selectedImage) { newValue in
             guard let newValue else { return }
@@ -73,6 +77,55 @@ public struct LabelScanner: View {
             withAnimation {
                 self.selectedImage = nil
             }
+        }
+    }
+    
+    func dismiss() {
+        Haptics.feedback(style: .soft)
+        viewModel.cancelAllTasks()
+        viewModel.dismissHandler?()
+    }
+    
+    var dismissLayer: some View {
+        var cornerRadius: CGFloat {
+            viewModel.showingColumnPickerUI ? 12 : 19
+        }
+        
+        var height: CGFloat {
+            viewModel.showingColumnPickerUI ? 50 : 38
+        }
+        
+        var foregroundStyle: Material {
+            viewModel.showingColumnPickerUI
+            ? .ultraThinMaterial
+            : .ultraThickMaterial
+        }
+        
+        var bottomPadding: CGFloat {
+            viewModel.showingColumnPickerUI ? 16 : 0
+        }
+        
+        return VStack {
+            Spacer()
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.down")
+                        .imageScale(.medium)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color(.secondaryLabel))
+                        .frame(width: height, height: height)
+                        .background(
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .foregroundStyle(foregroundStyle)
+                                .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                        )
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, bottomPadding)
         }
     }
     

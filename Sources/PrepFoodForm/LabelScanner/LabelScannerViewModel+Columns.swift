@@ -83,7 +83,6 @@ extension LabelScannerViewModel {
         }
 //        }
         
-        
         Haptics.feedback(style: .soft)
         withAnimation {
             showingColumnPicker = true
@@ -165,11 +164,18 @@ extension LabelScannerViewModel {
             self.showingColumnPickerUI = false
         }
         
-        Task.detached { [weak self] in
+        columnSelectionHandlerTask = Task.detached { [weak self] in
+            guard let self else { return }
+            guard !Task.isCancelled else { return }
             await MainActor.run { [weak self] in
                 self?.waitingForZoomToEndToShowCroppedImages = true
             }
-            await self?.zoomToTextsToCrop()
+            
+            guard !Task.isCancelled else { return }
+            await self.zoomToTextsToCrop()
+
+            try await sleepTask(0.5, tolerance: 0.1)
+            await self.handleZoomEndINeeded()
         }
     }
 }
