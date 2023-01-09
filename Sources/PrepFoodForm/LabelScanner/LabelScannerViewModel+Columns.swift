@@ -76,8 +76,14 @@ extension LabelScannerViewModel {
     func showColumnPicker() async throws {
         guard let scanResult else { return }
 
-        self.shimmering = false
-//        Haptics.warningFeedback()
+//        self.shimmering = false
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        await MainActor.run { [weak self] in
+            self?.shimmering = false
+        }
+//        }
+        
+        
         Haptics.feedback(style: .soft)
         withAnimation {
             showingColumnPicker = true
@@ -160,8 +166,10 @@ extension LabelScannerViewModel {
         }
         
         Task.detached { [weak self] in
-            /// Now continue our scan sequence by first cropping images
-            try await self?.cropImages()
+            await MainActor.run { [weak self] in
+                self?.waitingForZoomToEndToShowCroppedImages = true
+            }
+            await self?.zoomToTextsToCrop()
         }
     }
 }

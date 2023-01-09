@@ -594,6 +594,7 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
         }
         
         func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            print("🟣 scrollViewDidEndScrollingAnimation")
             NotificationCenter.default.post(name: .zoomableScrollViewDidEndScrollingAnimation, object: nil, userInfo: [
                 Notification.ZoomableScrollViewKeys.contentSize: scrollView.contentSize,
                 Notification.ZoomableScrollViewKeys.contentOffset: scrollView.contentOffset
@@ -611,6 +612,7 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
         }
         
         func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+            print("🟣 scrollViewDidEndZooming")
             NotificationCenter.default.post(name: .zoomableScrollViewDidEndZooming, object: nil, userInfo: [
                 Notification.ZoomableScrollViewKeys.contentSize: scrollView.contentSize,
                 Notification.ZoomableScrollViewKeys.contentOffset: scrollView.contentOffset

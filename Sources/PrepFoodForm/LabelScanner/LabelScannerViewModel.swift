@@ -46,7 +46,16 @@ public class LabelScannerViewModel: ObservableObject {
     @Published var clearSelectedImage: Bool = false
     var lastContentOffset: CGPoint? = nil
     var lastContentSize: CGSize? = nil
-    var waitingForZoomToEndToCropImages = false
+    var waitingForZoomToEndToShowCroppedImages = false
+    var croppedImages: [RecognizedText : UIImage] = [:]
+    var croppingStatus: CroppingStatus = .idle
+    var waitingToShowCroppedImages = false
+
+    enum CroppingStatus {
+        case idle
+        case started
+        case complete
+    }
     
     let id = UUID()
     
@@ -71,12 +80,12 @@ public class LabelScannerViewModel: ObservableObject {
             object: nil
         )
         
-//        NotificationCenter.default.addObserver(
-//            self,
-//            selector: #selector(zoomableScrollViewDidEndZooming),
-//            name: .zoomableScrollViewDidEndScrollingAnimation,
-//            object: nil
-//        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(zoomableScrollViewDidEndZooming),
+            name: .zoomableScrollViewDidEndScrollingAnimation,
+            object: nil
+        )
     }
     
     @objc func zoomableScrollViewDidEndZooming(_ notification: Notification) {
@@ -84,15 +93,29 @@ public class LabelScannerViewModel: ObservableObject {
               let contentOffset = userInfo[Notification.ZoomableScrollViewKeys.contentOffset] as? CGPoint,
               let contentSize = userInfo[Notification.ZoomableScrollViewKeys.contentSize] as? CGSize
         else { return }
+        
         lastContentOffset = contentOffset
         lastContentSize = contentSize
         print("LabelScannerViewModel: 🚠 scrollViewDidEndZooming — offset: \(contentOffset) size: \(contentSize)")
         
-        if waitingForZoomToEndToCropImages {
-            waitingForZoomToEndToCropImages = false
+        if waitingForZoomToEndToShowCroppedImages {
+            waitingForZoomToEndToShowCroppedImages = false
             
             Task.detached { [weak self] in
-                try await self?.cropImages()
+                guard let self else { return }
+                switch await self.croppingStatus {
+                case .complete:
+                    print("✂️ didEndZooming with CroppingStatus.complete — Now show cropped images")
+                    await self.showCroppedImages()
+                case .started:
+                    print("✂️ didEndZooming with CroppingStatus.started — Wait till cropping is done")
+                    await MainActor.run { [weak self] in
+                        self?.waitingToShowCroppedImages = true
+                    }
+                case .idle:
+                    print("✂️ didEndZooming with CroppingStatus.idle — shouldn't ever get here")
+                }
+//                try await self?.cropImages()
             }
         }
     }
@@ -133,7 +156,10 @@ public class LabelScannerViewModel: ObservableObject {
         clearSelectedImage = false
         lastContentOffset = nil
         lastContentSize = nil
-        waitingForZoomToEndToCropImages = false
+        waitingForZoomToEndToShowCroppedImages = false
+        croppedImages = [:]
+        croppingStatus = .idle
+        waitingToShowCroppedImages = false
     }
     
     func begin(_ image: UIImage) {
@@ -232,6 +258,8 @@ public class LabelScannerViewModel: ObservableObject {
                 self.showingBlackBackground = false
             }
             
+            await self.startCroppingImages()
+
             if scanResult.columnCount == 2 {
                 try await self.showColumnPicker()
             } else {
@@ -239,19 +267,300 @@ public class LabelScannerViewModel: ObservableObject {
                 if await self.shouldZoomToTextsToCrop == true {
                     await self.zoomToTextsToCrop()
                     await MainActor.run { [weak self] in
-                        self?.waitingForZoomToEndToCropImages = true
+                        self?.waitingForZoomToEndToShowCroppedImages = true
                     }
+//                } else {
+//                    try await self.cropImages()
                 } else {
-                    try await self.cropImages()
+                    await MainActor.run { [weak self] in
+                        self?.waitingToShowCroppedImages = true
+                    }
                 }
             }
         }
     }
     
+    func startCroppingImages() {
+        guard let image else { return }
+
+        Task.detached { [weak self] in
+            guard let self else { return }
+            
+            await MainActor.run { [weak self] in
+                self?.croppingStatus = .started
+            }
+            print("✂️ Starting cropping")
+            
+            var croppedImages: [RecognizedText : UIImage] = [:]
+            for text in await self.allTexts {
+                guard let croppedImage = await image.cropped(boundingBox: text.boundingBox) else {
+                    print("Couldn't get image for box: \(text)")
+                    continue
+                }
+                print("✂️ Cropped: \(text.string)")
+                croppedImages[text] = croppedImage
+            }
+
+            await MainActor.run { [weak self, croppedImages] in
+                print("✂️ Cropping completed, setting dict and status")
+                self?.croppedImages = croppedImages
+                self?.croppingStatus = .complete
+            }
+            
+            if await self.waitingToShowCroppedImages {
+                print("✂️ Was waitingToShowCroppedImages, so showing now")
+                await self.showCroppedImages()
+            }
+        }
+    }
+    
+    func showCroppedImages() {
+        print("✂️ Showing cropped images")
+        Task.detached { [weak self] in
+            
+            guard let self else { return }
+            
+            for (text, cropped) in await self.croppedImages {
+                guard await self.textsToCrop.contains(where: { $0.id == text.id }) else {
+                    print("✂️ Not including: \(text.string) since it's not in textsToCrop")
+                    continue
+                }
+                
+                print("✂️ Getting rect for: \(text.string)")
+                let correctedRect = await self.rectForText(text)
+                
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    let randomWiggleAngles = self.randomWiggleAngles
+                    
+                    if !self.images.contains(where: { $0.2 == text.id }) {
+                        self.images.append((
+                            cropped,
+                            correctedRect,
+                            text.id,
+                            Angle.degrees(CGFloat.random(in: -20...20)),
+                            randomWiggleAngles
+                        ))
+                    }
+                }
+            }
+            
+            Haptics.selectionFeedback()
+            
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                withAnimation {
+                    self.textBoxes = []
+                    self.showingCroppedImages = true
+                    self.scannedTextBoxes = self.getScannedTextBoxes
+                }
+            }
+            
+            try await sleepTask(0.1, tolerance: 0.01)
+
+            await self.stackCroppedImagesOnTop()
+        }
+    }
+    
+    func stackCroppedImagesOnTop() {
+        Task.detached { [weak self] in
+            
+            guard let self else { return }
+            
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                withAnimation {
+                    self.showingCutouts = true
+                    self.animatingLiftingUpOfCroppedImages = true
+                }
+            }
+
+            let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingFirstWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingFirstWiggleOfCroppedImages = false
+                    self.animatingSecondWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingSecondWiggleOfCroppedImages = false
+                    self.animatingThirdWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.selectionFeedback()
+                withAnimation(Bounce) {
+                    self.animatingThirdWiggleOfCroppedImages = false
+                    self.animatingFourthWiggleOfCroppedImages = true
+                }
+            }
+
+            try await sleepTask(Double.random(in: 0.3...0.5), tolerance: 0.01)
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                Haptics.feedback(style: .soft)
+                withAnimation(Bounce) {
+                    self.animatingFourthWiggleOfCroppedImages = false
+                    self.stackedOnTop = true
+                }
+            }
+            
+            try await sleepTask(0.8, tolerance: 0.01)
+            
+            try await self.collapse()
+        }
+    }
+    
+//    func cropImages() async throws {
+//        guard let image else { return }
+//
+//        Task.detached { [weak self] in
+//
+//            guard let self else { return }
+//
+//            for text in await self.textsToCrop {
+//                guard let cropped = await image.cropped(boundingBox: text.boundingBox) else {
+//                    print("Couldn't get image for box: \(text)")
+//                    continue
+//                }
+//
+//                print("📐 Getting rect for: \(text.string)")
+//                let correctedRect = await self.rectForText(text)
+//
+//                await MainActor.run { [weak self] in
+//                    guard let self else { return }
+//                    let randomWiggleAngles = self.randomWiggleAngles
+//
+//                    if !self.images.contains(where: { $0.2 == text.id }) {
+//                        self.images.append((
+//                            cropped,
+//                            correctedRect,
+//                            text.id,
+//                            Angle.degrees(CGFloat.random(in: -20...20)),
+//                            randomWiggleAngles
+//                        ))
+//                    }
+//                }
+//            }
+//
+//            Haptics.selectionFeedback()
+//
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                withAnimation {
+//                    self.textBoxes = []
+//                    self.showingCroppedImages = true
+////                    self.scannedTextBoxes = scanResult.textBoxes
+//                    self.scannedTextBoxes = self.getScannedTextBoxes
+//                }
+//            }
+//
+//            try await sleepTask(0.1, tolerance: 0.01)
+//
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                withAnimation {
+//                    self.showingCutouts = true
+//                    self.animatingLiftingUpOfCroppedImages = true
+//                }
+//            }
+//
+//            let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
+//
+//            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+//
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                Haptics.selectionFeedback()
+//                withAnimation(Bounce) {
+//                    self.animatingFirstWiggleOfCroppedImages = true
+//                }
+//            }
+//
+//            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+//
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                Haptics.selectionFeedback()
+//                withAnimation(Bounce) {
+//                    self.animatingFirstWiggleOfCroppedImages = false
+//                    self.animatingSecondWiggleOfCroppedImages = true
+//                }
+//            }
+//
+//            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+//
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                Haptics.selectionFeedback()
+//                withAnimation(Bounce) {
+//                    self.animatingSecondWiggleOfCroppedImages = false
+//                    self.animatingThirdWiggleOfCroppedImages = true
+//                }
+//            }
+//
+//            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
+//
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                Haptics.selectionFeedback()
+//                withAnimation(Bounce) {
+//                    self.animatingThirdWiggleOfCroppedImages = false
+//                    self.animatingFourthWiggleOfCroppedImages = true
+//                }
+//            }
+//
+//            try await sleepTask(Double.random(in: 0.3...0.5), tolerance: 0.01)
+//
+//            await MainActor.run { [weak self] in
+//                guard let self else { return }
+//                Haptics.feedback(style: .soft)
+//                withAnimation(Bounce) {
+//                    self.animatingFourthWiggleOfCroppedImages = false
+//                    self.stackedOnTop = true
+//                }
+//            }
+//
+//            try await sleepTask(0.8, tolerance: 0.01)
+//
+//            try await self.collapse()
+//        }
+//    }
+
     var shouldZoomToTextsToCrop: Bool {
         guard !showingColumnPicker else { return false }
         let boundingBox = textsToCrop.boundingBox
         return boundingBox.height < 0.6
+    }
+    
+    var allTexts: [RecognizedText] {
+        scanResult?.allTexts ?? []
     }
     
     var textsToCrop: [RecognizedText] {
@@ -265,6 +574,16 @@ public class LabelScannerViewModel: ObservableObject {
                 }
             }
             texts.append(contentsOf: scanResult.servingTexts)
+            switch columns.selectedColumnIndex {
+            case 2:
+                if let text = scanResult.headers?.headerText2?.text  {
+                    texts.append(text)
+                }
+            default:
+                if let text = scanResult.headers?.headerText1?.text {
+                    texts.append(text)
+                }
+            }
             return texts
         } else {
             return scanResult.allTexts
@@ -387,122 +706,6 @@ public class LabelScannerViewModel: ObservableObject {
                 object: nil,
                 userInfo: [Notification.ZoomableScrollViewKeys.zoomBox: columnZoomBox]
             )
-        }
-    }
-    
-    func cropImages() async throws {
-        guard let image else { return }
-        
-        Task.detached { [weak self] in
-
-            guard let self else { return }
-            
-            for text in await self.textsToCrop {
-                guard let cropped = await image.cropped(boundingBox: text.boundingBox) else {
-                    print("Couldn't get image for box: \(text)")
-                    continue
-                }
-                
-                print("📐 Getting rect for: \(text.string)")
-                let correctedRect = await self.rectForText(text)
-                
-                await MainActor.run { [weak self] in
-                    guard let self else { return }
-                    let randomWiggleAngles = self.randomWiggleAngles
-                    
-                    if !self.images.contains(where: { $0.2 == text.id }) {
-                        self.images.append((
-                            cropped,
-                            correctedRect,
-                            text.id,
-                            Angle.degrees(CGFloat.random(in: -20...20)),
-                            randomWiggleAngles
-                        ))
-                    }
-                }
-            }
-            
-            Haptics.selectionFeedback()
-            
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                withAnimation {
-                    self.textBoxes = []
-                    self.showingCroppedImages = true
-//                    self.scannedTextBoxes = scanResult.textBoxes
-                    self.scannedTextBoxes = self.getScannedTextBoxes
-                }
-            }
-
-            try await sleepTask(0.1, tolerance: 0.01)
-
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                withAnimation {
-                    self.showingCutouts = true
-                    self.animatingLiftingUpOfCroppedImages = true
-                }
-            }
-
-            let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
-
-            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
-
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                Haptics.selectionFeedback()
-                withAnimation(Bounce) {
-                    self.animatingFirstWiggleOfCroppedImages = true
-                }
-            }
-
-            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
-
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                Haptics.selectionFeedback()
-                withAnimation(Bounce) {
-                    self.animatingFirstWiggleOfCroppedImages = false
-                    self.animatingSecondWiggleOfCroppedImages = true
-                }
-            }
-
-            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
-
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                Haptics.selectionFeedback()
-                withAnimation(Bounce) {
-                    self.animatingSecondWiggleOfCroppedImages = false
-                    self.animatingThirdWiggleOfCroppedImages = true
-                }
-            }
-
-            try await sleepTask(Double.random(in: 0.05...0.15), tolerance: 0.01)
-
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                Haptics.selectionFeedback()
-                withAnimation(Bounce) {
-                    self.animatingThirdWiggleOfCroppedImages = false
-                    self.animatingFourthWiggleOfCroppedImages = true
-                }
-            }
-
-            try await sleepTask(Double.random(in: 0.3...0.5), tolerance: 0.01)
-
-            await MainActor.run { [weak self] in
-                guard let self else { return }
-                Haptics.feedback(style: .soft)
-                withAnimation(Bounce) {
-                    self.animatingFourthWiggleOfCroppedImages = false
-                    self.stackedOnTop = true
-                }
-            }
-            
-            try await sleepTask(0.8, tolerance: 0.01)
-            
-            try await self.collapse()
         }
     }
     
