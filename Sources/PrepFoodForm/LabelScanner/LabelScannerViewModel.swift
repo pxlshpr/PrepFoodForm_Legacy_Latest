@@ -17,6 +17,7 @@ public class LabelScannerViewModel: ObservableObject {
 
     @Published var hideCamera = false
     @Published var textBoxes: [TextBox] = []
+    @Published var textSet: RecognizedTextSet? = nil
     @Published var scanResult: ScanResult? = nil
     @Published var image: UIImage? = nil
     @Published var images: [(UIImage, CGRect, UUID, Angle, (Angle, Angle, Angle, Angle))] = []
@@ -58,6 +59,7 @@ public class LabelScannerViewModel: ObservableObject {
     var stackingCroppedImagesOnTopTask: Task<(), Error>? = nil
     var zoomEndHandlerTask: Task<(), Error>? = nil
     var columnSelectionHandlerTask: Task<(), Error>? = nil
+    var writeTestDataTask: Task<(), Error>? = nil
 
     enum CroppingStatus {
         case idle
@@ -66,13 +68,16 @@ public class LabelScannerViewModel: ObservableObject {
     }
     
     let id = UUID()
+    let createTestData: Bool
     
     public init(
         isCamera: Bool,
+        createTestData: Bool = false,
         imageHandler: @escaping (UIImage, ScanResult) -> (),
         scanResultHandler: @escaping (ScanResult, Int?) -> (),
         dismissHandler: @escaping () -> ()
     ) {
+        self.createTestData = createTestData
         self.isCamera = isCamera
         self.imageHandler = imageHandler
         self.scanResultHandler = scanResultHandler
@@ -109,6 +114,16 @@ public class LabelScannerViewModel: ObservableObject {
         handleZoomEndINeeded()
     }
     
+    var leftColumnTitle: String {
+        guard let scanResult else { return "" }
+        return scanResult.headerTitle1
+    }
+    
+    var rightColumnTitle: String {
+        guard let scanResult else { return "" }
+        return scanResult.headerTitle2
+    }
+    
     func handleZoomEndINeeded() {
         guard waitingForZoomToEndToShowCroppedImages else {
             print("🫥 handleZoomEndINeeded – not waiting, so returning")
@@ -135,9 +150,10 @@ public class LabelScannerViewModel: ObservableObject {
         }
     }
     
-    public convenience init() {
+    public convenience init(createTestData: Bool = false) {
         self.init(
             isCamera: false,
+            createTestData: createTestData,
             imageHandler: { _, _ in },
             scanResultHandler:  { _, _ in },
             dismissHandler: { }
@@ -160,6 +176,7 @@ public class LabelScannerViewModel: ObservableObject {
         showingBoxes = false
         showingCutouts = false
         textBoxes = []
+        textSet = nil
         scanResult = nil
         image = nil
         images = []
@@ -184,6 +201,7 @@ public class LabelScannerViewModel: ObservableObject {
         stackingCroppedImagesOnTopTask = nil
         zoomEndHandlerTask = nil
         columnSelectionHandlerTask = nil
+        writeTestDataTask = nil
     }
     
     func cancelAllTasks() {
@@ -194,6 +212,7 @@ public class LabelScannerViewModel: ObservableObject {
         stackingCroppedImagesOnTopTask?.cancel()
         zoomEndHandlerTask?.cancel()
         columnSelectionHandlerTask?.cancel()
+        writeTestDataTask?.cancel()
     }
     
     func begin(_ image: UIImage) {
@@ -246,6 +265,13 @@ public class LabelScannerViewModel: ObservableObject {
             /// - captures all the RecognizedTexts
             guard !Task.isCancelled else { return }
             let textSet = try await image.recognizedTextSet(for: .accurate, includeBarcodes: true)
+            await MainActor.run { [weak self] in
+                withAnimation {
+                    self?.textSet = textSet
+                }
+            }
+            
+            guard !Task.isCancelled else { return }
             let textBoxes = textSet.texts.map {
                 TextBox(
                     id: $0.id,
@@ -295,7 +321,10 @@ public class LabelScannerViewModel: ObservableObject {
                 self.showingBlackBackground = false
             }
             
+//            await self.writeTestData()
+            
             guard !Task.isCancelled else { return }
+
             await self.startCroppingImages()
 
             if scanResult.columnCount == 2 {
@@ -485,6 +514,8 @@ public class LabelScannerViewModel: ObservableObject {
             
             try await sleepTask(0.8, tolerance: 0.01)
             
+            await self.writeTestData()
+
             guard !Task.isCancelled else { return }
             try await self.collapse()
         }
@@ -837,60 +868,126 @@ public class LabelScannerViewModel: ObservableObject {
             imageSize: imageSize
         )
     }
-    
 }
 
-//                if await self.isCamera {
-//                    let scaledWidth: CGFloat = (image.size.width * screen.height) / image.size.height
-//                    let scaledSize = CGSize(width: scaledWidth, height: screen.height)
-//                    let rectForSize = text.boundingBox.rectForSize(scaledSize)
-//
-//                    correctedRect = CGRect(
-//                        x: rectForSize.origin.x - ((scaledWidth - screen.width) / 2.0),
-//                        y: rectForSize.origin.y,
-//                        width: rectForSize.size.width,
-//                        height: rectForSize.size.height
-//                    )
-//
-//                    print("🌱 box.boundingBox: \(text.boundingBox)")
-//                    print("🌱 scaledSize: \(scaledSize)")
-//                    print("🌱 rectForSize: \(rectForSize)")
-//                    print("🌱 correctedRect: \(correctedRect)")
-//                    print("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
-//
-//
-//                } else {
-//
-//                    let rectForSize: CGRect
-//                    let x: CGFloat
-//                    let y: CGFloat
-//
-//                    if image.size.widthToHeightRatio > screen.size.widthToHeightRatio {
-//                        /// This means we have empty strips at the top, and image gets width set to screen width
-//                        let scaledHeight = (image.size.height * screen.width) / image.size.width
-//                        let scaledSize = CGSize(width: screen.width, height: scaledHeight)
-//                        rectForSize = text.boundingBox.rectForSize(scaledSize)
-//                        x = rectForSize.origin.x
-//                        y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
-//
-//                        print("🌱 scaledSize: \(scaledSize)")
-//                    } else {
-//                        let scaledWidth = (image.size.width * screen.height) / image.size.height
-//                        let scaledSize = CGSize(width: scaledWidth, height: screen.height)
-//                        rectForSize = text.boundingBox.rectForSize(scaledSize)
-//                        x = rectForSize.origin.x + ((screen.width - scaledWidth) / 2.0)
-//                        y = rectForSize.origin.y
-//                    }
-//
-//                    correctedRect = CGRect(
-//                        x: x,
-//                        y: y,
-//                        width: rectForSize.size.width,
-//                        height: rectForSize.size.height
-//                    )
-//
-//                    print("🌱 rectForSize: \(rectForSize)")
-//                    print("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
-//
-//                }
+extension LabelScannerViewModel {
+    
+    func testCaseDirectoryUrl(id: UUID) -> URL? {
+        guard let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        return documentsUrl.appending(component: id.uuidString)
+    }
+    
+    func writeTestData() {
+        guard createTestData else { return }
+        
+        writeTestDataTask = Task.detached { [weak self] in
+            guard !Task.isCancelled else { return }
+            guard
+                let self,
+                let image = await self.image,
+                let scanResult = await self.scanResult,
+                let directoryUrl = await self.testCaseDirectoryUrl(id: scanResult.id),
+                let textSet = await self.textSet
+            else { return }
+
+            do {
+                /// Create the folder with the `id`
+                try FileManager.default.createDirectory(at: directoryUrl, withIntermediateDirectories: false)
+                /// Save the image
+                guard !Task.isCancelled else { return }
+//                let resized = resizeImage(image: image, targetSize: CGSize(width: 2048, height: 2048))
+                guard let imageData = image.heic else {
+//                guard let imageData = image.pngData() else {
+                    print("💾🚧 Couldn't get imageData")
+                    return
+                }
                 
+                let imageUrl = directoryUrl.appending(component: "\(scanResult.id).heic")
+                guard !Task.isCancelled else { return }
+                try imageData.write(to: imageUrl)
+
+                guard !Task.isCancelled else { return }
+                let textSetData = try JSONEncoder().encode(textSet)
+
+                let textSetUrl = directoryUrl.appending(component: "\(scanResult.id)_textSet.json")
+                guard !Task.isCancelled else { return }
+                try textSetData.write(to: textSetUrl)
+                
+                let data = try JSONEncoder().encode(scanResult)
+                let url = directoryUrl.appending(component: "\(scanResult.id)_scanResult.json")
+                
+                guard !Task.isCancelled else { return }
+                try data.write(to: url)
+                print("💾 Wrote test data to: \(directoryUrl)")
+                
+            } catch {
+                print("💾🚧 Error in writeTestData: \(error)")
+            }
+        }
+    }
+    
+    
+//    func writeScanResultToDiskIfNeeded() {
+//        guard createTestData else { return }
+//
+//        writeScanResultTask = Task.detached { [weak self] in
+//            guard !Task.isCancelled else { return }
+//            guard
+//                let self,
+//                let scanResult = await self.scanResult,
+//                let directoryUrl = await self.testCaseDirectoryUrl
+//            else { return }
+//
+//            do {
+//                guard !Task.isCancelled else { return }
+//                let data = try JSONEncoder().encode(scanResult)
+//                let url = directoryUrl.appending(component: "scanResult.json")
+//
+//                guard !Task.isCancelled else { return }
+//                try data.write(to: url)
+//                print("💾 Wrote scanResult.json")
+//
+//            } catch {
+//                print("💾🚧 Error in writeScanResultToDiskIfNeeded: \(error)")
+//            }
+//        }
+//    }
+}
+
+
+extension UIImage {
+    var heic: Data? { heic() }
+    func heic(compressionQuality: CGFloat = 1) -> Data? {
+        guard
+            let mutableData = CFDataCreateMutable(nil, 0),
+            let destination = CGImageDestinationCreateWithData(mutableData, "public.heic" as CFString, 1, nil),
+            let cgImage = cgImage
+        else { return nil }
+        CGImageDestinationAddImage(destination, cgImage, [kCGImageDestinationLossyCompressionQuality: compressionQuality, kCGImagePropertyOrientation: cgImageOrientation.rawValue] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return mutableData as Data
+    }
+}
+
+extension CGImagePropertyOrientation {
+    init(_ uiOrientation: UIImage.Orientation) {
+        switch uiOrientation {
+            case .up: self = .up
+            case .upMirrored: self = .upMirrored
+            case .down: self = .down
+            case .downMirrored: self = .downMirrored
+            case .left: self = .left
+            case .leftMirrored: self = .leftMirrored
+            case .right: self = .right
+            case .rightMirrored: self = .rightMirrored
+        @unknown default:
+            fatalError()
+        }
+    }
+}
+
+extension UIImage {
+    var cgImageOrientation: CGImagePropertyOrientation { .init(imageOrientation) }
+}

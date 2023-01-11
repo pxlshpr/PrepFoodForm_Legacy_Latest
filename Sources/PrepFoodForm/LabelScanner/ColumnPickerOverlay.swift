@@ -4,19 +4,28 @@ import SwiftHaptics
 public struct ColumnPickerOverlay: View {
     
     @Environment(\.colorScheme) var colorScheme
+//    let colorScheme: ColorScheme = .dark
+    
     @Binding var isVisibleBinding: Bool
     @Binding var selectedColumn: Int
     var didTapDismiss: (() -> ())?
     let didTapAutofill: () -> ()
     
+    let leftTitle: String
+    let rightTitle: String
+    
     public init(
         isVisibleBinding: Binding<Bool>,
+        leftTitle: String,
+        rightTitle: String,
         selectedColumn: Binding<Int>,
         didTapDismiss: (() -> ())? = nil,
         didTapAutofill: @escaping () -> ()
     ) {
         _isVisibleBinding = isVisibleBinding
         _selectedColumn = selectedColumn
+        self.leftTitle = leftTitle
+        self.rightTitle = rightTitle
         self.didTapDismiss = didTapDismiss
         self.didTapAutofill = didTapAutofill
     }
@@ -100,7 +109,7 @@ public struct ColumnPickerOverlay: View {
                 selectedColumn = 1
             }
         } label: {
-            Text("Per Serving")
+            Text(leftTitle)
                 .font(.system(size: 18, weight: .semibold, design: .default))
                 .foregroundColor(selectedColumn == 1 ? .white : .secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -115,7 +124,7 @@ public struct ColumnPickerOverlay: View {
                 selectedColumn = 2
             }
         } label: {
-            Text("Per 100")
+            Text(rightTitle)
                 .font(.system(size: 18, weight: .semibold, design: .default))
                 .foregroundColor(selectedColumn == 2 ? .white : .secondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -146,14 +155,14 @@ public struct ColumnPickerOverlay: View {
     }
 
     func dragChanged(_ value: DragGesture.Value) {
-        print("👉🏽 drag.translation: \(value.translation)")
+//        print("👉🏽 drag.translation: \(value.translation)")
         var translation = value.translation.width
         if selectedColumn == 1 {
             translation = max(0, translation)
             translation = min(translation, buttonWidth)
         } else {
             translation = max(-buttonWidth, translation)
-            translation = min(0, buttonWidth)
+            translation = min(0, translation)
         }
         self.dragTranslationX = translation
     }
@@ -191,7 +200,7 @@ public struct ColumnPickerOverlay: View {
         } else {
             if selectedColumn == 2 {
                 Haptics.feedback(style: .soft)
-                dragTranslationX = nil
+//                dragTranslationX = nil
                 withAnimation(transitionAnimation) {
                     dragTranslationX = -buttonWidth
                 }
@@ -264,7 +273,8 @@ public struct ColumnPickerOverlay: View {
             .clipShape(
                 RoundedRectangle(cornerRadius: 15)
             )
-            .shadow(radius: 3, x: 0, y: 3)
+            .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+//            .shadow(radius: 3, x: 0, y: 3)
             .padding(.top, 62)
     }
     

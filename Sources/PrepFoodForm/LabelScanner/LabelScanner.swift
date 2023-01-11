@@ -51,7 +51,8 @@ public struct LabelScanner: View {
     public var body: some View {
         ZStack {
             if viewModel.showingBlackBackground {
-                Color.black
+                Color(.systemBackground)
+//                Color.black
                     .edgesIgnoringSafeArea(.all)
             }
 //            imageLayer
@@ -100,7 +101,7 @@ public struct LabelScanner: View {
             ? .ultraThinMaterial
             : .ultraThickMaterial
         }
-        
+
         var bottomPadding: CGFloat {
             viewModel.showingColumnPickerUI ? 16 : 0
         }
@@ -132,6 +133,8 @@ public struct LabelScanner: View {
     var columnPickerLayer: some View {
         ColumnPickerOverlay(
             isVisibleBinding: $viewModel.showingColumnPickerUI,
+            leftTitle: viewModel.leftColumnTitle,
+            rightTitle: viewModel.rightColumnTitle,
             selectedColumn: viewModel.selectedColumnBinding,
             didTapDismiss: viewModel.dismissHandler,
             didTapAutofill: { viewModel.columnSelectionHandler() }
