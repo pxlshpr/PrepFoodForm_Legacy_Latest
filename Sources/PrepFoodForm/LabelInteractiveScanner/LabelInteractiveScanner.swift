@@ -125,37 +125,4 @@ public struct LabelInteractiveScanner: View {
             didTapAutofill: { viewModel.columnSelectionHandler() }
         )
     }
-    
-    @ViewBuilder
-    var imageLayer: some View {
-        if let selectedImage {
-            ZStack {
-                ZStack {
-                    Color.black
-
-                    Image(uiImage: selectedImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-//                    Color.black
-//                        .opacity(shimmeringImage ? 0.6 : 0)
-                }
-                .scaleEffect(viewModel.animatingCollapse ? 0 : 1)
-                .padding(.top, viewModel.animatingCollapse ? 400 : 0)
-                .padding(.trailing, viewModel.animatingCollapse ? 300 : 0)
-                textBoxesLayer
-                croppedImagesCutoutLayer
-                    .scaleEffect(viewModel.animatingCollapseOfCutouts ? 0 : 1)
-                    .opacity(viewModel.animatingCollapseOfCutouts ? 0 : 1)
-                    .padding(.top, viewModel.animatingCollapseOfCutouts ? 400 : 0)
-                    .padding(.trailing, viewModel.animatingCollapseOfCutouts ? 300 : 0)
-                croppedImagesLayer
-                    .scaleEffect(viewModel.animatingCollapseOfCroppedImages ? 0 : 1)
-                    .padding(.top, viewModel.animatingCollapseOfCroppedImages ? 0 : 0)
-                    .padding(.trailing, viewModel.animatingCollapseOfCroppedImages ? 300 : 0)
-            }
-            .edgesIgnoringSafeArea(.all)
-//            .transition(.move(edge: .bottom))
-            .transition(.opacity)
-        }
-    }
 }

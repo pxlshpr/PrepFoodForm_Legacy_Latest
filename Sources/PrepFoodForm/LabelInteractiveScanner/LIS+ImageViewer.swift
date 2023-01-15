@@ -30,6 +30,7 @@ extension LabelInteractiveScanner {
                 isFocused: isFocused
             )
             .edgesIgnoringSafeArea(.all)
+            .padding(.bottom, 0)
 //            .background(.black)
             .scaleEffect(viewModel.animatingCollapse ? 0 : 1)
             .opacity(viewModel.shimmeringImage ? 0.4 : 1)

@@ -1,6 +1,8 @@
 import SwiftUI
 //import ZoomableScrollView
 
+let BottomOffsetToBePassedIn: CGFloat = 104.0
+
 struct ImageViewer: View {
     
     let id: UUID
@@ -46,9 +48,10 @@ struct ImageViewer: View {
     
     var body: some View {
         ZStack {
-//            Color.black
             Color(.systemBackground)
-            zoomableScrollView
+            VStack(spacing: 0) {
+                zoomableScrollView
+            }
         }
         .edgesIgnoringSafeArea(.all)
     }
@@ -56,9 +59,11 @@ struct ImageViewer: View {
     
     var zoomableScrollView: some View {
         ZoomableScrollView {
-            imageView(image)
-                .overlay(textBoxesLayer)
-                .overlay(scannedTextBoxesLayer)
+            VStack(spacing: 0) {
+                imageView(image)
+                    .overlay(textBoxesLayer)
+                    .overlay(scannedTextBoxesLayer)
+            }
         }
         .edgesIgnoringSafeArea(.all)
     }
@@ -141,6 +146,8 @@ enum RelativeAspectRatioType {
     case equal
 }
 
+//MARK: - CenteringScrollView
+
 class CenteringScrollView: UIScrollView {
     
     var shouldCenterCapture: Bool = false
@@ -151,12 +158,35 @@ class CenteringScrollView: UIScrollView {
     
     var shouldPositionContent = true
     
-    func positionContent() {
-        guard !isDragging,
-              shouldPositionContent,
-              subviews.count == 1
-        else {
-            print("🔩     contentOffset: \(contentOffset), zoomScale: \(zoomScale)")
+    var animatingOffsetChange = false
+    
+    func positionContent(withAnimation: Bool = false, fromLayoutSubviews: Bool = false) {
+        let call = "positionContent(\(withAnimation ? "withAnimation" : "")\(fromLayoutSubviews ? " fromLayoutSubviews" : ""))"
+        guard !animatingOffsetChange else {
+            print("🌻 cancelling \(call) since animatingOffsetChange")
+            return
+        }
+        
+        let widerThanScreen = contentSize.width > UIScreen.main.bounds.width
+        let tallerThanScreen = contentSize.height > UIScreen.main.bounds.height
+
+//        guard !isDragging else {
+//        guard zoomScale <= 1.0 else {
+//        if tallerThanScreen && widerThanScreen {
+//            print("🌻 cancelling \(call) since isDragging")
+//            return
+//        }
+        
+        guard shouldPositionContent || withAnimation else {
+            print("🌻 cancelling \(call) since !shouldPositionContent")
+            return
+        }
+        if withAnimation {
+            shouldPositionContent = true
+        }
+        
+        guard subviews.count == 1 else {
+            print("🌻 cancelling \(call) since subviews.count != 1")
             return
         }
         
@@ -166,19 +196,39 @@ class CenteringScrollView: UIScrollView {
         let contentOffset: CGPoint
         if scaledImageSize.isWider(than: screenSize) {
 
+            print("🌻 \(call) image isWider: \(Double(zoomScale.rounded(toPlaces: 2)).clean), \(widerThanScreen ? "" : "!")widerThanScreen \(tallerThanScreen ? "" : "!")tallerThanScreen")
+
+            let shouldCenterY = (
+                zoomRect == .zero || scaledImageSize.height < screenSize.height
+            ) && !tallerThanScreen
+            
             let y: CGFloat
-            if zoomRect == .zero || scaledImageSize.height < screenSize.height  {
+            if shouldCenterY  {
                 /// If we're not zooming into a rect, (or the rect is shorter than the screen's height), center it vertically
                 /// (it's negative since we want to move the offset upwards—and show the black bars above and below it)
                 y = -(screenSize.height - scaledImageSize.height) / 2
+                print("    🌻 Y: centering")
             } else {
-                /// Otherwise leave it alone
-                y = self.contentOffset.y
+                let maxY = contentSize.height - screenSize.height + BottomOffsetToBePassedIn
+                y = min(max(self.contentOffset.y, 0), maxY)
+                print("    🌻 Y: untouched")
             }
             
             /// Get the (scaled) x position of the zoom rect.
             let widthRatio =  scaledImageSize.width / screenSize.width
-            let x = zoomRect.origin.x * widthRatio
+            let x: CGFloat
+            if zoomRect != .zero {
+                x = zoomRect.origin.x * widthRatio
+            } else {
+                if !widerThanScreen {
+                    x = -(screenSize.width - scaledImageSize.width) / 2
+                    print("    🌻 X: centering")
+                } else {
+                    let maxX = contentSize.width - screenSize.width
+                    x = min(max(self.contentOffset.x, 0), maxX)
+                    print("    🌻 X: untouched")
+                }
+            }
 
             contentOffset = CGPoint(x: x, y: y)
             
@@ -204,9 +254,16 @@ class CenteringScrollView: UIScrollView {
             /// same aspect ratio's, so no offset necessary to center
             contentOffset = self.contentOffset
         }
-        
+
+        if withAnimation {
+            animatingOffsetChange = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.animatingOffsetChange = false
+            }
+        }
+
 //        withAnimation(.interactiveSpring()) {
-            self.setContentOffset(contentOffset, animated: false)
+            self.setContentOffset(contentOffset, animated: withAnimation)
 //        }
         
         print("🔩     contentOffset: \(contentOffset), zoomScale: \(zoomScale)")
@@ -214,7 +271,7 @@ class CenteringScrollView: UIScrollView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        positionContent()
+        positionContent(fromLayoutSubviews: true)
     }
     
     func zoomToFill(_ imageSize: CGSize) {
@@ -485,7 +542,16 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
             /// The potential repurcisions of these haven't been explored—so keep an eye on this, as it may break other uses.
 //            scrollView.contentInsetAdjustmentBehavior = .never
             //TODO: only use this if the image has a width-height ratio that's equal or tall (not for wide images)
+//            scrollView.contentInsetAdjustmentBehavior = .never
             scrollView.contentInsetAdjustmentBehavior = .always
+            let topSafeAreaHeight: CGFloat = 59.0
+            let bottomSafeAreaHeight: CGFloat = 34.0
+            scrollView.contentInset = UIEdgeInsets(
+                top: -topSafeAreaHeight,
+                left: 0,
+                bottom: BottomOffsetToBePassedIn - bottomSafeAreaHeight,
+                right: 0
+            )
 
             let hostedView = coordinator.hostingController.view!
             hostedView.translatesAutoresizingMaskIntoConstraints = false
@@ -542,6 +608,12 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
             scrollView.zoomToFill(imageSize)
         }
 
+        @objc func zoomZoomableScrollView(notification: Notification) {
+            guard let zoomBox = notification.userInfo?[Notification.ZoomableScrollViewKeys.zoomBox] as? ZoomBox
+            else { return }
+            scrollView.zoomTo(zoomBox)
+        }
+        
         func update(content: Content, doubleTap: AnyPublisher<Void, Never>) {
             coordinator.hostingController.rootView = content
             scrollView.setNeedsUpdateConstraints()
@@ -550,6 +622,14 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
         
         func handleDoubleTap() {
             scrollView.setZoomScale(scrollView.zoomScale >= 1 ? scrollView.minimumZoomScale : 1, animated: true)
+        }
+        
+        //MARK: - UIView Overrides
+        
+        override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+            coordinator.animateAlongsideTransition { [self] context in
+                scrollView.zoom(to: hostedView.bounds, animated: false)
+            }
         }
         
         override func updateViewConstraints() {
@@ -567,57 +647,61 @@ fileprivate struct ZoomableScrollViewImpl<Content: View>: UIViewControllerRepres
         
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-            
+
             let hostedContentSize = coordinator.hostingController.sizeThatFits(in: view.bounds.size)
             scrollView.minimumZoomScale = min(
                 scrollView.bounds.width / hostedContentSize.width,
                 scrollView.bounds.height / hostedContentSize.height)
         }
         
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            return hostedView
+        }
+
+        //MARK: - UIScrollViewDelegate
+
         func scrollViewDidZoom(_ scrollView: UIScrollView) {
             // For some reason this is needed in both didZoom and layoutSubviews, thanks to https://medium.com/@ssamadgh/designing-apps-with-scroll-views-part-i-8a7a44a5adf7
             // Sometimes this seems to work (view animates size and position simultaneously from current position to center) and sometimes it does not (position snaps to center immediately, size change animates)
             self.scrollView.positionContent()
         }
-        
-        override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-            coordinator.animateAlongsideTransition { [self] context in
-                scrollView.zoom(to: hostedView.bounds, animated: false)
-            }
-        }
-        
-        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            return hostedView
-        }
-        
+
         func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            print("🟣🌻 scrollViewWillBeginDragging, setting shouldPositionContent to true")
             self.scrollView.shouldPositionContent = false
         }
         
+        func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+            print("🟣🌻 scrollViewWillEndDragging")
+        }
+
         func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-            print("🟣 scrollViewDidEndScrollingAnimation")
-            NotificationCenter.default.post(name: .zoomableScrollViewDidEndScrollingAnimation, object: nil, userInfo: [
-                Notification.ZoomableScrollViewKeys.contentSize: scrollView.contentSize,
-                Notification.ZoomableScrollViewKeys.contentOffset: scrollView.contentOffset
-            ])
+            print("🟣🌻 scrollViewDidEndScrollingAnimation")
+//            NotificationCenter.default.post(name: .zoomableScrollViewDidEndScrollingAnimation, object: nil, userInfo: [
+//                Notification.ZoomableScrollViewKeys.contentSize: scrollView.contentSize,
+//                Notification.ZoomableScrollViewKeys.contentOffset: scrollView.contentOffset
+//            ])
         }
         
         func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            print("🟣 scrollViewDidEndDragging")
-        }
-        
-        @objc func zoomZoomableScrollView(notification: Notification) {
-            guard let zoomBox = notification.userInfo?[Notification.ZoomableScrollViewKeys.zoomBox] as? ZoomBox
-            else { return }
-            scrollView.zoomTo(zoomBox)
+            print("🟣🌻 scrollViewDidEndDragging")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+//                if !scrollView.isDragging {
+                    self.scrollView.positionContent(withAnimation: true)
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                    self.scrollView.shouldPositionContent = true
+//                }
+//                }
+            }
         }
         
         func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-            print("🟣 scrollViewDidEndZooming")
-            NotificationCenter.default.post(name: .zoomableScrollViewDidEndZooming, object: nil, userInfo: [
-                Notification.ZoomableScrollViewKeys.contentSize: scrollView.contentSize,
-                Notification.ZoomableScrollViewKeys.contentOffset: scrollView.contentOffset
-            ])
+            print("🟣🌻 scrollViewDidEndZooming")
+            self.scrollView.positionContent(withAnimation: true)
+//            NotificationCenter.default.post(name: .zoomableScrollViewDidEndZooming, object: nil, userInfo: [
+//                Notification.ZoomableScrollViewKeys.contentSize: scrollView.contentSize,
+//                Notification.ZoomableScrollViewKeys.contentOffset: scrollView.contentOffset
+//            ])
         }
     }
     

@@ -90,7 +90,7 @@ extension LabelInteractiveScannerViewModel {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.scanResult = scanResult
-                self.showingBlackBackground = false
+//                self.showingBlackBackground = false
             }
             
             guard !Task.isCancelled else { return }
@@ -142,7 +142,7 @@ extension LabelInteractiveScannerViewModel {
     
     func focus(on attribute: Attribute) async {
         self.focusedAttribute = attribute
-        await zoomIn(for: attribute)
+//        await zoomIn(for: attribute)
         showTextBoxes(for: attribute)
     }
     
