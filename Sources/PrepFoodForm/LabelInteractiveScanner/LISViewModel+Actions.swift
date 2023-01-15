@@ -118,11 +118,8 @@ extension LabelInteractiveScannerViewModel {
             }
         }
     }
-    
 
     func showValuesPicker() async throws {
-        guard let scanResult else { return }
-
         await MainActor.run { [weak self] in
             self?.shimmering = false
         }

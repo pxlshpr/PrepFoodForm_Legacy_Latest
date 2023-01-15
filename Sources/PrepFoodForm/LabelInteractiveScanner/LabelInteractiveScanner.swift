@@ -138,9 +138,16 @@ public struct LabelInteractiveScanner: View {
 }
 
 extension LabelInteractiveScanner {
+    
+    func showFocusedTextBox() {
+        viewModel.showTextBoxesFor(
+            attributeText: valuesPickerViewModel.currentAttributeText,
+            valueText: valuesPickerViewModel.currentValueText)
+    }
+    
     func didTapCheckmark() {
         valuesPickerViewModel.moveToNextAttribute()
-        
+        showFocusedTextBox()
     }
     
     func configureValuesPickerViewModel(with scanResult: ScanResult) {
@@ -160,5 +167,7 @@ extension LabelInteractiveScanner {
                 valueText: c == 1 ? row.valueText1?.text : row.valueText2?.text
             )
         })
+        
+        showFocusedTextBox()
     }
 }
