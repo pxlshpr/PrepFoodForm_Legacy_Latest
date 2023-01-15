@@ -11,7 +11,7 @@ extension LabelInteractiveScannerViewModel {
     
     func zoomToColumns() async {
         guard let imageSize = image?.size,
-              let boundingBox = scanResult?.columnsBoundingBox
+              let boundingBox = scanResult?.columnsWithAttributesBoundingBox
         else { return }
         
         let columnZoomBox = ZoomBox(
@@ -118,16 +118,20 @@ extension LabelInteractiveScannerViewModel {
         
         columnSelectionHandlerTask = Task.detached { [weak self] in
             guard let self else { return }
-            guard !Task.isCancelled else { return }
-            await MainActor.run { [weak self] in
-                self?.waitingForZoomToEndToShowCroppedImages = true
-            }
             
-            guard !Task.isCancelled else { return }
-            await self.zoomToTextsToCrop()
+            try await self.showValuesPicker()
 
-            try await sleepTask(0.5, tolerance: 0.1)
-            await self.handleZoomEndINeeded()
+            /// This is what we did previously
+//            guard !Task.isCancelled else { return }
+//            await MainActor.run { [weak self] in
+//                self?.waitingForZoomToEndToShowCroppedImages = true
+//            }
+//
+//            guard !Task.isCancelled else { return }
+//            await self.zoomToTextsToCrop()
+//
+//            try await sleepTask(0.5, tolerance: 0.1)
+//            await self.handleZoomEndINeeded()
         }
     }
 }

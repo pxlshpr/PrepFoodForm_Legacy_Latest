@@ -9,11 +9,13 @@ import VisionSugar
 
 extension ScanResult {
 
-    var columnsTexts: [RecognizedText] {
+    func columnsTexts(includeAttributes: Bool = false) -> [RecognizedText] {
         var texts: [RecognizedText] = []
         texts = headerTexts
         for nutrient in nutrients.rows {
-//            texts.append(nutrient.attributeText.text)
+            if includeAttributes {
+                texts.append(nutrient.attributeText.text)
+            }
             if let text = nutrient.valueText1?.text {
                 texts.append(text)
             }
@@ -25,7 +27,13 @@ extension ScanResult {
     }
 
     var columnsBoundingBox: CGRect {
-        columnsTexts
+        columnsTexts()
+            .filter { $0.id != defaultUUID }
+            .boundingBox
+    }
+    
+    var columnsWithAttributesBoundingBox: CGRect {
+        columnsTexts(includeAttributes: true)
             .filter { $0.id != defaultUUID }
             .boundingBox
     }

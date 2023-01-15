@@ -137,6 +137,7 @@ extension LabelInteractiveScannerViewModel {
             /// Handle having no attributes (dismiss immediately)
             return
         }
+        await zoomToColumns()
         await focus(on: firstAttribute)
     }
     
@@ -206,11 +207,12 @@ extension LabelInteractiveScannerViewModel {
         guard let scanResult, let row = scanResult.row(for: attribute)
         else { return nil }
         
+        let selectedColumn = columns.selectedColumnIndex
         var texts = [row.attributeText.text]
-        if let text1 = row.valueText1?.text {
+        if let text1 = row.valueText1?.text, selectedColumn == 1 {
             texts.append(text1)
         }
-        if let text2 = row.valueText2?.text {
+        if let text2 = row.valueText2?.text, selectedColumn == 2 {
             texts.append(text2)
         }
         return texts
