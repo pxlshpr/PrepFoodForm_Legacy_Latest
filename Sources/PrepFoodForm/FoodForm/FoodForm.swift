@@ -16,6 +16,7 @@ public struct FoodForm: View {
     @ObservedObject var fields: Fields
     @ObservedObject var sources: Sources
     @ObservedObject var scanner: LabelScannerViewModel
+    @ObservedObject var interactiveScanner: LabelInteractiveScannerViewModel
 
     /// Sheets
     @State var showingEmojiPicker = false
@@ -59,6 +60,7 @@ public struct FoodForm: View {
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
         scanner: LabelScannerViewModel,
+        interactiveScanner: LabelInteractiveScannerViewModel,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
         Fields.shared = fields
@@ -66,6 +68,7 @@ public struct FoodForm: View {
         self.fields = fields
         self.sources = sources
         self.scanner = scanner
+        self.interactiveScanner = interactiveScanner
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
@@ -80,6 +83,7 @@ public struct FoodForm: View {
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
         scanner: LabelScannerViewModel,
+        interactiveScanner: LabelInteractiveScannerViewModel,
         startWithLabelScanner: Bool = false,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
@@ -88,6 +92,7 @@ public struct FoodForm: View {
         self.fields = fields
         self.sources = sources
         self.scanner = scanner
+        self.interactiveScanner = interactiveScanner
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
@@ -103,6 +108,7 @@ public struct FoodForm: View {
         sources: FoodForm.Sources,
         scanResult: ScanResult,
         scanner: LabelScannerViewModel,
+        interactiveScanner: LabelInteractiveScannerViewModel,
         image: UIImage,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
@@ -111,6 +117,7 @@ public struct FoodForm: View {
         self.fields = fields
         self.sources = sources
         self.scanner = scanner
+        self.interactiveScanner = interactiveScanner
         self.didSave = didSave
         _shouldShowWizard = State(initialValue: false)
         _initialScanResult = State(initialValue: scanResult)
@@ -188,6 +195,13 @@ public struct FoodForm: View {
         scanner.scanResultHandler = scanResultHandler
         scanner.dismissHandler = dismissHandler
         
+        interactiveScanner.reset()
+        interactiveScanner.isCamera = forCamera
+        interactiveScanner.imageHandler = imageHandler
+        interactiveScanner.scanResultHandler = scanResultHandler
+        interactiveScanner.dismissHandler = dismissHandler
+
+        
         showingLabelScanner = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             withAnimation {
@@ -199,6 +213,13 @@ public struct FoodForm: View {
     var labelScanner: some View {
         LabelScanner(
             scanner: scanner,
+            image: $selectedPhoto
+        )
+    }
+
+    var labelInteractiveScanner: some View {
+        LabelInteractiveScanner(
+            scanner: interactiveScanner,
             image: $selectedPhoto
         )
     }
@@ -219,7 +240,8 @@ public struct FoodForm: View {
     @ViewBuilder
     var scannerLayer: some View {
 //        if showingLabelScanner {
-            labelScanner
+//            labelScanner
+            labelInteractiveScanner
                 .offset(y: animateLabelScannerUp ? 0 : UIScreen.main.bounds.height)
                 .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     labelScannerHasAppeared = true

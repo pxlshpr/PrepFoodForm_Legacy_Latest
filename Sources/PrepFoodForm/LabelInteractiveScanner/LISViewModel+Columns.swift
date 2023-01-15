@@ -7,48 +7,7 @@ import SwiftSugar
 import Shimmer
 import VisionSugar
 
-extension ScanResult {
-
-    var columnsTexts: [RecognizedText] {
-        var texts: [RecognizedText] = []
-        texts = headerTexts
-        for nutrient in nutrients.rows {
-//            texts.append(nutrient.attributeText.text)
-            if let text = nutrient.valueText1?.text {
-                texts.append(text)
-            }
-            if let text = nutrient.valueText2?.text {
-                texts.append(text)
-            }
-        }
-        return texts
-    }
-
-    var columnsBoundingBox: CGRect {
-        columnsTexts
-            .filter { $0.id != defaultUUID }
-            .boundingBox
-    }
-}
-
-extension CGRect {
-    /// Assuming this was a `boundingBox` (ie with the y coordinate starting from the bottom)
-    /// it gets converted to one with the y coordinate starting from the top.
-//    var boundingRect: CGRect {
-//
-//    }
-}
-
-extension Array where Element == RecognizedText {
-    var topMostText: RecognizedText? {
-        sorted(by: { $0.boundingBox.minY < $1.boundingBox.minY }).first
-    }
-    
-    var bottomMostText: RecognizedText? {
-        sorted(by: { $0.boundingBox.maxY > $1.boundingBox.maxY }).first
-    }
-}
-extension LabelScannerViewModel {
+extension LabelInteractiveScannerViewModel {
     
     func zoomToColumns() async {
         guard let imageSize = image?.size,
@@ -92,10 +51,8 @@ extension LabelScannerViewModel {
         columns = scanResult.scannedColumns
         selectedImageTexts = columns.selectedImageTexts
 
-        print("🥑 selectedColumnIndex is \(columns.selectedColumnIndex)")
         await zoomToColumns()
         showColumnTextBoxes()
-        await showColumnPickingUI()
     }
 
     /// [ ] Show column boxes (animate changes, have default column preselected)
@@ -135,10 +92,6 @@ extension LabelScannerViewModel {
         }
     }
 
-    /// [ ] Show column picking UI
-    func showColumnPickingUI() async {
-    }
-    
     var selectedColumnBinding: Binding<Int> {
         Binding<Int>(
             get: { [weak self] in

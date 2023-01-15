@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftHaptics
 
-public struct ColumnPickerOverlay: View {
+public struct ColumnPickerOverlayNew: View {
     
     @Environment(\.colorScheme) var colorScheme
 //    let colorScheme: ColorScheme = .dark
@@ -300,7 +300,7 @@ public struct ColumnPickerOverlay: View {
 }
 
 
-struct ColumnPickerOverlayPreview: View {
+struct ColumnPickerOverlayNewPreview: View {
     @State var selectedColumn: Int = 1
     var body: some View {
         ZStack {
@@ -310,7 +310,7 @@ struct ColumnPickerOverlayPreview: View {
     }
     
     var overlay: some View {
-        ColumnPickerOverlay(
+        ColumnPickerOverlayNew(
             isVisibleBinding: .constant(true),
             leftTitle: "Per Serving",
             rightTitle: "Per 100g",
@@ -321,9 +321,9 @@ struct ColumnPickerOverlayPreview: View {
     }
 }
 
-struct ColumnPicker_Preview: PreviewProvider {
+struct ColumnPickerOverlayNew_Preview: PreviewProvider {
     
     static var previews: some View {
-        ColumnPickerOverlayPreview()
+        ColumnPickerOverlayNewPreview()
     }
 }

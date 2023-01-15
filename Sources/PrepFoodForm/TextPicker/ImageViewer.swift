@@ -15,7 +15,7 @@ struct ImageViewer: View {
     @Binding var textPickerHasAppeared: Bool
     
     @Binding var shimmering: Bool
-    @Binding var showingColumnPicker: Bool
+    @Binding var isFocused: Bool
 
     init(
         id: UUID = UUID(),
@@ -28,7 +28,7 @@ struct ImageViewer: View {
         showingCutouts: Binding<Bool>? = nil,
         textPickerHasAppeared: Binding<Bool>? = nil,
         shimmering: Binding<Bool>? = nil,
-        showingColumnPicker: Binding<Bool>? = nil
+        isFocused: Binding<Bool>? = nil
     ) {
         self.id = id
         self.image = image
@@ -41,7 +41,7 @@ struct ImageViewer: View {
         _showingCutouts = showingCutouts ?? .constant(true)
         _textPickerHasAppeared = textPickerHasAppeared ?? .constant(true)
         _shimmering = shimmering ?? .constant(false)
-        _showingColumnPicker = showingColumnPicker ?? .constant(false)
+        _isFocused = isFocused ?? .constant(false)
     }
     
     var body: some View {
@@ -69,7 +69,7 @@ struct ImageViewer: View {
             .resizable()
             .aspectRatio(contentMode: contentMode)
             .background(.black)
-            .opacity((showingBoxes && showingColumnPicker) ? 0.7 : 1)
+            .opacity((showingBoxes && isFocused) ? 0.7 : 1)
             .animation(.default, value: showingBoxes)
     }
     
@@ -79,7 +79,7 @@ struct ImageViewer: View {
         }
         var opacity: CGFloat {
             guard shouldShow else { return 0 }
-            if shimmering || showingColumnPicker { return 1 }
+            if shimmering || isFocused { return 1 }
             return 0.3
         }
         return TextBoxesLayer(textBoxes: $textBoxes)

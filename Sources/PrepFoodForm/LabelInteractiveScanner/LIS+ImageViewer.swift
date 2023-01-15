@@ -6,12 +6,18 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 
-extension LabelScanner {
+extension LabelInteractiveScanner {
     
     var imageViewerLayer: some View {
         
         func imageViewer(_ image: UIImage) -> some View {
-            ImageViewer(
+            
+            let isFocused = Binding<Bool>(
+                get: { viewModel.showingColumnPicker || viewModel.showingValuePicker },
+                set: { _ in }
+            )
+            
+            return ImageViewer(
                 id: UUID(),
                 image: image,
                 textBoxes: $viewModel.textBoxes,
@@ -21,7 +27,7 @@ extension LabelScanner {
                 showingBoxes: $viewModel.showingBoxes,
                 showingCutouts: $viewModel.showingCutouts,
                 shimmering: $viewModel.shimmering,
-                isFocused: $viewModel.showingColumnPicker
+                isFocused: isFocused
             )
             .edgesIgnoringSafeArea(.all)
 //            .background(.black)
