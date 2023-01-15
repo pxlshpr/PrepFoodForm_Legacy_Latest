@@ -4,6 +4,7 @@ import SwiftHaptics
 import SwiftSugar
 import VisionSugar
 import FoodLabelScanner
+import PrepDataTypes
 
 extension LabelInteractiveScannerViewModel {
 
@@ -133,18 +134,7 @@ extension LabelInteractiveScannerViewModel {
             showingValuePickerUI = true
         }
 
-        guard let firstAttribute = scanResult.nutrientAttributes.first else {
-            /// Handle having no attributes (dismiss immediately)
-            return
-        }
         await zoomToColumns()
-        await focus(on: firstAttribute)
-    }
-    
-    func focus(on attribute: Attribute) async {
-        self.focusedAttribute = attribute
-//        await zoomIn(for: attribute)
-        showTextBoxes(for: attribute)
     }
     
     /// Zooms into an area that encompasses the attribute's text box and its current value, with some padding
@@ -172,35 +162,30 @@ extension LabelInteractiveScannerViewModel {
         }
     }
     
-    func didTapCheckmark() {
-        moveToNextTextBox()
-    }
-    
-    func moveToNextTextBox() {
-        guard let focusedAttribute,
-              let nextAttribute = scanResult?.nextAttribute(to: focusedAttribute)
-        else { return }
-        moveToNextAttributeTask = Task.detached { [weak self] in
-            await self?.focus(on: nextAttribute)
-        }
-    }
-    
     /// Shows and highlights text boxes based on the attribute.
     /// - Attribute's text box and value is displayed in accent color with no border
     /// - All other text boxes with compatible values are displayed with secondary color and a border
-    func showTextBoxes(for attribute: Attribute) {
-        guard let texts = texts(for: attribute) else { return }
-        
-        self.textBoxes = texts.map {
-            TextBox(
-                boundingBox: $0.boundingBox,
-                color: .green,
+    func showTextBoxesFor(
+        attributeText: RecognizedText?,
+        valueText: RecognizedText?
+    ) {
+        var textBoxes: [TextBox] = []
+        if let attributeText {
+            textBoxes.append(TextBox(
+                boundingBox: attributeText.boundingBox,
+                color: .accentColor,
                 tapHandler: {}
-//                color: color(for: $0),
-//                tapHandler: tapHandler(for: $0)
-            )
+            ))
+        }
+        if let valueText {
+            textBoxes.append(TextBox(
+                boundingBox: valueText.boundingBox,
+                color: .blue,
+                tapHandler: {}
+            ))
         }
 
+        self.textBoxes = textBoxes
     }
     
     func texts(for attribute: Attribute) -> [RecognizedText]? {
@@ -220,22 +205,5 @@ extension LabelInteractiveScannerViewModel {
     
     func boundingBox(for attribute: Attribute) -> CGRect? {
         texts(for: attribute)?.boundingBox
-    }
-}
-
-extension ScanResult {
-    /// Returns the next element to `attribute` in `nutrientAttributes`,
-    /// cycling back to the first once the end is reached.
-    func nextAttribute(to attribute: Attribute) -> Attribute? {
-        guard let index = nutrientAttributes.firstIndex(of: attribute) else {
-            return nil
-        }
-        let nextIndex: Int
-        if index >= nutrientAttributes.count - 1 {
-            nextIndex = 0
-        } else {
-            nextIndex = index + 1
-        }
-        return nutrientAttributes[nextIndex]
     }
 }

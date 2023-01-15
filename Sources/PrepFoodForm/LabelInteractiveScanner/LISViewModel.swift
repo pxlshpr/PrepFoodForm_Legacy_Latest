@@ -53,8 +53,7 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
     var croppedImages: [RecognizedText : UIImage] = [:]
     var croppingStatus: CroppingStatus = .idle
     var waitingToShowCroppedImages = false
-    var focusedAttribute: Attribute?
-    
+
     var scanTask: Task<(), Error>? = nil
     var processScanTask: Task<(), Error>? = nil
     var croppingTask: Task<(), Error>? = nil
@@ -100,7 +99,6 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
         croppedImages = [:]
         croppingStatus = .idle
         waitingToShowCroppedImages = false
-        focusedAttribute = nil
         
         cancelAllTasks()
         scanTask = nil

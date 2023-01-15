@@ -27,12 +27,16 @@ public struct ValuesPickerOverlay: View {
 //    let attributesListAnimation: Animation = Bounce2
 //    let attributesListAnimation: Animation = .interactiveSpring()
 
+    @ObservedObject var viewModel: ValuesPickerViewModel
+    
     public init(
+        viewModel: ValuesPickerViewModel,
         isVisibleBinding: Binding<Bool>,
         didTapDismiss: (() -> ())? = nil,
         didTapCheckmark: @escaping () -> (),
         didTapAutofill: @escaping () -> ()
     ) {
+        self.viewModel = viewModel
         _isVisibleBinding = isVisibleBinding
         self.didTapDismiss = didTapDismiss
         self.didTapCheckmark = didTapCheckmark
@@ -77,8 +81,9 @@ public struct ValuesPickerOverlay: View {
     
     var attributesList: some View {
         List {
-            Text("Energy")
-            Text("Carb")
+            ForEach(viewModel.nutrients, id: \.self) {
+                Text($0.attribute.description)
+            }
         }
     }
     
@@ -414,9 +419,9 @@ public struct ValuesPickerOverlay: View {
             }
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text("223")
+                Text(viewModel.currentAmountString)
                     .foregroundColor(amountColor)
-                Text("mg")
+                Text(viewModel.currentUnitString)
                     .foregroundColor(unitColor)
                     .font(.system(size: 18, weight: .medium, design: .default))
             }
@@ -500,7 +505,7 @@ public struct ValuesPickerOverlay: View {
             }
         } label: {
             VStack {
-                Text("Energy")
+                Text(viewModel.currentAttribute.description)
                     .font(.title3)
                     .minimumScaleFactor(0.2)
                     .lineLimit(2)
@@ -525,6 +530,8 @@ public struct ValuesPickerOverlay: View {
 public struct ValuesPickerOverlayPreview: View {
     @State var selectedColumn: Int = 1
     
+    @StateObject var viewModel: ValuesPickerViewModel = .shared
+    
     public init() { }
     public var body: some View {
         ZStack {
@@ -535,6 +542,7 @@ public struct ValuesPickerOverlayPreview: View {
     
     var overlay: some View {
         ValuesPickerOverlay(
+            viewModel: viewModel,
             isVisibleBinding: .constant(true),
             didTapDismiss: {},
             didTapCheckmark: {},

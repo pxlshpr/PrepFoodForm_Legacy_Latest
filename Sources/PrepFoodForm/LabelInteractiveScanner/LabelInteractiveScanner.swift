@@ -11,13 +11,16 @@ public struct LabelInteractiveScanner: View {
     
     @Binding var selectedImage: UIImage?
 
+    @ObservedObject var valuesPickerViewModel: ValuesPickerViewModel
     @ObservedObject var viewModel: LabelInteractiveScannerViewModel
 
     public init(
+        valuesPickerViewModel: ValuesPickerViewModel,
         scanner: LabelInteractiveScannerViewModel,
         image: Binding<UIImage?> = .constant(nil)
     ) {
         _selectedImage = image
+        self.valuesPickerViewModel = valuesPickerViewModel
         self.viewModel = scanner
     }
     
@@ -41,6 +44,12 @@ public struct LabelInteractiveScanner: View {
         .onChange(of: selectedImage) { newValue in
             guard let newValue else { return }
             handleCapturedImage(newValue)
+        }
+        .onChange(of: viewModel.showingValuePickerUI) { showingValuePickerUI in
+            guard showingValuePickerUI, let scanResult = viewModel.scanResult
+            else { return }
+            
+            configureValuesPickerViewModel(with: scanResult)
         }
 //        .onChange(of: viewModel.animatingCollapse) { newValue in
 //            withAnimation {
@@ -119,10 +128,37 @@ public struct LabelInteractiveScanner: View {
     
     var valuesPickerLayer: some View {
         ValuesPickerOverlay(
+            viewModel: valuesPickerViewModel,
             isVisibleBinding: $viewModel.showingValuePickerUI,
             didTapDismiss: viewModel.dismissHandler,
-            didTapCheckmark: { viewModel.didTapCheckmark() },
+            didTapCheckmark: { didTapCheckmark() },
             didTapAutofill: { viewModel.columnSelectionHandler() }
         )
+    }
+}
+
+extension LabelInteractiveScanner {
+    func didTapCheckmark() {
+        valuesPickerViewModel.moveToNextAttribute()
+        
+    }
+    
+    func configureValuesPickerViewModel(with scanResult: ScanResult) {
+        valuesPickerViewModel.reset()
+        guard let firstAttribute = scanResult.nutrientAttributes.first else {
+            return
+        }
+        valuesPickerViewModel.currentAttribute = firstAttribute
+        
+        let c = viewModel.columns.selectedColumnIndex
+        valuesPickerViewModel.nutrients = scanResult.nutrients.rows.map({ row in
+            ValuesPickerViewModel.Nutrient(
+                attribute: row.attribute,
+                attributeText: row.attributeText.text,
+                isConfirmed: false,
+                value: c == 1 ? row.valueText1?.value : row.valueText2?.value,
+                valueText: c == 1 ? row.valueText1?.text : row.valueText2?.text
+            )
+        })
     }
 }

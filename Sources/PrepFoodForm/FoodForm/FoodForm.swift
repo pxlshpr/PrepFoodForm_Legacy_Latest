@@ -15,6 +15,7 @@ public struct FoodForm: View {
     /// ViewModels
     @ObservedObject var fields: Fields
     @ObservedObject var sources: Sources
+    @ObservedObject var valuesPickerViewModel: ValuesPickerViewModel
     @ObservedObject var scanner: LabelScannerViewModel
     @ObservedObject var interactiveScanner: LabelInteractiveScannerViewModel
 
@@ -59,6 +60,7 @@ public struct FoodForm: View {
         mockScanImage: UIImage,
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
+        valuesPickerViewModel: ValuesPickerViewModel,
         scanner: LabelScannerViewModel,
         interactiveScanner: LabelInteractiveScannerViewModel,
         didSave: @escaping (FoodFormOutput) -> ()
@@ -67,6 +69,7 @@ public struct FoodForm: View {
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.valuesPickerViewModel = valuesPickerViewModel
         self.scanner = scanner
         self.interactiveScanner = interactiveScanner
         self.didSave = didSave
@@ -82,6 +85,7 @@ public struct FoodForm: View {
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
+        valuesPickerViewModel: ValuesPickerViewModel,
         scanner: LabelScannerViewModel,
         interactiveScanner: LabelInteractiveScannerViewModel,
         startWithLabelScanner: Bool = false,
@@ -91,6 +95,7 @@ public struct FoodForm: View {
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.valuesPickerViewModel = valuesPickerViewModel
         self.scanner = scanner
         self.interactiveScanner = interactiveScanner
         self.didSave = didSave
@@ -106,6 +111,7 @@ public struct FoodForm: View {
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
+        valuesPickerViewModel: ValuesPickerViewModel,
         scanResult: ScanResult,
         scanner: LabelScannerViewModel,
         interactiveScanner: LabelInteractiveScannerViewModel,
@@ -116,6 +122,7 @@ public struct FoodForm: View {
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.valuesPickerViewModel = valuesPickerViewModel
         self.scanner = scanner
         self.interactiveScanner = interactiveScanner
         self.didSave = didSave
@@ -219,6 +226,7 @@ public struct FoodForm: View {
 
     var labelInteractiveScanner: some View {
         LabelInteractiveScanner(
+            valuesPickerViewModel: valuesPickerViewModel,
             scanner: interactiveScanner,
             image: $selectedPhoto
         )
