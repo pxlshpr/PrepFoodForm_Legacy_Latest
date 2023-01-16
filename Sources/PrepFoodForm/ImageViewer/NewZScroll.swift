@@ -74,7 +74,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             self.view = scrollView
             
             scrollView.delegate = self  // for viewForZooming(in:)
-            scrollView.maximumZoomScale = 10
+            scrollView.maximumZoomScale = 30
             scrollView.minimumZoomScale = 1
             scrollView.bouncesZoom = true
             scrollView.showsHorizontalScrollIndicator = false
@@ -119,13 +119,46 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         
         override func viewDidAppear(_ animated: Bool) {
             scrollView.zoom(to: hostedView.bounds, animated: false)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
-//                let rect = CGRectMake(220.51, 460.23, 49.11, 105.24)
-//                let rect = CGRectMake(220.51, 450.23, 49.11, 105.24)
-                let rect = CGRectMake(220.51, 60, 49.11, 105.24)
+            /// Removed 60 for black wide label
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                let originY = max(0, self.scrollView.bounds.height - self.scrollView.contentSize.height) / 2
+                
+                let rect = CGRectMake(220, 217, 81.55, 176.75)
+                
+                /// Note: This is for images that have a wider aspect ratio
+                let zoomScale = self.scrollView.bounds.width / rect.width
+                let contentOffset = CGPointMake(rect.origin.x * zoomScale, rect.origin.y * zoomScale)
+                
+                /// 1. We're provided a boundingBox, convert that to image's dimensions using rectForSize, and get
+                /// 2. Get  screenAspectRect we want to zoom to for it
 
-//                let rect = CGRectMake(113, 439, 91, 46)
-                self.scrollView.zoom(to: rect, animated: true)
+                /// If wider, then do the following to get screenAspectRect
+                /// - use the same x and width as rect
+                /// - calculate height based on screen dimensions
+                /// - y will be (calculatedHeight - rect.height)/2
+
+                /// If taller, then do the following
+                /// - use the same y and height as rect
+                /// - calculate width based on screen dimensions
+                /// - x will be (calculatedWidth - rect.width) / 2
+
+                /// If same aspect ratio, do nothing and use rectForSize
+
+                /// Now get targetZoomScale
+                /// If image itself (not the rect) has wider (or equal) aspect ratio than the screen
+                /// - bounds.width / screenAspectRect.width
+                /// If it has taller aspect ratio than the screen
+                /// - bounds.height / screenAspectRect.height
+                /// Now use zoomScale and scale the screenAspectRect's origin to get the contentOffset
+
+                /// [ ] Make this work when zoomed-in somewhere and we need to zoom to a certain location
+                /// - Assume we have the image size handy
+                /// - We'll probably have to do ntihg
+                
+                UIView.animate(withDuration: 0.3) {
+                    self.scrollView.zoomScale = zoomScale
+                    self.scrollView.contentOffset = contentOffset
+                }
             }
         }
         
@@ -157,7 +190,8 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            print("🥦 scrollViewDidScroll: \(scrollView.contentOffset) \(scrollView.contentSize) \(scrollView.bounds.size) x\(scrollView.zoomScale)")
+//            print("🥦 scrollViewDidScroll: \(scrollView.contentOffset) \(scrollView.contentSize) \(scrollView.bounds.size) x\(scrollView.zoomScale)")
+            print("🥦 origin.y: \(max(0, scrollView.bounds.height - scrollView.contentSize.height) / 2)")
         }
     }
     
