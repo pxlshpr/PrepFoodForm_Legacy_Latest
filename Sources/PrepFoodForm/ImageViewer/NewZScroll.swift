@@ -118,10 +118,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         }
         
         func simulateZoom() {
-//            zoom(to: CGRectMake(220, 217, 81.55, 176.75))
-//            zoom(to: CGRectMake(169, 381, 54, 18))
-            zoom(to: CGRectMake(97, 240, 333, 333))
-//            zoom(to: CGRectMake(97, -74, 333, 721.76))
+            zoom(to: CGRectMake(-90, 203, 180, 195))
         }
         
 
@@ -129,7 +126,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             zoom(to: boundingBox.rectForSize(imageSize))
         }
 
+        //TODO: Provide imageSize here and use that instead of scrollView.contentSize
         func zoom(to rect: CGRect) {
+            
+            let imageSize = scrollView.contentSize
             
             var screenAspectRect: CGRect {
                 var new: CGRect
@@ -184,10 +184,6 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                 max(screenRect.origin.y * zoomScale, 0)
             )
 
-            /// [ ] See if this works when zoomed-in somewhere and we need to zoom to a certain location
-            /// - Assume we have the image size handy
-            /// - We'll probably have to do ntihg
-            
             print("📏 contentOffset: \(contentOffset)")
 
             /// Correct rects here
@@ -200,41 +196,43 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             )
             print("📏 proposedRect: \(proposedRect)")
 
-            if scrollView.contentSize.isWider(than: scrollView.bounds.size) {
-                /// - If proposedContentSize.height > contentSize.height, set the y to 0
-                if proposedRect.size.height > scrollView.contentSize.height {
-                    print("📏 proposedRect.size.height > scrollView.contentSize.height, setting y to 0")
-                    contentOffset.y = 0
-                }
-                
-                /// - If proposedRect.maxY > contentSize.height (ie. it's going to be out of bounds and off-center)
-                ///     - set the y to 0 so its centered, I believe
-                if proposedRect.maxY > scrollView.contentSize.height {
-                    print("📏 proposedRect.maxY > scrollView.contentSize.height, setting y to 0")
-                    contentOffset.y = 0
-                }
-                if proposedRect.minY < 0 {
-                    print("📏 proposedRect.minY < 0, setting y to 0")
-                    contentOffset.y = 0
-                }
-            } else if scrollView.contentSize.isWider(than: scrollView.bounds.size) {
-                if proposedRect.size.width > scrollView.contentSize.width {
-                    print("📏 proposedRect.size.width > scrollView.contentSize.width, setting x to 0")
-                    contentOffset.x = 0
-                }
-                
-                if proposedRect.maxX > scrollView.contentSize.width {
-                    print("📏 proposedRect.maxX > scrollView.contentSize.width, setting x to 0")
-                    contentOffset.x = 0
-                }
-                if proposedRect.maxY < 0 {
-                    print("📏 proposedRect.maxY < 0, setting x to 0")
-                    contentOffset.x = 0
-                }
-            } else {
-                print("📏 Not correcting since same aspect ratio as screen")
+            /// ** Center proposed rect's that are larger than a dimension **
+            /// If proposedRect.height > contentSize.height, set the y to 0 to center it vertically
+            if proposedRect.size.height > scrollView.contentSize.height {
+                print("📏 proposedRect.size.height > scrollView.contentSize.height, setting y to 0 to center")
+                contentOffset.y = 0
             }
             
+            /// If proposedRect.width > contentSize.width, set the x to 0 to center it horizontally
+            if proposedRect.size.width > scrollView.contentSize.width {
+                print("📏 proposedRect.size.width > scrollView.contentSize.width, setting x to 0 to center")
+                contentOffset.x = 0
+            }
+            
+
+            /// ** Correct rect's that are out of bounds **
+            if proposedRect.minY < 0 {
+                print("📏 proposedRect.minY < 0, setting y to 0")
+                contentOffset.y = 0
+            }
+            if proposedRect.maxY > scrollView.contentSize.height {
+                print("📏 proposedRect.maxY > scrollView.contentSize.height, setting y to 0")
+                contentOffset.y = 0
+            }
+            
+            if proposedRect.maxX < 0 {
+                print("📏 proposedRect.maxX < 0, setting x to 0")
+                contentOffset.x = 0
+            }
+            if proposedRect.maxX > scrollView.contentSize.width {
+                print("📏🍍 proposedRect.maxX > scrollView.contentSize.width, setting x to where screen end would be image end")
+                contentOffset.x = (scrollView.contentSize.width * zoomScale) - scrollView.bounds.width
+            }
+            
+            /// [ ] See if this works when zoomed-in somewhere and we need to zoom to a certain location
+            ///  [ ] Replace `scrollView.contentSize` with `imageSize` so that it's valid even at different zoom levels
+            /// - Assume we have the image size handy
+            /// - We'll probably have to do ntihg
             
             UIView.animate(withDuration: 0.3) {
                 self.scrollView.zoomScale = zoomScale
