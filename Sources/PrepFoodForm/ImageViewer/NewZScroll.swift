@@ -120,7 +120,8 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         func simulateZoom() {
 //            zoom(to: CGRectMake(220, 217, 81.55, 176.75))
 //            zoom(to: CGRectMake(169, 381, 54, 18))
-            zoom(to: CGRectMake(78, 167, 333, 333))
+            zoom(to: CGRectMake(97, 240, 333, 333))
+//            zoom(to: CGRectMake(97, -74, 333, 721.76))
         }
         
 
@@ -178,11 +179,62 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             }
             
             /// Now use zoomScale and scale the screenAspectRect's origin to get the contentOffset
-            let contentOffset = CGPointMake(screenRect.origin.x * zoomScale, screenRect.origin.y * zoomScale)
+            var contentOffset = CGPointMake(
+                max(screenRect.origin.x * zoomScale, 0),
+                max(screenRect.origin.y * zoomScale, 0)
+            )
 
             /// [ ] See if this works when zoomed-in somewhere and we need to zoom to a certain location
             /// - Assume we have the image size handy
             /// - We'll probably have to do ntihg
+            
+            print("📏 contentOffset: \(contentOffset)")
+
+            /// Correct rects here
+            /// First calculate proposedRect
+            let proposedRect = CGRect(
+                x: contentOffset.x,
+                y: contentOffset.y,
+                width: contentOffset.x + (scrollView.bounds.width * zoomScale),
+                height: contentOffset.y + (scrollView.bounds.height * zoomScale)
+            )
+            print("📏 proposedRect: \(proposedRect)")
+
+            if scrollView.contentSize.isWider(than: scrollView.bounds.size) {
+                /// - If proposedContentSize.height > contentSize.height, set the y to 0
+                if proposedRect.size.height > scrollView.contentSize.height {
+                    print("📏 proposedRect.size.height > scrollView.contentSize.height, setting y to 0")
+                    contentOffset.y = 0
+                }
+                
+                /// - If proposedRect.maxY > contentSize.height (ie. it's going to be out of bounds and off-center)
+                ///     - set the y to 0 so its centered, I believe
+                if proposedRect.maxY > scrollView.contentSize.height {
+                    print("📏 proposedRect.maxY > scrollView.contentSize.height, setting y to 0")
+                    contentOffset.y = 0
+                }
+                if proposedRect.minY < 0 {
+                    print("📏 proposedRect.minY < 0, setting y to 0")
+                    contentOffset.y = 0
+                }
+            } else if scrollView.contentSize.isWider(than: scrollView.bounds.size) {
+                if proposedRect.size.width > scrollView.contentSize.width {
+                    print("📏 proposedRect.size.width > scrollView.contentSize.width, setting x to 0")
+                    contentOffset.x = 0
+                }
+                
+                if proposedRect.maxX > scrollView.contentSize.width {
+                    print("📏 proposedRect.maxX > scrollView.contentSize.width, setting x to 0")
+                    contentOffset.x = 0
+                }
+                if proposedRect.maxY < 0 {
+                    print("📏 proposedRect.maxY < 0, setting x to 0")
+                    contentOffset.x = 0
+                }
+            } else {
+                print("📏 Not correcting since same aspect ratio as screen")
+            }
+            
             
             UIView.animate(withDuration: 0.3) {
                 self.scrollView.zoomScale = zoomScale
@@ -226,8 +278,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//            print("🥦 scrollViewDidScroll: \(scrollView.contentOffset) \(scrollView.contentSize) \(scrollView.bounds.size) x\(scrollView.zoomScale)")
-            print("🥦 origin.y: \(max(0, scrollView.bounds.height - scrollView.contentSize.height) / 2)")
+            print("📏 scrollViewDidScroll: \(scrollView.contentOffset) \(scrollView.contentSize) \(scrollView.bounds.size) x\(scrollView.zoomScale)")
         }
     }
     
