@@ -1,8 +1,6 @@
 import SwiftUI
 import SwiftSugar
 
-let BottomOffsetToBePassedIn: CGFloat = 104.0
-
 enum RelativeAspectRatioType {
     case taller
     case wider

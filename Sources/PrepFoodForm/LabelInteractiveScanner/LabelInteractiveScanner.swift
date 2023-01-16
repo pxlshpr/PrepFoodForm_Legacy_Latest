@@ -31,8 +31,8 @@ public struct LabelInteractiveScanner: View {
 //            imageLayer
             imageViewerLayer
             cameraLayer
-            columnPickerLayer
-            valuesPickerLayer
+//            columnPickerLayer
+//            valuesPickerLayer
 //            if !viewModel.animatingCollapse {
 //                buttonsLayer
 //                    .transition(.scale)

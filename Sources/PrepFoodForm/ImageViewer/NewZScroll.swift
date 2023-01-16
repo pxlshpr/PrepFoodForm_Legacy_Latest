@@ -1,6 +1,10 @@
 import SwiftUI
 import Combine
 
+//TODO: Make this dynamic
+//let BottomOffsetToBePassedIn: CGFloat = 104.0
+let BottomOffsetToBePassedIn: CGFloat = 0
+
 class NewCenteringScrollView: UIScrollView {
     func centerContent() {
         assert(subviews.count == 1)
@@ -74,7 +78,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             self.view = scrollView
             
             scrollView.delegate = self  // for viewForZooming(in:)
-            scrollView.maximumZoomScale = 30
+            scrollView.maximumZoomScale = 30 //TODO: Revisit whether this is too much
             scrollView.minimumZoomScale = 1
             scrollView.bouncesZoom = true
             scrollView.showsHorizontalScrollIndicator = false
@@ -83,6 +87,20 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             
             let hostedView = coordinator.hostingController.view!
             hostedView.translatesAutoresizingMaskIntoConstraints = false
+            
+            /// ** Added: This makes tall images stretch all the way to the top and bottom of the screen **
+            //TODO: Deal with these magic values
+            scrollView.contentInsetAdjustmentBehavior = .always
+            let topSafeAreaHeight: CGFloat = 59.0
+            let bottomSafeAreaHeight: CGFloat = 34.0
+            scrollView.contentInset = UIEdgeInsets(
+                top: -topSafeAreaHeight,
+                left: 0,
+                bottom: BottomOffsetToBePassedIn - bottomSafeAreaHeight,
+                right: 0
+            )
+            /// ***
+            
             scrollView.addSubview(hostedView)
             NSLayoutConstraint.activate([
                 hostedView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
@@ -118,7 +136,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         }
         
         func simulateZoom() {
-            zoom(to: CGRectMake(122, 456, 107, 40))
+//            zoom(to: CGRectMake(122, 456, 107, 40))
+//            zoom(to: CGRectMake(122, 359, 107, 231.92))
+//            zoom(to: CGRectMake(286, 15, 72, 156.06))
+            zoom(to: CGRectMake(38, 192, 185, 401))
         }
         
 
@@ -130,30 +151,33 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         func zoom(to rect: CGRect) {
             
             let imageSize = scrollView.contentSize
+            let screenSize = scrollView.bounds.size
+            print("")
+//            let screenSize = UIScreen.main.bounds.size
             
             var screenAspectRect: CGRect {
                 var new: CGRect
-                if rect.size.isWider(than: scrollView.bounds.size) {
+                if rect.size.isWider(than: screenSize) {
                     
                     /// Use the same x and width as rect
                     let x = rect.origin.x
                     let width = rect.width
 
                     /// Calculate height based on screen dimensions
-                    let height = (width * scrollView.bounds.height) / scrollView.bounds.width
+                    let height = (width * screenSize.height) / screenSize.width
 
                     /// Calculate y so that its centered vertically
                     let y = rect.origin.y - ((height - rect.height) / 2.0)
                     
                     new = CGRectMake(x, y, width, height)
                     
-                } else if rect.size.isTaller(than: scrollView.bounds.size) {
+                } else if rect.size.isTaller(than: screenSize) {
                     /// Use the same y and height as rect
                     let y = rect.origin.y
                     let height = rect.height
 
                     /// Calculate width based on screen dimensions
-                    let width = (height * scrollView.bounds.width) / scrollView.bounds.height
+                    let width = (height * screenSize.width) / screenSize.height
 
                     /// Calculate x so that its centered horizontally
                     let x = rect.origin.x - ((width - rect.width) / 2.0)
@@ -172,10 +196,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             print("📏 \(screenRect)")
             let zoomScale: CGFloat
             /// If image itself (not the rect) has wider (or equal) aspect ratio than the screen
-            if scrollView.contentSize.isWider(than: scrollView.bounds.size) {
-                zoomScale = scrollView.bounds.width / screenRect.width
+            if imageSize.isWider(than: screenSize) {
+                zoomScale = screenSize.width / screenRect.width
             } else {
-                zoomScale = scrollView.bounds.height / screenRect.height
+                zoomScale = screenSize.height / screenRect.height
             }
             
             /// Now use zoomScale and scale the screenAspectRect's origin to get the contentOffset
@@ -183,12 +207,16 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
 //                max(screenRect.origin.x * zoomScale, 0),
 //                max(screenRect.origin.y * zoomScale, 0)
 //            )
-            var contentOffset = CGPointMake(
-                screenRect.origin.x * zoomScale,
-                screenRect.origin.y * zoomScale
-            )
-
+            let x = screenRect.origin.x * zoomScale
+            var y = screenRect.origin.y
+//            if imageSize.isTaller(than: screenSize) {
+//                y = screenRect.origin.y + 20
+//            }
+            y = y * zoomScale
             
+            var contentOffset = CGPointMake(x, y)
+            
+            print("📏 zoomScale: \(zoomScale)")
             print("📏 contentOffset: \(contentOffset)")
 
             /// Correct rects here
@@ -196,20 +224,20 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             let proposedRect = CGRect(
                 x: contentOffset.x,
                 y: contentOffset.y,
-                width: scrollView.bounds.width,
-                height: scrollView.bounds.height
+                width: screenSize.width,
+                height: screenSize.height
             )
             print("📏 proposedRect: \(proposedRect)")
 
             /// ** Center proposed rect's that are larger than a dimension **
             /// If proposedRect.height > contentSize.height, set the y to 0 to center it vertically
-            if proposedRect.size.height > (scrollView.contentSize.height * zoomScale) {
+            if proposedRect.size.height > (imageSize.height * zoomScale) {
                 print("📏 proposedRect.size.height > scrollView.contentSize.height, setting y to 0 to center")
                 contentOffset.y = 0
             }
             
             /// If proposedRect.width > contentSize.width, set the x to 0 to center it horizontally
-            if proposedRect.size.width > (scrollView.contentSize.width * zoomScale) {
+            if proposedRect.size.width > (imageSize.width * zoomScale) {
                 print("📏 proposedRect.size.width > scrollView.contentSize.width, setting x to 0 to center")
                 contentOffset.x = 0
             }
@@ -220,7 +248,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                 print("📏 proposedRect.minY < 0, setting y to 0")
                 contentOffset.y = 0
             }
-            if proposedRect.maxY > (scrollView.contentSize.height * zoomScale) {
+            if proposedRect.maxY > (imageSize.height * zoomScale) {
                 print("📏 proposedRect.maxY > scrollView.contentSize.height, setting y to 0")
                 contentOffset.y = 0
             }
@@ -229,9 +257,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                 print("📏 proposedRect.maxX < 0, setting x to 0")
                 contentOffset.x = 0
             }
-            if proposedRect.maxX > (scrollView.contentSize.width * zoomScale) {
+            if proposedRect.maxX > (imageSize.width * zoomScale) {
                 print("📏🍍 proposedRect.maxX > scrollView.contentSize.width, setting x to where screen end would be image end")
-                contentOffset.x = (scrollView.contentSize.width * zoomScale) - scrollView.bounds.width
+                contentOffset.x = (imageSize.width * zoomScale) - screenSize.width
             }
             
             /// [ ] See if this works when zoomed-in somewhere and we need to zoom to a certain location
