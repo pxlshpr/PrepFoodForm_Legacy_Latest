@@ -14,7 +14,7 @@ extension LabelInteractiveScannerViewModel {
               let boundingBox = scanResult?.columnsWithAttributesBoundingBox
         else { return }
         
-        let columnZoomBox = ZoomBox(
+        let columnZoomBox = ZBox(
             boundingBox: boundingBox,
             animated: true,
             padded: true,

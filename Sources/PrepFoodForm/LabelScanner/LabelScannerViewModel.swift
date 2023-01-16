@@ -35,7 +35,7 @@ public class LabelScannerViewModel: ObservableObject {
 
     @Published var columns: ScannedColumns = ScannedColumns()
     @Published var selectedImageTexts: [ImageText] = []
-    @Published var zoomBox: ZoomBox? = nil
+    @Published var zoomBox: ZBox? = nil
     @Published var shimmering = false
     @Published var shimmeringImage = false
     @Published var showingColumnPicker = false
@@ -775,7 +775,7 @@ public class LabelScannerViewModel: ObservableObject {
         guard let imageSize = image?.size else { return }
         let boundingBox = self.textsToCrop.filter({ $0.id != defaultUUID }).boundingBox
         
-        let columnZoomBox = ZoomBox(
+        let columnZoomBox = ZBox(
             boundingBox: boundingBox,
             animated: true,
             padded: true,
@@ -846,7 +846,7 @@ public class LabelScannerViewModel: ObservableObject {
         }
     }
     
-    func getZoomBox(for image: UIImage, animated: Bool) -> ZoomBox {
+    func getZoomBox(for image: UIImage, animated: Bool) -> ZBox {
         let boundingBox: CGRect
         let imageSize: CGSize
         if isCamera {
@@ -861,7 +861,7 @@ public class LabelScannerViewModel: ObservableObject {
         /// where the initial zoom causes the image to scroll way off screen (and hence disappear)
         let padded = !isCamera
         
-        return ZoomBox(
+        return ZBox(
             boundingBox: boundingBox,
             animated: animated,
             padded: padded,

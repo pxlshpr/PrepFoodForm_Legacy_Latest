@@ -5,7 +5,7 @@ import PrepDataTypes
 
 public class ValuesPickerViewModel: ObservableObject {
     static var shared = ValuesPickerViewModel()
-    @Published public var nutrients: [Nutrient] = []
+    @Published public var nutrients: [ScannerNutrient] = []
     @Published public var currentAttribute: Attribute = .energy
     
     public init() {}
@@ -15,7 +15,7 @@ public class ValuesPickerViewModel: ObservableObject {
         self.nutrients = []
     }
     
-    var currentNutrient: Nutrient? {
+    var currentNutrient: ScannerNutrient? {
         nutrients.first(where: { $0.attribute == currentAttribute })
     }
     
@@ -64,36 +64,33 @@ public class ValuesPickerViewModel: ObservableObject {
     }
 }
 
-public extension ValuesPickerViewModel {
-    class Nutrient: ObservableObject, Identifiable {
-        
-        var attribute: Attribute
-        var attributeText: RecognizedText? = nil
-        @Published var isConfirmed: Bool = false
-        @Published var value: FoodLabelValue? = nil
-        @Published var valueText: RecognizedText? = nil
-        
-        init(
-            attribute: Attribute,
-            attributeText: RecognizedText? = nil,
-            isConfirmed: Bool,
-            value: FoodLabelValue? = nil,
-            valueText: RecognizedText? = nil
-        ) {
-            self.attribute = attribute
-            self.attributeText = attributeText
-            self.isConfirmed = isConfirmed
-            self.value = value
-            self.valueText = valueText
-        }
-        
-        public var id: Attribute {
-            self.attribute
-        }
+public class ScannerNutrient: ObservableObject, Identifiable {
+    
+    var attribute: Attribute
+    var attributeText: RecognizedText? = nil
+    @Published var isConfirmed: Bool = false
+    @Published var value: FoodLabelValue? = nil
+    @Published var valueText: RecognizedText? = nil
+    
+    init(
+        attribute: Attribute,
+        attributeText: RecognizedText? = nil,
+        isConfirmed: Bool,
+        value: FoodLabelValue? = nil,
+        valueText: RecognizedText? = nil
+    ) {
+        self.attribute = attribute
+        self.attributeText = attributeText
+        self.isConfirmed = isConfirmed
+        self.value = value
+        self.valueText = valueText
+    }
+    
+    public var id: Attribute {
+        self.attribute
     }
 }
-
-extension ValuesPickerViewModel.Nutrient: Hashable {
+extension ScannerNutrient: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(attribute)
         hasher.combine(attributeText)
@@ -103,8 +100,8 @@ extension ValuesPickerViewModel.Nutrient: Hashable {
     }
 }
 
-extension ValuesPickerViewModel.Nutrient: Equatable {
-    public static func ==(lhs: ValuesPickerViewModel.Nutrient, rhs: ValuesPickerViewModel.Nutrient) -> Bool {
+extension ScannerNutrient: Equatable {
+    public static func ==(lhs: ScannerNutrient, rhs: ScannerNutrient) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
 }

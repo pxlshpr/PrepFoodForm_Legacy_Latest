@@ -9,7 +9,7 @@ class TextPickerViewModel: ObservableObject {
     @Published var imageViewModels: [ImageViewModel]
     @Published var showingBoxes: Bool
     @Published var selectedImageTexts: [ImageText]
-    @Published var zoomBoxes: [ZoomBox?]
+    @Published var zoomBoxes: [ZBox?]
     @Published var page: Page
     
     @Published var currentIndex: Int = 0

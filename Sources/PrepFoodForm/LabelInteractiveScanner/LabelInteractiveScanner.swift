@@ -11,16 +11,13 @@ public struct LabelInteractiveScanner: View {
     
     @Binding var selectedImage: UIImage?
 
-    @ObservedObject var valuesPickerViewModel: ValuesPickerViewModel
     @ObservedObject var viewModel: LabelInteractiveScannerViewModel
 
     public init(
-        valuesPickerViewModel: ValuesPickerViewModel,
         scanner: LabelInteractiveScannerViewModel,
         image: Binding<UIImage?> = .constant(nil)
     ) {
         _selectedImage = image
-        self.valuesPickerViewModel = valuesPickerViewModel
         self.viewModel = scanner
     }
     
@@ -128,7 +125,7 @@ public struct LabelInteractiveScanner: View {
     
     var valuesPickerLayer: some View {
         ValuesPickerOverlay(
-            viewModel: valuesPickerViewModel,
+            viewModel: viewModel,
             isVisibleBinding: $viewModel.showingValuePickerUI,
             didTapDismiss: viewModel.dismissHandler,
             didTapCheckmark: { didTapCheckmark() },
@@ -141,25 +138,26 @@ extension LabelInteractiveScanner {
     
     func showFocusedTextBox() {
         viewModel.showTextBoxesFor(
-            attributeText: valuesPickerViewModel.currentAttributeText,
-            valueText: valuesPickerViewModel.currentValueText)
+            attributeText: viewModel.currentAttributeText,
+            valueText: viewModel.currentValueText
+        )
     }
     
     func didTapCheckmark() {
-        valuesPickerViewModel.moveToNextAttribute()
+        viewModel.moveToNextAttribute()
         showFocusedTextBox()
     }
     
     func configureValuesPickerViewModel(with scanResult: ScanResult) {
-        valuesPickerViewModel.reset()
+        viewModel.resetNutrients()
         guard let firstAttribute = scanResult.nutrientAttributes.first else {
             return
         }
-        valuesPickerViewModel.currentAttribute = firstAttribute
+        viewModel.currentAttribute = firstAttribute
         
         let c = viewModel.columns.selectedColumnIndex
-        valuesPickerViewModel.nutrients = scanResult.nutrients.rows.map({ row in
-            ValuesPickerViewModel.Nutrient(
+        viewModel.nutrients = scanResult.nutrients.rows.map({ row in
+            ScannerNutrient(
                 attribute: row.attribute,
                 attributeText: row.attributeText.text,
                 isConfirmed: false,

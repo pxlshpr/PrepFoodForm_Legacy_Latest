@@ -131,32 +131,27 @@ extension LabelInteractiveScannerViewModel {
             showingValuePickerUI = true
         }
 
-        await zoomToColumns()
+        zoom(to: self.nutrients.texts)
+//        await zoomToColumns()
     }
     
     /// Zooms into an area that encompasses the attribute's text box and its current value, with some padding
-    func zoomIn(for attribute: Attribute) async {
-        print("Zooming in for: \(attribute)")
-        guard let imageSize = image?.size,
-              let boundingBox = boundingBox(for: attribute)
-        else { return }
+    func zoom(to texts: [RecognizedText]) {
+        guard let imageSize = image?.size else { return }
 
-        let columnZoomBox = ZoomBox(
-            boundingBox: boundingBox,
+        let columnZoomBox = ZBox(
+            boundingBox: texts.boundingBox,
             animated: true,
             padded: true,
+            paddedForSingleBox: texts.count == 1,
             imageSize: imageSize
         )
 
-        print("🏎 zooming to boundingBox: \(boundingBox)")
-        await MainActor.run { [weak self] in
-            guard let _ = self else { return }
-            NotificationCenter.default.post(
-                name: .zoomZoomableScrollView,
-                object: nil,
-                userInfo: [Notification.ZoomableScrollViewKeys.zoomBox: columnZoomBox]
-            )
-        }
+        NotificationCenter.default.post(
+            name: .zoomZoomableScrollView,
+            object: nil,
+            userInfo: [Notification.ZoomableScrollViewKeys.zoomBox: columnZoomBox]
+        )
     }
     
     /// Shows and highlights text boxes based on the attribute.
@@ -167,12 +162,14 @@ extension LabelInteractiveScannerViewModel {
         valueText: RecognizedText?
     ) {
         var textBoxes: [TextBox] = []
+        var texts: [RecognizedText] = []
         if let attributeText {
             textBoxes.append(TextBox(
                 boundingBox: attributeText.boundingBox,
                 color: .accentColor,
                 tapHandler: {}
             ))
+            texts.append(attributeText)
         }
         if let valueText {
             textBoxes.append(TextBox(
@@ -180,9 +177,17 @@ extension LabelInteractiveScannerViewModel {
                 color: .blue,
                 tapHandler: {}
             ))
+            texts.append(valueText)
         }
 
         self.textBoxes = textBoxes
+        
+//        zoom(to: texts)
+//        Task { [weak self] in
+//            await self?.zoomToColumns()
+//        }
+        
+        zoom(to: self.nutrients.texts)
     }
     
     func texts(for attribute: Attribute) -> [RecognizedText]? {

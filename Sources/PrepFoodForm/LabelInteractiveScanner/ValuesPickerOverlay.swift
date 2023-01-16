@@ -27,10 +27,10 @@ public struct ValuesPickerOverlay: View {
 //    let attributesListAnimation: Animation = Bounce2
 //    let attributesListAnimation: Animation = .interactiveSpring()
 
-    @ObservedObject var viewModel: ValuesPickerViewModel
+    @ObservedObject var viewModel: LabelInteractiveScannerViewModel
     
     public init(
-        viewModel: ValuesPickerViewModel,
+        viewModel: LabelInteractiveScannerViewModel,
         isVisibleBinding: Binding<Bool>,
         didTapDismiss: (() -> ())? = nil,
         didTapCheckmark: @escaping () -> (),
@@ -530,7 +530,7 @@ public struct ValuesPickerOverlay: View {
 public struct ValuesPickerOverlayPreview: View {
     @State var selectedColumn: Int = 1
     
-    @StateObject var viewModel: ValuesPickerViewModel = .shared
+    @StateObject var viewModel: LabelInteractiveScannerViewModel = LabelInteractiveScannerViewModel()
     
     public init() { }
     public var body: some View {

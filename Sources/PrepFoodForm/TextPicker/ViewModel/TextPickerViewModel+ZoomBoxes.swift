@@ -20,7 +20,7 @@ extension TextPickerViewModel {
             return
         }
         
-        let initialZoomBox = ZoomBox(
+        let initialZoomBox = ZBox(
             boundingBox: boundingBox(forImageAt: index),
             animated: true,
             padded: true,
@@ -39,7 +39,7 @@ extension TextPickerViewModel {
             return
         }
         
-        let zoomFocusedBox = ZoomBox(
+        let zoomFocusedBox = ZBox(
             boundingBox: boundingBox(forImageAt: index),
             animated: true,
             padded: true,

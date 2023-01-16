@@ -35,7 +35,7 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
 
     @Published var columns: ScannedColumns = ScannedColumns()
     @Published var selectedImageTexts: [ImageText] = []
-    @Published var zoomBox: ZoomBox? = nil
+    @Published var zoomBox: ZBox? = nil
     @Published var shimmering = false
     @Published var shimmeringImage = false
     @Published var showingValuePicker = false
@@ -47,6 +47,9 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
+    @Published var nutrients: [ScannerNutrient] = []
+    @Published var currentAttribute: Attribute = .energy
+    
     var lastContentOffset: CGPoint? = nil
     var lastContentSize: CGSize? = nil
     var waitingForZoomToEndToShowCroppedImages = false
@@ -65,6 +68,11 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
     
     var moveToNextAttributeTask: Task<(), Error>? = nil
 
+    func resetNutrients() {
+        currentAttribute = .energy
+        nutrients = []
+    }
+    
     func reset() {
         hideCamera = false
         animatingCollapse = false
@@ -99,7 +107,9 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
         croppedImages = [:]
         croppingStatus = .idle
         waitingToShowCroppedImages = false
-        
+        currentAttribute = .energy
+        nutrients = []
+
         cancelAllTasks()
         scanTask = nil
         processScanTask = nil
@@ -672,7 +682,7 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
         guard let imageSize = image?.size else { return }
         let boundingBox = self.textsToCrop.filter({ $0.id != defaultUUID }).boundingBox
         
-        let columnZoomBox = ZoomBox(
+        let columnZoomBox = ZBox(
             boundingBox: boundingBox,
             animated: true,
             padded: true,
@@ -743,7 +753,7 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
         }
     }
     
-    func getZoomBox(for image: UIImage, animated: Bool) -> ZoomBox {
+    func getZoomBox(for image: UIImage, animated: Bool) -> ZBox {
         let boundingBox: CGRect
         let imageSize: CGSize
         if isCamera {
@@ -758,7 +768,7 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
         /// where the initial zoom causes the image to scroll way off screen (and hence disappear)
         let padded = !isCamera
         
-        return ZoomBox(
+        return ZBox(
             boundingBox: boundingBox,
             animated: animated,
             padded: padded,
@@ -851,4 +861,70 @@ extension LabelInteractiveScannerViewModel {
 //            }
 //        }
 //    }
+}
+
+extension Array where Element == ScannerNutrient {
+    var texts: [RecognizedText] {
+        var texts: [RecognizedText] = []
+        for nutrient in self {
+            if let attributeText = nutrient.attributeText {
+                texts.append(attributeText)
+            }
+            if let valueText = nutrient.valueText {
+                texts.append(valueText)
+            }
+        }
+        return texts
+    }
+}
+
+extension LabelInteractiveScannerViewModel {
+    
+    var currentNutrient: ScannerNutrient? {
+        nutrients.first(where: { $0.attribute == currentAttribute })
+    }
+    
+    var currentAmountString: String {
+        guard let amount = currentNutrient?.value?.amount else { return "" }
+        return amount.cleanAmount
+    }
+    
+    var currentUnitString: String {
+        guard let unit = currentNutrient?.value?.unit else { return "" }
+        return unit.description
+    }
+    
+    func moveToNextAttribute() {
+        guard let nextAttribute else { return }
+        self.currentAttribute = nextAttribute
+    }
+    
+    var currentAttributeText: RecognizedText? {
+        guard let currentNutrient else { return nil }
+        return currentNutrient.attributeText
+    }
+    
+    var currentValueText: RecognizedText? {
+        guard let currentNutrient else { return nil }
+        return currentNutrient.valueText
+    }
+
+    var nextAttribute: Attribute? {
+        nextAttribute(to: currentAttribute)
+    }
+
+    /// Returns the next element to `attribute` in `nutrients`,
+    /// cycling back to the first once the end is reached.
+    func nextAttribute(to attribute: Attribute) -> Attribute? {
+        guard let index = nutrients.firstIndex(where: { $0.attribute == attribute })
+        else { return nil }
+        
+        let nextIndex: Int
+        if index >= nutrients.count - 1 {
+            nextIndex = 0
+        } else {
+            nextIndex = index + 1
+        }
+        return nutrients[nextIndex].attribute
+    }
 }

@@ -109,9 +109,9 @@ extension TextPicker {
         return textPickerViewModel.imageViewModels[index].id
     }
 
-    func zoomBoxBinding(for imageViewModel: ImageViewModel) -> Binding<ZoomBox?>? {
+    func zoomBoxBinding(for imageViewModel: ImageViewModel) -> Binding<ZBox?>? {
         guard let index = index(of: imageViewModel) else { return nil }
-        return Binding<ZoomBox?>(
+        return Binding<ZBox?>(
             get: { textPickerViewModel.zoomBoxes[index] },
             set: { _ in }
         )
