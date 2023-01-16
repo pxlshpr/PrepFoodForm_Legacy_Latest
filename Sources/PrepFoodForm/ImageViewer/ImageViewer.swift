@@ -46,9 +46,7 @@ struct ImageViewer: View {
     var body: some View {
         ZStack {
             Color(.systemBackground)
-            VStack(spacing: 0) {
-                zoomableScrollView
-            }
+            zoomableScrollView
         }
         .edgesIgnoringSafeArea(.all)
     }
