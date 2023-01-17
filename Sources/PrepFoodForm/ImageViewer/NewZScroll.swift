@@ -140,9 +140,15 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             )
             let zoomScale = scrollView.zoomScale
             let contentOffset = scrollView.contentOffset
-            scrollView.contentInset = contentInset
-            scrollView.zoomScale = zoomScale
-            scrollView.contentOffset = contentOffset
+//            withAnimation {
+                scrollView.contentInset = contentInset
+                scrollView.zoomScale = zoomScale
+                scrollView.contentOffset = contentOffset
+//            }
+//            scrollView.setZoomScale(zoomScale, animated: true)
+//            scrollView.setContentOffset(contentOffset, animated: true)
+            setScrollViewMinimumZoomScale()
+//            scrollView.setNeedsUpdateConstraints()
         }
 
         func update(content: Content, doubleTap: AnyPublisher<Void, Never>) {
@@ -315,12 +321,17 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
             
+            setScrollViewMinimumZoomScale()
+        }
+        
+        func setScrollViewMinimumZoomScale() {
             let hostedContentSize = coordinator.hostingController.sizeThatFits(in: view.bounds.size)
             scrollView.minimumZoomScale = min(
                 //                scrollView.bounds.width / hostedContentSize.width,
                 //                scrollView.bounds.height / hostedContentSize.height)
                 HarcodedBounds.width / hostedContentSize.width,
                 HarcodedBounds.height / hostedContentSize.height)
+            print("🧯 setScrollViewMinimumZoomScale with: \(hostedContentSize), minimumZoomScale is: \(scrollView.minimumZoomScale)")
         }
         
         override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
