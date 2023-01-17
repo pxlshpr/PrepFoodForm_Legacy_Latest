@@ -3,15 +3,14 @@ import Combine
 
 
 class NewCenteringScrollView: UIScrollView {
+    
     func centerContent() {
         assert(subviews.count == 1)
         mutate(&subviews[0].frame) {
             // not clear why view.center.{x,y} = bounds.mid{X,Y} doesn't work -- maybe transform?
-            
-            //            let bounds = UIScreen.main.bounds
-            let bounds = HarcodedBounds
-            
-            print("🦄 Centering when bounds are: \(bounds.size)")
+//            let bounds = UIScreen.main.bounds
+//            let bounds = HardcodedBoundsForCentering
+            print("🦄🗜 Centering when bounds are: \(bounds.size)")
             $0.origin.x = max(0, bounds.width - $0.width) / 2
             $0.origin.y = max(0, bounds.height - $0.height) / 2
         }
@@ -73,12 +72,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             didSet { NSLayoutConstraint.activate(contentSizeConstraints) }
         }
         
-        var bottomInset: CGFloat
-        
         required init?(coder: NSCoder) { fatalError() }
         init(coordinator: Coordinator, doubleTap: AnyPublisher<Void, Never>) {
             self.coordinator = coordinator
-            self.bottomInset = BottomInsetInitial
             
             super.init(nibName: nil, bundle: nil)
             self.view = scrollView
@@ -100,7 +96,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             scrollView.contentInset = UIEdgeInsets(
                 top: TopInset,
                 left: 0,
-                bottom: bottomInset,
+                bottom: BottomInsetInitial,
                 right: 0
             )
             /// ***
@@ -121,45 +117,6 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             
             NotificationCenter.default.addObserver(self, selector: #selector(scannerDidPresentKeyboard), name: .scannerDidPresentKeyboard, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(scannerDidDismissKeyboard), name: .scannerDidDismissKeyboard, object: nil)
-        }
-        
-        @objc func scannerDidPresentKeyboard(notification: Notification) {
-            changeBottomContentInset(to: BottomInsetWithKeyboard)
-            
-            guard let userInfo = notification.userInfo,
-                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
-            else { return }
-            
-            convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize)
-            
-//            zoom(to: CGRectMake(115, 292, 192, 27)) /// blue tuna
-//            zoom(to: CGRectMake(76.11, 391.44, 106.4, 59.03)) /// tall cookies
-        }
-        
-        @objc func scannerDidDismissKeyboard(notification: Notification) {
-            changeBottomContentInset(to: BottomInsetInitial)
-            
-            guard let userInfo = notification.userInfo,
-                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
-            else { return }
-
-            convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize)
-            
-//            zoom(to: CGRectMake(120, 238, 183, 200)) /// blue tuna
-//            zoom(to: CGRectMake(69.9, 302.9, 159.22, 263.29)) /// tall cookies
-        }
-        
-        func changeBottomContentInset(to newValue: CGFloat) {
-            let contentInset = UIEdgeInsets(
-                top: TopInset,
-                left: 0,
-                bottom: newValue,
-                right: 0
-            )
-            let contentOffset = scrollView.contentOffset
-            scrollView.contentInset = contentInset
-            scrollView.contentOffset = contentOffset
-//            self.scrollView.setZoomScale(1, animated: true)
         }
 
         func update(content: Content, doubleTap: AnyPublisher<Void, Never>) {
@@ -188,33 +145,72 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             //            zoom(to: CGRectMake(38, 192, 185, 401))
         }
         
-        func convertBoundingBoxAndZoom(_ boundingBox: CGRect, imageSize: CGSize) {
+        @objc func scannerDidPresentKeyboard(notification: Notification) {
+//            changeBottomContentInset(to: BottomInsetWithKeyboard)
+            
+            guard let userInfo = notification.userInfo,
+                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+            
+            convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetWithKeyboard)
+            
+//            zoom(to: CGRectMake(115, 292, 192, 27)) /// blue tuna
+//            zoom(to: CGRectMake(76.11, 391.44, 106.4, 59.03)) /// tall cookies
+        }
+        
+        @objc func scannerDidDismissKeyboard(notification: Notification) {
+//            changeBottomContentInset(to: BottomInsetInitial)
+            
+            guard let userInfo = notification.userInfo,
+                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+
+            convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetInitial)
+            
+//            zoom(to: CGRectMake(120, 238, 183, 200)) /// blue tuna
+//            zoom(to: CGRectMake(69.9, 302.9, 159.22, 263.29)) /// tall cookies
+        }
+        
+        func changeBottomContentInset(to newValue: CGFloat) {
+            let contentInset = UIEdgeInsets(top: TopInset, left: 0, bottom: newValue, right: 0)
+            let contentOffset = scrollView.contentOffset
+            scrollView.contentInset = contentInset
+            scrollView.contentOffset = contentOffset
+//            self.scrollView.setZoomScale(1, animated: true)
+        }
+        
+        func convertBoundingBoxAndZoom(_ boundingBox: CGRect, imageSize: CGSize, bottomInset: CGFloat) {
             let imageSize = scrollView.contentSize
+            let bounds = HardcodedBounds
             
             let imageSizeWhenScaledToFit: CGSize
-            if imageSize.isWider(than: HarcodedBounds.size) {
+            if imageSize.isWider(than: bounds.size) {
                 imageSizeWhenScaledToFit = CGSizeMake(
-                    HarcodedBounds.width,
-                    (imageSize.height * HarcodedBounds.width) / imageSize.width
+                    bounds.width,
+                    (imageSize.height * bounds.width) / imageSize.width
                 )
-            } else if imageSize.isTaller(than: HarcodedBounds.size) {
+            } else if imageSize.isTaller(than: bounds.size) {
                 imageSizeWhenScaledToFit = CGSizeMake(
-                    (imageSize.width * HarcodedBounds.height) / imageSize.height,
-                    HarcodedBounds.height
+                    (imageSize.width * bounds.height) / imageSize.height,
+                    bounds.height
                 )
             } else {
-                imageSizeWhenScaledToFit = HarcodedBounds.size
+                imageSizeWhenScaledToFit = bounds.size
             }
             
-            zoom(to: boundingBox.rectForSize(imageSizeWhenScaledToFit), imageSize: imageSize)
+            zoom(
+                to: boundingBox.rectForSize(imageSizeWhenScaledToFit),
+                imageSize: imageSize,
+                bottomInset: bottomInset
+            )
         }
         
         //TODO: Provide imageSize here and use that instead of scrollView.contentSize
-        func zoom(to rect: CGRect, imageSize: CGSize) {
+        func zoom(to rect: CGRect, imageSize: CGSize, bottomInset: CGFloat) {
             
 //            let imageSize = scrollView.contentSize
             //            let screenSize = scrollView.bounds.size
-            let screenSize = HarcodedBounds.size
+            let screenSize = HardcodedBounds.size
             
             //            screenSize.height = screenSize.height - 366
             //            let screenSize = UIScreen.main.bounds.size
@@ -331,9 +327,12 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             /// - Assume we have the image size handy
             /// - We'll probably have to do ntihg
             
+            let contentInset = UIEdgeInsets(top: TopInset, left: 0, bottom: bottomInset, right: 0)
+
             UIView.animate(withDuration: 0.3) {
-                self.scrollView.zoomScale = zoomScale
-                self.scrollView.contentOffset = contentOffset
+                self.scrollView.contentInset = contentInset
+//                self.scrollView.zoomScale = zoomScale
+//                self.scrollView.contentOffset = contentOffset
             }
         }
         
@@ -356,8 +355,8 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             scrollView.minimumZoomScale = min(
                 //                scrollView.bounds.width / hostedContentSize.width,
                 //                scrollView.bounds.height / hostedContentSize.height)
-                HarcodedBounds.width / hostedContentSize.width,
-                HarcodedBounds.height / hostedContentSize.height)
+                HardcodedBounds.width / hostedContentSize.width,
+                HardcodedBounds.height / hostedContentSize.height)
             print("🧯 setScrollViewMinimumZoomScale with: \(hostedContentSize), minimumZoomScale is: \(scrollView.minimumZoomScale)")
         }
         

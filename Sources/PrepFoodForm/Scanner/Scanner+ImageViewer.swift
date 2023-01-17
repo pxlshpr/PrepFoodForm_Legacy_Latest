@@ -10,7 +10,8 @@ import Shimmer
 //let HarcodedBounds = CGRectMake(0, 0, 430, 566)
 let HeightWithKeyboard: CGFloat = 566
 let HeightWithoutKeyboard: CGFloat = 932 - 47 - 23 - 12
-var HarcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+var HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+var HardcodedBoundsForCentering = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
 
 let TopInset: CGFloat = 0
 //let TopInset: CGFloat = -59.0
@@ -23,10 +24,6 @@ let BottomInsetInitial: CGFloat = 62
 let BottomInsetWithKeyboard: CGFloat = 57
 
 extension Scanner {
-    
-    var imageViewerHeight: CGFloat {
-        viewModel.showingTextField ? HeightWithKeyboard : HeightWithoutKeyboard
-    }
     
     @ViewBuilder
     var imageViewerLayer: some View {

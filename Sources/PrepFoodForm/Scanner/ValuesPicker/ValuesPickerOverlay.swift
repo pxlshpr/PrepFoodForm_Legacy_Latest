@@ -191,7 +191,7 @@ public struct ValuesPickerOverlay: View {
             .keyboardType(.decimalPad)
             .onSubmit {
                 withAnimation {
-                    HarcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+                    HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
                     viewModel.showingTextField = false
                 }
                 NotificationCenter.default.post(
@@ -263,7 +263,7 @@ public struct ValuesPickerOverlay: View {
     func resignFocusOfSearchTextField() {
         isFocused = false
         withAnimation {
-            HarcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+            HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
             viewModel.showingTextField = false
         }
         NotificationCenter.default.post(
@@ -450,7 +450,7 @@ public struct ValuesPickerOverlay: View {
             Haptics.feedback(style: .soft)
             isFocused = true
             withAnimation {
-                HarcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
+                HardcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
                 viewModel.showingTextField = true
             }
             NotificationCenter.default.post(

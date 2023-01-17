@@ -11,6 +11,7 @@ public struct Scanner: View {
     
     @Binding var selectedImage: UIImage?
     @ObservedObject var viewModel: ScannerViewModel
+    @State var imageViewerHeight: CGFloat = HeightWithoutKeyboard
     
     public init(
         scanner: ScannerViewModel,
@@ -57,6 +58,13 @@ public struct Scanner: View {
             withAnimation {
                 self.selectedImage = nil
             }
+        }
+        .onChange(of: viewModel.showingTextField, perform: showingTextFieldChanged)
+    }
+    
+    func showingTextFieldChanged(to showingTextField: Bool) {
+        withAnimation {
+            imageViewerHeight = viewModel.showingTextField ? HeightWithKeyboard : HeightWithoutKeyboard
         }
     }
     
