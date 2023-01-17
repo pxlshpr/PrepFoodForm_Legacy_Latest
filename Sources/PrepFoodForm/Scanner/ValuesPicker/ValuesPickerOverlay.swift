@@ -194,7 +194,11 @@ public struct ValuesPickerOverlay: View {
                     HarcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
                     viewModel.showingTextField = false
                 }
-                NotificationCenter.default.post(name: .scannerDidDismissKeyboard, object: nil)
+                NotificationCenter.default.post(
+                    name: .scannerDidDismissKeyboard,
+                    object: nil,
+                    userInfo: userInfoForAllAttributesZoom
+                )
             }
     }
 
@@ -262,7 +266,11 @@ public struct ValuesPickerOverlay: View {
             HarcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
             viewModel.showingTextField = false
         }
-        NotificationCenter.default.post(name: .scannerDidDismissKeyboard, object: nil)
+        NotificationCenter.default.post(
+            name: .scannerDidDismissKeyboard,
+            object: nil,
+            userInfo: userInfoForAllAttributesZoom
+        )
     }
     
     var buttonsLayer: some View {
@@ -400,6 +408,28 @@ public struct ValuesPickerOverlay: View {
         }
     }
     
+    var userInfoForCurrentAttributeZoom: [String: Any]? {
+        guard let imageSize = viewModel.image?.size,
+              let attributeText = viewModel.currentAttributeText
+        else { return nil }
+        
+        var boundingBox = attributeText.boundingBox
+        if let valueText = viewModel.currentValueText {
+            boundingBox = boundingBox.union(valueText.boundingBox)
+        }
+        
+        let zBox = ZBox(boundingBox: boundingBox, imageSize: imageSize)
+        return [Notification.ZoomableScrollViewKeys.zoomBox: zBox]
+    }
+
+    var userInfoForAllAttributesZoom: [String: Any]? {
+        guard let imageSize = viewModel.image?.size,
+              let boundingBox = viewModel.scanResult?.columnsBoundingBox
+        else { return nil }
+        let zBox = ZBox(boundingBox: boundingBox, imageSize: imageSize)
+        return [Notification.ZoomableScrollViewKeys.zoomBox: zBox]
+    }
+
     var valueButton: some View {
         var amountColor: Color {
 //            Color.white
@@ -423,7 +453,11 @@ public struct ValuesPickerOverlay: View {
                 HarcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
                 viewModel.showingTextField = true
             }
-            NotificationCenter.default.post(name: .scannerDidPresentKeyboard, object: nil)
+            NotificationCenter.default.post(
+                name: .scannerDidPresentKeyboard,
+                object: nil,
+                userInfo: userInfoForCurrentAttributeZoom
+            )
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(viewModel.currentAmountString)

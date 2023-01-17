@@ -125,13 +125,27 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         
         @objc func scannerDidPresentKeyboard(notification: Notification) {
             changeBottomContentInset(to: BottomInsetWithKeyboard)
-            zoom(to: CGRectMake(115, 292, 192, 27)) /// blue tuna
+            
+            guard let userInfo = notification.userInfo,
+                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+            
+            convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize)
+            
+//            zoom(to: CGRectMake(115, 292, 192, 27)) /// blue tuna
 //            zoom(to: CGRectMake(76.11, 391.44, 106.4, 59.03)) /// tall cookies
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
             changeBottomContentInset(to: BottomInsetInitial)
-            zoom(to: CGRectMake(120, 238, 183, 200)) /// blue tuna
+            
+            guard let userInfo = notification.userInfo,
+                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+
+            convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize)
+            
+//            zoom(to: CGRectMake(120, 238, 183, 200)) /// blue tuna
 //            zoom(to: CGRectMake(69.9, 302.9, 159.22, 263.29)) /// tall cookies
         }
         
@@ -174,15 +188,31 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             //            zoom(to: CGRectMake(38, 192, 185, 401))
         }
         
-        
         func convertBoundingBoxAndZoom(_ boundingBox: CGRect, imageSize: CGSize) {
-            zoom(to: boundingBox.rectForSize(imageSize))
+            let imageSize = scrollView.contentSize
+            
+            let imageSizeWhenScaledToFit: CGSize
+            if imageSize.isWider(than: HarcodedBounds.size) {
+                imageSizeWhenScaledToFit = CGSizeMake(
+                    HarcodedBounds.width,
+                    (imageSize.height * HarcodedBounds.width) / imageSize.width
+                )
+            } else if imageSize.isTaller(than: HarcodedBounds.size) {
+                imageSizeWhenScaledToFit = CGSizeMake(
+                    (imageSize.width * HarcodedBounds.height) / imageSize.height,
+                    HarcodedBounds.height
+                )
+            } else {
+                imageSizeWhenScaledToFit = HarcodedBounds.size
+            }
+            
+            zoom(to: boundingBox.rectForSize(imageSizeWhenScaledToFit), imageSize: imageSize)
         }
         
         //TODO: Provide imageSize here and use that instead of scrollView.contentSize
-        func zoom(to rect: CGRect) {
+        func zoom(to rect: CGRect, imageSize: CGSize) {
             
-            let imageSize = scrollView.contentSize
+//            let imageSize = scrollView.contentSize
             //            let screenSize = scrollView.bounds.size
             let screenSize = HarcodedBounds.size
             
