@@ -125,10 +125,14 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         
         @objc func scannerDidPresentKeyboard(notification: Notification) {
             changeBottomContentInset(to: BottomInsetWithKeyboard)
+            zoom(to: CGRectMake(115, 292, 192, 27)) /// blue tuna
+//            zoom(to: CGRectMake(76.11, 391.44, 106.4, 59.03)) /// tall cookies
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
             changeBottomContentInset(to: BottomInsetInitial)
+            zoom(to: CGRectMake(120, 238, 183, 200)) /// blue tuna
+//            zoom(to: CGRectMake(69.9, 302.9, 159.22, 263.29)) /// tall cookies
         }
         
         func changeBottomContentInset(to newValue: CGFloat) {
@@ -138,17 +142,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                 bottom: newValue,
                 right: 0
             )
-            let zoomScale = scrollView.zoomScale
             let contentOffset = scrollView.contentOffset
-//            withAnimation {
-                scrollView.contentInset = contentInset
-                scrollView.zoomScale = zoomScale
-                scrollView.contentOffset = contentOffset
-//            }
-//            scrollView.setZoomScale(zoomScale, animated: true)
-//            scrollView.setContentOffset(contentOffset, animated: true)
-            setScrollViewMinimumZoomScale()
-//            scrollView.setNeedsUpdateConstraints()
+            scrollView.contentInset = contentInset
+            scrollView.contentOffset = contentOffset
+//            self.scrollView.setZoomScale(1, animated: true)
         }
 
         func update(content: Content, doubleTap: AnyPublisher<Void, Never>) {
@@ -171,7 +168,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         }
         
         func simulateZoom() {
-            //            zoom(to: CGRectMake(122, 456, 107, 40))
+//            zoom(to: CGRectMake(115, 292, 192, 27))
             //            zoom(to: CGRectMake(122, 359, 107, 231.92))
             //            zoom(to: CGRectMake(286, 15, 72, 156.06))
             //            zoom(to: CGRectMake(38, 192, 185, 401))
