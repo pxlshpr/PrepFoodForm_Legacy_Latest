@@ -61,7 +61,7 @@ class CenteringScrollView: UIScrollView {
                 y = -(screenSize.height - scaledImageSize.height) / 2
                 print("    🌻 Y: centering - \(y)")
             } else {
-                let maxY = contentSize.height - screenSize.height + BottomOffsetToBePassedIn
+                let maxY = contentSize.height - screenSize.height
                 y = min(max(self.contentOffset.y, 0), maxY)
                 print("    🌻 Y: untouched - \(y)")
             }

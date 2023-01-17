@@ -6,27 +6,7 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 
-extension LabelInteractiveScanner {
-    
-    @ViewBuilder
-    var croppedImagesLayer: some View {
-        if viewModel.showingCroppedImages {
-            ZStack {
-                Color.clear
-//                Color.blue.opacity(0.3)
-                ForEach(viewModel.images.indices, id: \.self) { i in
-                    croppedImage(
-                        viewModel.images[i].0,
-                        rect: viewModel.images[i].1,
-                        stackedAngle: viewModel.images[i].3,
-                        wiggleAngles: viewModel.images[i].4
-                    )
-                }
-            }
-            .edgesIgnoringSafeArea(.all)
-            .transition(.opacity)
-        }
-    }
+extension Scanner {
     
     func croppedImage(
         _ image: UIImage,

@@ -6,7 +6,7 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 
-extension LabelInteractiveScanner {
+extension Scanner {
 
     var textBoxesLayer: some View {
         func textBoxView(_ box: TextBox) -> some View {

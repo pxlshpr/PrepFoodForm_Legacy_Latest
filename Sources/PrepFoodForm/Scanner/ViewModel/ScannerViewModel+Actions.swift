@@ -6,7 +6,7 @@ import VisionSugar
 import FoodLabelScanner
 import PrepDataTypes
 
-extension LabelInteractiveScannerViewModel {
+extension ScannerViewModel {
 
     func startScan(_ image: UIImage) {
 

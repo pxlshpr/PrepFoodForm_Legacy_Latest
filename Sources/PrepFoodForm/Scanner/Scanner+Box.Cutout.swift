@@ -6,7 +6,7 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 
-extension LabelInteractiveScanner {
+extension Scanner {
     
     @ViewBuilder
     var croppedImagesCutoutLayer: some View {

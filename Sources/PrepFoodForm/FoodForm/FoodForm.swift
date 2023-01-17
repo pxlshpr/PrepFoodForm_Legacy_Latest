@@ -16,7 +16,7 @@ public struct FoodForm: View {
     @ObservedObject var fields: Fields
     @ObservedObject var sources: Sources
     @ObservedObject var scanner: LabelScannerViewModel
-    @ObservedObject var interactiveScanner: LabelInteractiveScannerViewModel
+    @ObservedObject var interactiveScanner: ScannerViewModel
 
     /// Sheets
     @State var showingEmojiPicker = false
@@ -60,7 +60,7 @@ public struct FoodForm: View {
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
         scanner: LabelScannerViewModel,
-        interactiveScanner: LabelInteractiveScannerViewModel,
+        interactiveScanner: ScannerViewModel,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
         Fields.shared = fields
@@ -83,7 +83,7 @@ public struct FoodForm: View {
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
         scanner: LabelScannerViewModel,
-        interactiveScanner: LabelInteractiveScannerViewModel,
+        interactiveScanner: ScannerViewModel,
         startWithLabelScanner: Bool = false,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
@@ -108,7 +108,7 @@ public struct FoodForm: View {
         sources: FoodForm.Sources,
         scanResult: ScanResult,
         scanner: LabelScannerViewModel,
-        interactiveScanner: LabelInteractiveScannerViewModel,
+        interactiveScanner: ScannerViewModel,
         image: UIImage,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
@@ -218,7 +218,7 @@ public struct FoodForm: View {
     }
 
     var labelInteractiveScanner: some View {
-        LabelInteractiveScanner(
+        Scanner(
             scanner: interactiveScanner,
             image: $selectedPhoto
         )

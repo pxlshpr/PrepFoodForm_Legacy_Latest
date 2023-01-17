@@ -21,16 +21,16 @@ public struct ValuesPickerOverlay: View {
     
     @Namespace var namespace
     @State var showingAttributePicker = false
-    @State var showingTextField = false
+//    @State var showingTextField = false
 
     let attributesListAnimation: Animation = Bounce
 //    let attributesListAnimation: Animation = Bounce2
 //    let attributesListAnimation: Animation = .interactiveSpring()
 
-    @ObservedObject var viewModel: LabelInteractiveScannerViewModel
+    @ObservedObject var viewModel: ScannerViewModel
     
     public init(
-        viewModel: LabelInteractiveScannerViewModel,
+        viewModel: ScannerViewModel,
         isVisibleBinding: Binding<Bool>,
         didTapDismiss: (() -> ())? = nil,
         didTapCheckmark: @escaping () -> (),
@@ -45,13 +45,13 @@ public struct ValuesPickerOverlay: View {
     
     public var body: some View {
         ZStack {
-            if !showingTextField {
+            if !viewModel.showingTextField {
                 baseLayer
             }
 //            if showingAttributePicker {
 //                attributeLayer
 //            }
-            if showingTextField {
+            if viewModel.showingTextField {
                 searchLayer
                     .transition(.move(edge: .bottom))
             }
@@ -191,8 +191,10 @@ public struct ValuesPickerOverlay: View {
             .keyboardType(.decimalPad)
             .onSubmit {
                 withAnimation {
-                    showingTextField = false
+                    HarcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+                    viewModel.showingTextField = false
                 }
+                NotificationCenter.default.post(name: .scannerDidDismissKeyboard, object: nil)
             }
     }
 
@@ -257,8 +259,10 @@ public struct ValuesPickerOverlay: View {
     func resignFocusOfSearchTextField() {
         isFocused = false
         withAnimation {
-            showingTextField = false
+            HarcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+            viewModel.showingTextField = false
         }
+        NotificationCenter.default.post(name: .scannerDidDismissKeyboard, object: nil)
     }
     
     var buttonsLayer: some View {
@@ -392,6 +396,7 @@ public struct ValuesPickerOverlay: View {
                 valueButton
                 rightButton
             }
+//            .frame(height: 300)
         }
     }
     
@@ -415,8 +420,10 @@ public struct ValuesPickerOverlay: View {
             Haptics.feedback(style: .soft)
             isFocused = true
             withAnimation {
-                showingTextField = true
+                HarcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
+                viewModel.showingTextField = true
             }
+            NotificationCenter.default.post(name: .scannerDidPresentKeyboard, object: nil)
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(viewModel.currentAmountString)
@@ -530,7 +537,7 @@ public struct ValuesPickerOverlay: View {
 public struct ValuesPickerOverlayPreview: View {
     @State var selectedColumn: Int = 1
     
-    @StateObject var viewModel: LabelInteractiveScannerViewModel = LabelInteractiveScannerViewModel()
+    @StateObject var viewModel: ScannerViewModel = ScannerViewModel()
     
     public init() { }
     public var body: some View {

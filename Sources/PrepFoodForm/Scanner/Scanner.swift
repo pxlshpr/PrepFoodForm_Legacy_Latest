@@ -7,14 +7,13 @@ import SwiftSugar
 import Shimmer
 import VisionSugar
 
-public struct LabelInteractiveScanner: View {
+public struct Scanner: View {
     
     @Binding var selectedImage: UIImage?
-
-    @ObservedObject var viewModel: LabelInteractiveScannerViewModel
-
+    @ObservedObject var viewModel: ScannerViewModel
+    
     public init(
-        scanner: LabelInteractiveScannerViewModel,
+        scanner: ScannerViewModel,
         image: Binding<UIImage?> = .constant(nil)
     ) {
         _selectedImage = image
@@ -32,7 +31,7 @@ public struct LabelInteractiveScanner: View {
             imageViewerLayer
             cameraLayer
 //            columnPickerLayer
-//            valuesPickerLayer
+            valuesPickerLayer
 //            if !viewModel.animatingCollapse {
 //                buttonsLayer
 //                    .transition(.scale)
@@ -134,7 +133,7 @@ public struct LabelInteractiveScanner: View {
     }
 }
 
-extension LabelInteractiveScanner {
+extension Scanner {
     
     func showFocusedTextBox() {
         viewModel.showTextBoxesFor(

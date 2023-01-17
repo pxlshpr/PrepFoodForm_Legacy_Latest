@@ -85,7 +85,7 @@ fileprivate struct ZScrollImpl<Content: View>: UIViewControllerRepresentable {
             scrollView.contentInset = UIEdgeInsets(
                 top: -topSafeAreaHeight,
                 left: 0,
-                bottom: BottomOffsetToBePassedIn - bottomSafeAreaHeight,
+                bottom: -bottomSafeAreaHeight,
                 right: 0
             )
 

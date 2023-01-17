@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension LabelInteractiveScanner {
+extension Scanner {
         
     @ViewBuilder
     var cameraLayer: some View {

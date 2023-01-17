@@ -8,7 +8,7 @@ import Shimmer
 import VisionSugar
 
 @MainActor
-public class LabelInteractiveScannerViewModel: ObservableObject {
+public class ScannerViewModel: ObservableObject {
 
     var isCamera: Bool
     var imageHandler: ((UIImage, ScanResult) -> ())?
@@ -49,7 +49,9 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
     @Published var clearSelectedImage: Bool = false
     @Published var nutrients: [ScannerNutrient] = []
     @Published var currentAttribute: Attribute = .energy
-    
+
+    @Published var showingTextField = false
+
     var lastContentOffset: CGPoint? = nil
     var lastContentSize: CGSize? = nil
     var waitingForZoomToEndToShowCroppedImages = false
@@ -107,8 +109,10 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
         croppedImages = [:]
         croppingStatus = .idle
         waitingToShowCroppedImages = false
+        
         currentAttribute = .energy
         nutrients = []
+        showingTextField = false
 
         cancelAllTasks()
         scanTask = nil
@@ -777,7 +781,7 @@ public class LabelInteractiveScannerViewModel: ObservableObject {
     }
 }
 
-extension LabelInteractiveScannerViewModel {
+extension ScannerViewModel {
     
     func testCaseDirectoryUrl(id: UUID) -> URL? {
         guard let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
@@ -878,7 +882,7 @@ extension Array where Element == ScannerNutrient {
     }
 }
 
-extension LabelInteractiveScannerViewModel {
+extension ScannerViewModel {
     
     var currentNutrient: ScannerNutrient? {
         nutrients.first(where: { $0.attribute == currentAttribute })

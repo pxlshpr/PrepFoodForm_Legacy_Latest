@@ -6,7 +6,7 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 
-extension LabelInteractiveScanner {
+extension Scanner {
 
     func handleCapturedImage(_ image: UIImage) {
         withAnimation(.easeInOut(duration: 0.7)) {

@@ -7,7 +7,7 @@ import SwiftSugar
 import Shimmer
 import VisionSugar
 
-extension LabelInteractiveScannerViewModel {
+extension ScannerViewModel {
     
     func zoomToColumns() async {
         guard let imageSize = image?.size,
