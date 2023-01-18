@@ -21,28 +21,28 @@ class NewCenteringScrollView: UIScrollView {
 //        centerContent()
     }
     
-    func centerContent(for imageSize: CGSize) {
+    func centerContent(for imageSize: CGSize? = nil) {
         var top: CGFloat = 0
+        var bottom: CGFloat = BottomInsetInitial
         var left: CGFloat = 0
         
-//        if contentSize.width < bounds.size.width {
-        if contentSize.isTaller(than: bounds.size) {
-            left = (bounds.size.width - contentSize.width) * 0.5
+        if let imageSize {
+            if imageSize.isTaller(than: bounds.size) {
+                left = (bounds.size.width - contentSize.width) * 0.5
+            }
+            if imageSize.isWider(than: bounds.size) {
+                top = (bounds.size.height - contentSize.height) * 0.5
+            }
+        } else {
+            if contentSize.width < bounds.size.width {
+                left = (bounds.size.width - contentSize.width) * 0.5
+            }
+            if contentSize.height < bounds.size.height {
+                top = (bounds.size.height - contentSize.height) * 0.5
+            }
         }
-//        if contentSize.height < bounds.size.height {
-        if contentSize.isWider(than: bounds.size) {
-            top = (bounds.size.height - contentSize.height) * 0.5
-        }
-        self.contentInset = UIEdgeInsets(top: top, left: left, bottom: top, right: left)
+        self.contentInset = UIEdgeInsets(top: top, left: left, bottom: bottom, right: left)
         print("👀 contentInset is: \(self.contentInset)")
-//        CGFloat top = 0, left = 0;
-//        if (self.contentSize.width < self.bounds.size.width) {
-//            left = (self.bounds.size.width-self.contentSize.width) * 0.5f;
-//        }
-//        if (self.contentSize.height < self.bounds.size.height) {
-//            top = (self.bounds.size.height-self.contentSize.height) * 0.5f;
-//        }
-//        self.contentInset = UIEdgeInsetsMake(top, left, top, left);
     }
     
     override func didAddSubview(_ subview: UIView) {
@@ -206,9 +206,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
 
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetInitial)
-//            }
+            }
             
 //            zoom(to: CGRectMake(120, 238, 183, 200)) /// blue tuna
 //            zoom(to: CGRectMake(69.9, 302.9, 159.22, 263.29)) /// tall cookies
@@ -305,12 +305,14 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             
             let screenRect = screenAspectRect
             
-            print("📏 \(screenRect)")
+            print("📏 screenRect: \(screenRect)")
             let zoomScale: CGFloat
             /// If image itself (not the rect) has wider (or equal) aspect ratio than the screen
             if imageSize.isWider(than: screenSize) {
+                print("📏 getting zoomScale by dividing screenSize.width: \(screenSize.width) / screenRect.width: \(screenRect.width)")
                 zoomScale = screenSize.width / screenRect.width
             } else {
+                print("📏 getting zoomScale by dividing screenSize.height: \(screenSize.height) / screenRect.height: \(screenRect.height)")
                 zoomScale = screenSize.height / screenRect.height
             }
             
@@ -437,7 +439,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
     - 🦄 scrollView.zoomScale: \(scrollView.zoomScale)x
 """)
 //            self.scrollView.centerContent()
-//            self.scrollView.centerContentNew()
+            self.scrollView.centerContent()
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {

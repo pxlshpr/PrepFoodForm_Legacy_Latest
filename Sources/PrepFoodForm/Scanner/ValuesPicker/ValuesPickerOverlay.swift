@@ -264,7 +264,12 @@ public struct ValuesPickerOverlay: View {
         isFocused = false
         withAnimation {
             HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
-            viewModel.showingTextField = false
+//            viewModel.showingTextField = false
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            withAnimation {
+                viewModel.showingTextField = false
+            }
         }
         NotificationCenter.default.post(
             name: .scannerDidDismissKeyboard,
