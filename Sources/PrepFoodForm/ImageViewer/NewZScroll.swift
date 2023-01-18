@@ -232,20 +232,22 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
 //            let bounds = UIScreen.main.bounds
             let bounds = CGRectMake(0, 0, 430, 566)
 
-            let imageSizeWhenScaledToFit: CGSize
-            if imageSize.isWider(than: bounds.size) {
-                imageSizeWhenScaledToFit = CGSizeMake(
-                    bounds.width,
-                    (imageSize.height * bounds.width) / imageSize.width
-                )
-            } else if imageSize.isTaller(than: bounds.size) {
-                imageSizeWhenScaledToFit = CGSizeMake(
-                    (imageSize.width * bounds.height) / imageSize.height,
-                    bounds.height
-                )
-            } else {
-                imageSizeWhenScaledToFit = bounds.size
-            }
+//            let imageSizeWhenScaledToFit: CGSize
+//            if imageSize.isWider(than: bounds.size) {
+//                imageSizeWhenScaledToFit = CGSizeMake(
+//                    bounds.width,
+//                    (imageSize.height * bounds.width) / imageSize.width
+//                )
+//            } else if imageSize.isTaller(than: bounds.size) {
+//                imageSizeWhenScaledToFit = CGSizeMake(
+//                    (imageSize.width * bounds.height) / imageSize.height,
+//                    bounds.height
+//                )
+//            } else {
+//                imageSizeWhenScaledToFit = bounds.size
+//            }
+            
+            let imageSizeWhenScaledToFit = scrollView.contentSize
             
             let rect = boundingBox.rectForSize(imageSizeWhenScaledToFit)
             print("📏 zooming to boundingBox: \(boundingBox)")
