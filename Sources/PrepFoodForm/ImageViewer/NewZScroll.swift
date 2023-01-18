@@ -189,14 +189,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
             
-            //TODO: Find out why we need this delay when the box we're zooming to is at the bottom section of the image (see if we can set the contentOffset to whatever the centering fixes it to be in the zoom function itself)
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetWithKeyboard)
-//            }
-
-            
-//            zoom(to: CGRectMake(115, 292, 192, 27)) /// blue tuna
-//            zoom(to: CGRectMake(76.11, 391.44, 106.4, 59.03)) /// tall cookies
+            }
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
@@ -209,9 +204,6 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetInitial)
             }
-            
-//            zoom(to: CGRectMake(120, 238, 183, 200)) /// blue tuna
-//            zoom(to: CGRectMake(69.9, 302.9, 159.22, 263.29)) /// tall cookies
         }
         
         func changeBottomContentInset(to newValue: CGFloat) {
@@ -226,7 +218,8 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             let imageSize = scrollView.contentSize
             
 //            let bounds = HardcodedBounds
-            let bounds = UIScreen.main.bounds
+//            let bounds = UIScreen.main.bounds
+            let bounds = CGRectMake(0, 0, 430, 850)
 
             let imageSizeWhenScaledToFit: CGSize
             if imageSize.isWider(than: bounds.size) {
@@ -386,10 +379,11 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             print("📏 Setting contentOffset: \(contentOffset)")
             print("📏 Setting zoomScale: \(zoomScale)")
 
+            scrollView.zoom(to: rect, animated: true)
+            
             UIView.animate(withDuration: 0.3) {
-//                self.scrollView.contentInset = contentInset
-                self.scrollView.zoomScale = zoomScale
-                self.scrollView.contentOffset = contentOffset
+//                self.scrollView.zoomScale = zoomScale
+//                self.scrollView.contentOffset = contentOffset
             }
         }
         
