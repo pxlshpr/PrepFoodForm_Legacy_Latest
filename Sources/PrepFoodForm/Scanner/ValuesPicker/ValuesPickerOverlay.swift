@@ -424,7 +424,7 @@ public struct ValuesPickerOverlay: View {
 
     var userInfoForAllAttributesZoom: [String: Any]? {
         guard let imageSize = viewModel.image?.size,
-              let boundingBox = viewModel.scanResult?.columnsBoundingBox
+              let boundingBox = viewModel.scanResult?.columnsWithAttributesBoundingBox
         else { return nil }
         let zBox = ZBox(boundingBox: boundingBox, imageSize: imageSize)
         return [Notification.ZoomableScrollViewKeys.zoomBox: zBox]

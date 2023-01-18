@@ -13,6 +13,7 @@ extension Notification.Name {
     
     public static var scannerDidPresentKeyboard: Notification.Name { return .init("scannerDidPresentKeyboard") }
     public static var scannerDidDismissKeyboard: Notification.Name { return .init("scannerDidDismissKeyboard") }
+    public static var scannerDidSetImage: Notification.Name { return .init("scannerDidSetImage") }
 }
 
 extension Notification {
