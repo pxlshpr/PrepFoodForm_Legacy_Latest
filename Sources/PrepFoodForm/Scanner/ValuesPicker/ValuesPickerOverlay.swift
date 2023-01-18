@@ -67,11 +67,13 @@ public struct ValuesPickerOverlay: View {
 //                    .transition(.move(edge: .top))
 //                    .edgesIgnoringSafeArea(.all)
 //            }
-            Text("")
-                .frame(maxWidth: .infinity)
-                .frame(height: TopBarHeight)
-                .background(.thinMaterial)
-                .edgesIgnoringSafeArea(.all)
+            
+//            Text("")
+//                .frame(maxWidth: .infinity)
+//                .frame(height: TopBarHeight)
+//                .background(.thinMaterial)
+//                .edgesIgnoringSafeArea(.all)
+            
             Spacer()
             if isVisibleBinding {
                 bottomVStack
