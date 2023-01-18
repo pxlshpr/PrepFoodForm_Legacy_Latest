@@ -189,9 +189,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
             
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetWithKeyboard)
-//            }
+            }
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
@@ -201,9 +201,18 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
 
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            let delay: CGFloat
+            if zBox.imageSize.isTaller(than: HardcodedBounds.size) {
+                print("⚱️ imageSize.isTaller(than: HardcodedBounds.size), delaying zoom by 0.3")
+                delay = 0.3
+            } else {
+                print("⚱️ imageSize.isTaller(than: HardcodedBounds.size), NOT delaying zoom by 0.3")
+                delay = 0.3
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetInitial)
-//            }
+            }
         }
         
         func changeBottomContentInset(to newValue: CGFloat) {
@@ -379,6 +388,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             print("📏 Setting contentOffset: \(contentOffset)")
             print("📏 Setting zoomScale: \(zoomScale)")
 
+            print("⚱️ zooming to: \(rect)")
             scrollView.zoom(to: rect, animated: true)
             
             UIView.animate(withDuration: 0.3) {

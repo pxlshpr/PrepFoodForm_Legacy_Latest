@@ -264,13 +264,24 @@ public struct ValuesPickerOverlay: View {
         isFocused = false
         withAnimation {
             HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
-            viewModel.showingTextField = false
+//            viewModel.showingTextField = false
         }
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//            withAnimation {
-//                viewModel.showingTextField = false
-//            }
-//        }
+        guard let imageSize = viewModel.image?.size else { return }
+        let delay: CGFloat
+        if imageSize.isTaller(than: HardcodedBounds.size) {
+            print("⚱️ image is taller delay 0.3")
+            delay = 0.3
+        } else {
+            print("⚱️ image is wider delay 0")
+            delay = 0.0
+        }
+
+        //TODO: Only do this for tall images
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            withAnimation {
+                viewModel.showingTextField = false
+            }
+        }
         NotificationCenter.default.post(
             name: .scannerDidDismissKeyboard,
             object: nil,
