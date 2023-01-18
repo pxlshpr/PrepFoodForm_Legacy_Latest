@@ -19,6 +19,7 @@ extension Scanner {
             }
         }
 //
+        
 //        withAnimation(.easeInOut(duration: 0.4).repeatForever()) {
 //            viewModel.shimmeringImage = true
 //        }
