@@ -189,9 +189,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetWithKeyboard)
-            }
+//            }
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
@@ -201,9 +201,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetInitial)
-            }
+//            }
         }
         
         func changeBottomContentInset(to newValue: CGFloat) {
