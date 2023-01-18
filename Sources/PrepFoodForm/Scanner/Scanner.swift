@@ -22,22 +22,7 @@ public struct Scanner: View {
     }
     
     public var body: some View {
-        ZStack {
-            if viewModel.showingBlackBackground {
-                Color(.systemBackground)
-//                Color.black
-                    .edgesIgnoringSafeArea(.all)
-            }
-//            imageLayer
-            imageViewerLayer
-            cameraLayer
-//            columnPickerLayer
-            valuesPickerLayer
-//            if !viewModel.animatingCollapse {
-//                buttonsLayer
-//                    .transition(.scale)
-//            }
-        }
+        contents
         .onChange(of: selectedImage) { newValue in
             guard let newValue else { return }
             handleCapturedImage(newValue)
@@ -60,6 +45,52 @@ public struct Scanner: View {
             }
         }
         .onChange(of: viewModel.showingTextField, perform: showingTextFieldChanged)
+    }
+    
+    var contents: some View {
+        ZStack {
+            if viewModel.showingBlackBackground {
+                Color(.systemBackground)
+//                Color.black
+                    .edgesIgnoringSafeArea(.all)
+            }
+            VStack(spacing: 0) {
+                ZStack {
+        //            imageLayer
+                    imageViewerLayer
+                }
+                .frame(height: 566)
+//                .clipped()
+                Spacer()
+            }
+            .edgesIgnoringSafeArea(.all)
+            cameraLayer
+//            columnPickerLayer
+            valuesPickerLayer
+//            if !viewModel.animatingCollapse {
+//                buttonsLayer
+//                    .transition(.scale)
+//            }
+        }
+    }
+    
+    var contents_legacy: some View {
+        ZStack {
+            if viewModel.showingBlackBackground {
+                Color(.systemBackground)
+//                Color.black
+                    .edgesIgnoringSafeArea(.all)
+            }
+//            imageLayer
+            imageViewerLayer
+            cameraLayer
+//            columnPickerLayer
+            valuesPickerLayer
+//            if !viewModel.animatingCollapse {
+//                buttonsLayer
+//                    .transition(.scale)
+//            }
+        }
     }
     
     func showingTextFieldChanged(to showingTextField: Bool) {
@@ -133,7 +164,8 @@ public struct Scanner: View {
     var valuesPickerLayer: some View {
         ValuesPickerOverlay(
             viewModel: viewModel,
-            isVisibleBinding: $viewModel.showingValuePickerUI,
+//            isVisibleBinding: $viewModel.showingValuePickerUI,
+            isVisibleBinding: .constant(true),
             didTapDismiss: viewModel.dismissHandler,
             didTapCheckmark: { didTapCheckmark() },
             didTapAutofill: { viewModel.columnSelectionHandler() }

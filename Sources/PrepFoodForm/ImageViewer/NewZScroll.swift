@@ -23,15 +23,17 @@ class NewCenteringScrollView: UIScrollView {
     
     func centerContent(for imageSize: CGSize? = nil) {
         var top: CGFloat = 0
-        var bottom: CGFloat = BottomInsetInitial
+//        let bottom: CGFloat = -42 /// this was for the simulator
+//        let bottom: CGFloat = 0
+        let bottom: CGFloat = -8
         var left: CGFloat = 0
         
         if let imageSize {
-            if imageSize.isTaller(than: bounds.size) {
-                left = (bounds.size.width - contentSize.width) * 0.5
-            }
+            let bounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
             if imageSize.isWider(than: bounds.size) {
                 top = (bounds.size.height - contentSize.height) * 0.5
+            } else if imageSize.isTaller(than: bounds.size) {
+                left = (bounds.size.width - contentSize.width) * 0.5
             }
         } else {
             if contentSize.width < bounds.size.width {
@@ -189,9 +191,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetWithKeyboard)
-            }
+//            }
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
@@ -210,9 +212,9 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                 delay = 0.3
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetInitial)
-            }
+//            }
         }
         
         func changeBottomContentInset(to newValue: CGFloat) {
@@ -228,7 +230,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             
 //            let bounds = HardcodedBounds
 //            let bounds = UIScreen.main.bounds
-            let bounds = CGRectMake(0, 0, 430, 850)
+            let bounds = CGRectMake(0, 0, 430, 566)
 
             let imageSizeWhenScaledToFit: CGSize
             if imageSize.isWider(than: bounds.size) {
@@ -264,8 +266,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             
 //            let imageSize = scrollView.contentSize
             //            let screenSize = scrollView.bounds.size
-            let screenSize = HardcodedBounds.size
-            
+//            let screenSize = HardcodedBounds.size
+//            let screenSize = CGSizeMake(430, 517)
+            let screenSize = CGSizeMake(430, 483)
+
             //            screenSize.height = screenSize.height - 366
             //            let screenSize = UIScreen.main.bounds.size
             
@@ -308,16 +312,22 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             let screenRect = screenAspectRect
             
             print("📏 screenRect: \(screenRect)")
-            let zoomScale: CGFloat
+            var relativeZoomScale: CGFloat
             /// If image itself (not the rect) has wider (or equal) aspect ratio than the screen
             if imageSize.isWider(than: screenSize) {
                 print("📏 getting zoomScale by dividing screenSize.width: \(screenSize.width) / screenRect.width: \(screenRect.width)")
-                zoomScale = screenSize.width / screenRect.width
+                relativeZoomScale = screenSize.width / screenRect.width
             } else {
                 print("📏 getting zoomScale by dividing screenSize.height: \(screenSize.height) / screenRect.height: \(screenRect.height)")
-                zoomScale = screenSize.height / screenRect.height
+                relativeZoomScale = screenSize.height / screenRect.height
             }
             
+            print("📏 correcting relativeZoomScale (\(relativeZoomScale)) to absolute by")
+            print("📏     dividing by current zoomScale (\(scrollView.zoomScale))")
+//            let zoomScale = relativeZoomScale / scrollView.zoomScale
+            let zoomScale = relativeZoomScale
+            print("📏     = (\(zoomScale))")
+
             /// Now use zoomScale and scale the screenAspectRect's origin to get the contentOffset
             //            var contentOffset = CGPointMake(
             //                max(screenRect.origin.x * zoomScale, 0),
@@ -332,7 +342,6 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             
             var contentOffset = CGPointMake(x, y)
             
-            print("📏 zoomScale: \(zoomScale)")
             print("📏 contentOffset: \(contentOffset)")
             
             /// Correct rects here
@@ -391,10 +400,15 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             print("⚱️ zooming to: \(rect)")
             scrollView.zoom(to: rect, animated: true)
             
-            UIView.animate(withDuration: 0.3) {
+//            print("⚱️ zooming to: \(screenRect)")
+//            scrollView.zoom(to: screenRect, animated: true)
+
+//            print("📏 proposedRect: \(proposedRect)")
+
+//            UIView.animate(withDuration: 0.3) {
 //                self.scrollView.zoomScale = zoomScale
 //                self.scrollView.contentOffset = contentOffset
-            }
+//            }
         }
         
         override func viewDidAppear(_ animated: Bool) {
@@ -407,7 +421,6 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-            
             setScrollViewMinimumZoomScale()
         }
         
@@ -418,6 +431,8 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                 //                scrollView.bounds.height / hostedContentSize.height)
                 HardcodedBounds.width / hostedContentSize.width,
                 HardcodedBounds.height / hostedContentSize.height)
+//                430 / hostedContentSize.width,
+//                483 / hostedContentSize.height)
         }
         
         override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -449,6 +464,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             print("""
 🦄 scrollViewDidScroll:
+    - 🦄 scrollView.contentInset: \(scrollView.contentInset)
     - 🦄 scrollView.contentOffset: \(scrollView.contentOffset)
     - 🦄 scrollView.contentSize: \(scrollView.contentSize)
     - 🦄 scrollView.bounds.size: \(scrollView.bounds.size)

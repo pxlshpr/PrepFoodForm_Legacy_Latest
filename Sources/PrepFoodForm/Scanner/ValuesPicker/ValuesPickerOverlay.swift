@@ -45,9 +45,10 @@ public struct ValuesPickerOverlay: View {
     
     public var body: some View {
         ZStack {
-            if !viewModel.showingTextField {
-                baseLayer
-            }
+//            if !viewModel.showingTextField {
+            baseLayer
+                .edgesIgnoringSafeArea(.all)
+//            }
 //            if showingAttributePicker {
 //                attributeLayer
 //            }
@@ -66,6 +67,11 @@ public struct ValuesPickerOverlay: View {
 //                    .transition(.move(edge: .top))
 //                    .edgesIgnoringSafeArea(.all)
 //            }
+            Text("")
+                .frame(maxWidth: .infinity)
+                .frame(height: TopBarHeight)
+                .background(.thinMaterial)
+                .edgesIgnoringSafeArea(.all)
             Spacer()
             if isVisibleBinding {
                 bottomVStack
@@ -191,7 +197,7 @@ public struct ValuesPickerOverlay: View {
             .keyboardType(.decimalPad)
             .onSubmit {
                 withAnimation {
-                    HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+//                    HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
                     viewModel.showingTextField = false
                 }
                 NotificationCenter.default.post(
@@ -263,25 +269,26 @@ public struct ValuesPickerOverlay: View {
     func resignFocusOfSearchTextField() {
         isFocused = false
         withAnimation {
-            HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
-//            viewModel.showingTextField = false
+//            HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+            viewModel.showingTextField = false
         }
-        guard let imageSize = viewModel.image?.size else { return }
-        let delay: CGFloat
-        if imageSize.isTaller(than: HardcodedBounds.size) {
-            print("⚱️ image is taller delay 0.3")
-            delay = 0.3
-        } else {
-            print("⚱️ image is wider delay 0")
-            delay = 0.0
-        }
-
-        //TODO: Only do this for tall images
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            withAnimation {
-                viewModel.showingTextField = false
-            }
-        }
+        
+//        guard let imageSize = viewModel.image?.size else { return }
+//        let delay: CGFloat
+//        if imageSize.isTaller(than: HardcodedBounds.size) {
+//            print("⚱️ image is taller delay 0.3")
+//            delay = 0.3
+//        } else {
+//            print("⚱️ image is wider delay 0")
+//            delay = 0.0
+//        }
+//
+//        //TODO: Only do this for tall images
+//        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+//            withAnimation {
+//                viewModel.showingTextField = false
+//            }
+//        }
         NotificationCenter.default.post(
             name: .scannerDidDismissKeyboard,
             object: nil,
@@ -420,8 +427,9 @@ public struct ValuesPickerOverlay: View {
                 valueButton
                 rightButton
             }
-//            .frame(height: 300)
+            Spacer()
         }
+        .frame(height: 346)
     }
     
     var userInfoForCurrentAttributeZoom: [String: Any]? {
@@ -466,7 +474,7 @@ public struct ValuesPickerOverlay: View {
             Haptics.feedback(style: .soft)
             isFocused = true
             withAnimation {
-                HardcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
+//                HardcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
                 viewModel.showingTextField = true
             }
             NotificationCenter.default.post(

@@ -8,9 +8,11 @@ import Shimmer
 
 //TODO: Make these dynamic
 //let HarcodedBounds = CGRectMake(0, 0, 430, 566)
-let HeightWithKeyboard: CGFloat = 566
+let TopBarHeight: CGFloat = 83
+let HeightWithKeyboard: CGFloat = 566 - TopBarHeight
 let HeightWithoutKeyboard: CGFloat = 932 - 47 - 23 - 12
-var HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+//var HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
+var HardcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
 var HardcodedBoundsForCentering = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
 
 let TopInset: CGFloat = 0
@@ -29,6 +31,7 @@ extension Scanner {
     var imageViewerLayer: some View {
         if let image = viewModel.image {
             VStack(spacing: 0) {
+                Color.clear.frame(height: TopBarHeight)
                 ZStack {
                     imageViewer(image)
                     croppedImagesLayer
