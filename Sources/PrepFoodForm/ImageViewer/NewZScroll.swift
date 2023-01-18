@@ -24,8 +24,8 @@ class NewCenteringScrollView: UIScrollView {
     func centerContent(for imageSize: CGSize? = nil) {
         var top: CGFloat = 0
 //        let bottom: CGFloat = -42 /// this was for the simulator
-//        let bottom: CGFloat = 0
-        let bottom: CGFloat = -8
+        let bottom: CGFloat = -2
+//        let bottom: CGFloat = -8  /// this was for the simulator
         var left: CGFloat = 0
         
         if let imageSize {
@@ -427,10 +427,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         func setScrollViewMinimumZoomScale() {
             let hostedContentSize = coordinator.hostingController.sizeThatFits(in: view.bounds.size)
             scrollView.minimumZoomScale = min(
-                //                scrollView.bounds.width / hostedContentSize.width,
-                //                scrollView.bounds.height / hostedContentSize.height)
-                HardcodedBounds.width / hostedContentSize.width,
-                HardcodedBounds.height / hostedContentSize.height)
+                scrollView.bounds.width / hostedContentSize.width,
+                scrollView.bounds.height / hostedContentSize.height)
+//                HardcodedBounds.width / hostedContentSize.width,
+//                (HardcodedBounds.height - 8) / hostedContentSize.height)
 //                430 / hostedContentSize.width,
 //                483 / hostedContentSize.height)
         }
