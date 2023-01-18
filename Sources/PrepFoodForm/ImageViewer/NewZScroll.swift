@@ -247,7 +247,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
 //                imageSizeWhenScaledToFit = bounds.size
 //            }
             
-            let imageSizeWhenScaledToFit = scrollView.contentSize
+            let imageSizeWhenScaledToFit = CGSize(
+                width: scrollView.contentSize.width / scrollView.zoomScale,
+                height: scrollView.contentSize.height / scrollView.zoomScale
+            )
             
             let rect = boundingBox.rectForSize(imageSizeWhenScaledToFit)
             print("📏 zooming to boundingBox: \(boundingBox)")
@@ -267,10 +270,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         func zoom(to rect: CGRect, imageSize: CGSize, bottomInset: CGFloat) {
             
 //            let imageSize = scrollView.contentSize
-            //            let screenSize = scrollView.bounds.size
+            let screenSize = scrollView.bounds.size
 //            let screenSize = HardcodedBounds.size
 //            let screenSize = CGSizeMake(430, 517)
-            let screenSize = CGSizeMake(430, 483)
+//            let screenSize = CGSizeMake(430, 483)
 
             //            screenSize.height = screenSize.height - 366
             //            let screenSize = UIScreen.main.bounds.size
@@ -314,20 +317,20 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             let screenRect = screenAspectRect
             
             print("📏 screenRect: \(screenRect)")
-            var relativeZoomScale: CGFloat
+            var zoomScale: CGFloat
             /// If image itself (not the rect) has wider (or equal) aspect ratio than the screen
             if imageSize.isWider(than: screenSize) {
                 print("📏 getting zoomScale by dividing screenSize.width: \(screenSize.width) / screenRect.width: \(screenRect.width)")
-                relativeZoomScale = screenSize.width / screenRect.width
+                zoomScale = screenSize.width / screenRect.width
             } else {
                 print("📏 getting zoomScale by dividing screenSize.height: \(screenSize.height) / screenRect.height: \(screenRect.height)")
-                relativeZoomScale = screenSize.height / screenRect.height
+                zoomScale = screenSize.height / screenRect.height
             }
             
-            print("📏 correcting relativeZoomScale (\(relativeZoomScale)) to absolute by")
+            print("📏 correcting relativeZoomScale (\(zoomScale)) to absolute by")
             print("📏     dividing by current zoomScale (\(scrollView.zoomScale))")
-//            let zoomScale = relativeZoomScale / scrollView.zoomScale
-            let zoomScale = relativeZoomScale
+            let correctedZoomScale = zoomScale / scrollView.zoomScale
+//            let zoomScale = zoomScale
             print("📏     = (\(zoomScale))")
 
             /// Now use zoomScale and scale the screenAspectRect's origin to get the contentOffset
@@ -335,7 +338,7 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             //                max(screenRect.origin.x * zoomScale, 0),
             //                max(screenRect.origin.y * zoomScale, 0)
             //            )
-            let x = screenRect.origin.x * zoomScale
+            let x = screenRect.origin.x * correctedZoomScale
             var y = screenRect.origin.y
             //            if imageSize.isTaller(than: screenSize) {
             //                y = screenRect.origin.y + 20
@@ -407,10 +410,10 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
 
 //            print("📏 proposedRect: \(proposedRect)")
 
-//            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.3) {
 //                self.scrollView.zoomScale = zoomScale
 //                self.scrollView.contentOffset = contentOffset
-//            }
+            }
         }
         
         override func viewDidAppear(_ animated: Bool) {
