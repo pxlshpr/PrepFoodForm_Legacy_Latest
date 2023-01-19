@@ -16,10 +16,10 @@ extension ScannerViewModel {
             
             Haptics.selectionFeedback()
             
-            guard !Task.isCancelled else { return }
-            await MainActor.run { [weak self] in
-                self?.zoomOutCompletely(image)
-            }
+//            guard !Task.isCancelled else { return }
+//            await MainActor.run { [weak self] in
+//                self?.zoomOutCompletely(image)
+//            }
             
             guard !Task.isCancelled else { return }
             if await self.isCamera {
@@ -131,8 +131,8 @@ extension ScannerViewModel {
             showingValuePickerUI = true
         }
 
-        zoom(to: self.nutrients.texts)
-//        await zoomToColumns()
+//        zoom(to: self.nutrients.texts)
+        await zoomToColumns()
     }
     
     /// Zooms into an area that encompasses the attribute's text box and its current value, with some padding
@@ -187,7 +187,7 @@ extension ScannerViewModel {
 //            await self?.zoomToColumns()
 //        }
         
-        zoom(to: self.nutrients.texts)
+//        zoom(to: self.nutrients.texts)
     }
     
     func texts(for attribute: Attribute) -> [RecognizedText]? {

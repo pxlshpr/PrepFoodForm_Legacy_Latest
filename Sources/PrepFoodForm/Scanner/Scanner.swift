@@ -65,8 +65,8 @@ public struct Scanner: View {
             }
             .edgesIgnoringSafeArea(.all)
             cameraLayer
-//            columnPickerLayer
             valuesPickerLayer
+            columnPickerLayer
 //            if !viewModel.animatingCollapse {
 //                buttonsLayer
 //                    .transition(.scale)

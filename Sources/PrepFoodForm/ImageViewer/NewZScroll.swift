@@ -149,6 +149,11 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             NotificationCenter.default.addObserver(self, selector: #selector(scannerDidPresentKeyboard), name: .scannerDidPresentKeyboard, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(scannerDidDismissKeyboard), name: .scannerDidDismissKeyboard, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(scannerDidSetImage), name: .scannerDidSetImage, object: nil)
+            
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(zoomZoomableScrollView),
+                name: .zoomZoomableScrollView, object: nil
+            )
         }
         
         @objc func scannerDidSetImage(_ notification: Notification) {
@@ -184,6 +189,20 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             //            zoom(to: CGRectMake(38, 192, 185, 401))
         }
         
+        @objc func zoomZoomableScrollView(notification: Notification) {
+            guard let zoomBox = notification.userInfo?[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+//            scrollView.zoomTo(zoomBox)
+            
+            //TODO: Stop using bottomInset
+            print("🤳 Zooming to: \(zoomBox.boundingBox) in \(zoomBox.imageSize)")
+            self.convertBoundingBoxAndZoom(
+                zoomBox.boundingBox,
+                imageSize: zoomBox.imageSize,
+                bottomInset: BottomInsetWithKeyboard
+            )
+        }
+
         @objc func scannerDidPresentKeyboard(notification: Notification) {
 //            changeBottomContentInset(to: BottomInsetWithKeyboard)
             
@@ -191,9 +210,14 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
             
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetWithKeyboard)
-//            }
+            let paddedBoundingBox = zBox.boundingBox.horizontallyPaddedBoundingBox
+            
+            //TODO: Stop using bottomInset
+            self.convertBoundingBoxAndZoom(
+                paddedBoundingBox,
+                imageSize: zBox.imageSize,
+                bottomInset: BottomInsetWithKeyboard
+            )
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
@@ -213,7 +237,13 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
             }
             
 //            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize, bottomInset: BottomInsetInitial)
+            //TODO: Stop using bottomInset, also use zoomZoomableScrollView instead
+            print("🤳 Zooming to: \(zBox.boundingBox) in \(zBox.imageSize)")
+                self.convertBoundingBoxAndZoom(
+                    zBox.boundingBox,
+                    imageSize: zBox.imageSize,
+                    bottomInset: BottomInsetInitial
+                )
 //            }
         }
         
@@ -486,5 +516,17 @@ fileprivate struct NewZScrollImpl<Content: View>: UIViewControllerRepresentable 
         init(hostingController: UIHostingController<Content>) {
             self.hostingController = hostingController
         }
+    }
+}
+
+extension CGRect {
+    var horizontallyPaddedBoundingBox: CGRect {
+        let padding = (self.width / 2.0)
+        return CGRect(
+            x: max(0.0, self.origin.x - (padding / 2.0)),
+            y: self.origin.y,
+            width: min(self.width + padding, 1.0),
+            height: self.size.height
+        )
     }
 }
