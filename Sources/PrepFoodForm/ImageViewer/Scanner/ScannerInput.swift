@@ -77,6 +77,8 @@ public struct ScannerInput: View {
             Spacer()
             VStack {
                 Text(string)
+                    .font(.system(.title3, design: .rounded, weight: .medium))
+                    .foregroundColor(Color(.tertiaryLabel))
                 ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
                     .frame(width: 30, height: 30)
                     .foregroundColor(Color(.tertiaryLabel))

@@ -19,6 +19,16 @@ extension FoodForm {
     }
 }
 
+struct DiarySeparatorLineColor {
+    static var light = "B3B3B6"
+    static var dark = "424242"
+}
+
+struct DiaryDividerLineColor {
+    static var light = "D6D6D7"
+    static var dark = "3a3a3a"  //"333333"
+}
+
 extension FoodForm.Wizard {
     
     var body: some View {
@@ -49,9 +59,11 @@ extension FoodForm.Wizard {
                 .frame(height: 50)
                 .background(
                     RoundedRectangle(cornerRadius: 15, style: .continuous)
-                        .foregroundColor(Color(.secondarySystemFill))
+                        .foregroundStyle(.ultraThinMaterial)
+                        .cornerRadius(15)
+                        .shadow(color: colorScheme == .dark ? .black : .gray.opacity(0.6),
+                                radius: 30, x: 0, y: 0)
                 )
-                .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
                 .padding(.horizontal, 38)
                 .padding(.bottom, 55)
                 .contentShape(Rectangle())
@@ -133,9 +145,23 @@ extension FoodForm.Wizard {
         .cornerRadius(20)
         .frame(height: 320)
         .frame(maxWidth: 350)
+//        .overlay(
+//            RoundedRectangle(cornerRadius: 20)
+//                .stroke(separatorColor, lineWidth: 0.5)
+//        )
         .padding(.horizontal, 30)
-        .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
+        .shadow(color: colorScheme == .dark ? .black : .gray.opacity(0.6), radius: 30, x: 0, y: 0)
+        .offset(y: 40)
     }
+    
+    var dividerColor: Color {
+        Color(hex: colorScheme == .light ? DiaryDividerLineColor.light : DiaryDividerLineColor.dark)
+    }
+
+    var separatorColor: Color {
+        Color(hex: colorScheme == .light ? DiarySeparatorLineColor.light : DiarySeparatorLineColor.dark)
+    }
+
     
     var learnMoreFooter: some View {
         Button {
