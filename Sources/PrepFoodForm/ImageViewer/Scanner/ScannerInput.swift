@@ -8,7 +8,7 @@ public enum ScannerAction {
     case dismiss
     case confirmCurrentAttribute
     case showAttribute(Attribute)
-    case confirmAttribute(Attribute)
+    case toggleAttributeConfirmation(Attribute)
 }
 
 public struct ScannerInput: View {
@@ -73,7 +73,7 @@ public struct ScannerInput: View {
                     }
                 }
                 Button {
-                    actionHandler(.confirmAttribute(nutrient.attribute))
+                    actionHandler(.toggleAttributeConfirmation(nutrient.attribute))
                 } label: {
                     Image(systemName: imageName)
                         .foregroundColor(.secondary)
@@ -137,7 +137,7 @@ public struct ScannerInput: View {
 //                        .foregroundStyle(.ultraThinMaterial)
                         .foregroundStyle(.thickMaterial)
                         .shadow(
-                            color: colorScheme == .dark ? Color(.black).opacity(0.6) : Color(.black).opacity(0.2),
+                            color: colorScheme == .dark ? Color(.black).opacity(0.4) : Color(.black).opacity(0.2),
                             radius: 3, x: 0, y: 3)
                 )
                 .offset(x: -25, y: -10)
@@ -152,7 +152,7 @@ public struct ScannerInput: View {
     var list: some View {
         ScrollViewReader { scrollProxy in
             
-            List($viewModel.scannerNutrients, id: \.self, editActions: .delete) { $nutrient in
+            List($viewModel.scannerNutrients, id: \.self.hashValue, editActions: .delete) { $nutrient in
                 cell(for: nutrient)
                     .frame(maxWidth: .infinity)
                     .id(nutrient.attribute)
@@ -191,13 +191,13 @@ public struct ScannerInput: View {
     var pickerView: some View {
         VStack {
             HStack(spacing: TopButtonsHorizontalPadding) {
-                if viewModel.state != .userValidationCompleted {
-                    Group {
+//                if viewModel.state != .userValidationCompleted {
+//                    Group {
                         attributeButton
                         valueButton
-                    }
-                    .transition(.move(edge: .leading))
-                }
+//                    }
+//                    .transition(.move(edge: .leading))
+//                }
                 rightButton
             }
             .padding(.horizontal, TopButtonsHorizontalPadding)
@@ -436,6 +436,7 @@ public struct ScannerInput: View {
 //                viewModel.showingTextField = false
 //            }
 //        }
+        
         NotificationCenter.default.post(
             name: .scannerDidDismissKeyboard,
             object: nil,
@@ -673,9 +674,20 @@ public struct ScannerInput: View {
     
     var rightButton: some View {
         var width: CGFloat {
-            viewModel.state == .userValidationCompleted
-            ? UIScreen.main.bounds.width - (TopButtonsHorizontalPadding * 2.0)
-            : TopButtonWidth
+//            viewModel.state == .userValidationCompleted
+//            ? UIScreen.main.bounds.width - (TopButtonsHorizontalPadding * 2.0)
+//            : TopButtonWidth
+            TopButtonWidth
+        }
+        
+        var shouldDisablePrimaryButton: Bool {
+            guard let currentNutrient = viewModel.currentNutrient else { return true }
+            return currentNutrient.isConfirmed
+        }
+        
+        var foregroundStyle: some ShapeStyle {
+            Color.green.gradient
+//            currentNutrientIsConfirmed ? Color.gray.gradient : Color.green.gradient
         }
         
         return Button {
@@ -686,15 +698,14 @@ public struct ScannerInput: View {
                 .foregroundColor(.white)
                 .frame(width: width)
                 .frame(height: TopButtonHeight)
-//                .padding(.horizontal)
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-//                        .foregroundStyle(Color(.tertiarySystemFill))
-                        .foregroundStyle(Color.green.gradient)
-//                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                        .foregroundStyle(foregroundStyle)
                 )
                 .contentShape(Rectangle())
         }
+        .disabled(shouldDisablePrimaryButton)
+        .grayscale(shouldDisablePrimaryButton ? 1.0 : 0.0)
     }
 
     var attributeButton: some View {

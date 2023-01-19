@@ -912,6 +912,35 @@ extension ScannerViewModel {
         return unit.description
     }
     
+    var containsUnconfirmedAttributes: Bool {
+        scannerNutrients.contains(where: { !$0.isConfirmed })
+    }
+    
+    func toggleAttributeConfirmation(_ attribute: Attribute) -> Attribute? {
+        guard let index = scannerNutrients.firstIndex(where: { $0.attribute == attribute }) else {
+            return nil
+        }
+        Haptics.feedback(style: .soft)
+        withAnimation {
+            scannerNutrients[index].isConfirmed.toggle()
+        }
+        
+        /// Update this
+        checkIfAllNutrientsAreConfirmed()
+
+        /// If we've confirmed it and there are unconfirmed ones left, move to the next one, otherwise move to the toggled attribute
+        let attributeMovedTo: Attribute
+        if scannerNutrients[index].isConfirmed, containsUnconfirmedAttributes,
+           let nextAttributeToToggled = nextUnconfirmedAttribute(to: attribute)
+        {
+            attributeMovedTo = nextAttributeToToggled
+        } else {
+            attributeMovedTo = attribute
+        }
+        moveToAttribute(attributeMovedTo)
+        return attributeMovedTo
+    }
+    
     func handleDeletedNutrient(oldValue: [ScannerNutrient]) {
         Haptics.warningFeedback()
         /// get the index of the deleted attribute
@@ -933,7 +962,7 @@ extension ScannerViewModel {
             }
             if deletedIndex - 1 < scannerNutrients.count,
                deletedIndex - 1 >= 0,
-               let nextAttributeToDeletedOne = nextAttribute(to: scannerNutrients[deletedIndex - 1].attribute)
+               let nextAttributeToDeletedOne = nextUnconfirmedAttribute(to: scannerNutrients[deletedIndex - 1].attribute)
             {
                 /// first see if an item exists before the (old, deleted) one, and if so, move to that
                 moveToAttribute(nextAttributeToDeletedOne)
@@ -971,8 +1000,8 @@ extension ScannerViewModel {
         
         checkIfAllNutrientsAreConfirmed()
         
-        guard let nextAttribute else { return }
-        moveToAttribute(nextAttribute)
+        guard let nextUnconfirmedAttribute else { return }
+        moveToAttribute(nextUnconfirmedAttribute)
     }
     
     func moveToAttribute(_ attribute: Attribute) {
@@ -997,23 +1026,31 @@ extension ScannerViewModel {
         return currentNutrient.valueText
     }
 
-    var nextAttribute: Attribute? {
-        nextAttribute(to: currentAttribute)
+    var nextUnconfirmedAttribute: Attribute? {
+        nextUnconfirmedAttribute(to: currentAttribute)
     }
 
     /// Returns the next element to `attribute` in `nutrients`,
     /// cycling back to the first once the end is reached.
-    func nextAttribute(to attribute: Attribute) -> Attribute? {
+    func nextUnconfirmedAttribute(to attribute: Attribute) -> Attribute? {
         guard let index = scannerNutrients.firstIndex(where: { $0.attribute == attribute })
         else { return nil }
         
-        let nextIndex: Int
-        if index >= scannerNutrients.count - 1 {
-            nextIndex = 0
-        } else {
-            nextIndex = index + 1
+        /// Make sure we only loop once around the nutrients
+        let maxNumberOfHops = scannerNutrients.count
+        var numberOfHops = 0
+        var indexToCheck = index >= scannerNutrients.count - 1 ? 0 : index + 1
+        while numberOfHops < maxNumberOfHops {
+            if !scannerNutrients[indexToCheck].isConfirmed {
+                return scannerNutrients[indexToCheck].attribute
+            }
+            indexToCheck += 1
+            if indexToCheck >= scannerNutrients.count - 1 {
+                indexToCheck = 0
+            }
+            numberOfHops += 1
         }
-        return scannerNutrients[nextIndex].attribute
+        return nil
     }
 }
 

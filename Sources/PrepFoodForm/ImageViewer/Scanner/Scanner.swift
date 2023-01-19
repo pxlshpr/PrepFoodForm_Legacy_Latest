@@ -229,9 +229,10 @@ public struct Scanner: View {
         case .confirmCurrentAttribute:
             didTapCheckmark()
         case .showAttribute(let attribute):
+            Haptics.selectionFeedback()
             showAttribute(attribute)
-        case .confirmAttribute(let attribute):
-            confirmAttribute(attribute)
+        case .toggleAttributeConfirmation(let attribute):
+            toggleAttributeConfirmation(attribute)
         }
     }
 }
@@ -253,7 +254,6 @@ extension Scanner {
     func showAttribute(_ attribute: Attribute) {
         viewModel.moveToAttribute(attribute)
         showTextBoxes(for: attribute)
-        Haptics.selectionFeedback()
     }
     
     func showTextBoxes(for attribute: Attribute) {
@@ -266,8 +266,10 @@ extension Scanner {
         )
     }
     
-    func confirmAttribute(_ attribute: Attribute) {
-        
+    func toggleAttributeConfirmation(_ attribute: Attribute) {
+        if let attributeMovedTo = viewModel.toggleAttributeConfirmation(attribute) {
+            showAttribute(attributeMovedTo)
+        }
     }
     
     func configureValuesPickerViewModel(with scanResult: ScanResult) {
