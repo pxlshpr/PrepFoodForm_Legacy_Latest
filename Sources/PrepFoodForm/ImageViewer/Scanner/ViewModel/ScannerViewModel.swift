@@ -14,6 +14,8 @@ public class ScannerViewModel: ObservableObject {
     var imageHandler: ((UIImage, ScanResult) -> ())?
     var scanResultHandler: ((ScanResult, Int?) -> ())?
     var dismissHandler: (() -> ())?
+    
+    @Published var state: ScannerState = .loadingImage
 
     @Published var hideCamera = false
     @Published var textBoxes: [TextBox] = []
@@ -113,6 +115,7 @@ public class ScannerViewModel: ObservableObject {
         currentAttribute = .energy
         nutrients = []
         showingTextField = false
+        state = .loadingImage
 
         cancelAllTasks()
         scanTask = nil
@@ -238,7 +241,12 @@ public class ScannerViewModel: ObservableObject {
     }
     
     func begin(_ image: UIImage) {
-        self.startScan(image)
+        self.startRecognizingTexts(from: image)
+    }
+    func setState(to newState: ScannerState) {
+        withAnimation {
+            self.state = newState
+        }
     }
 
     func begin_test(_ image: UIImage) {

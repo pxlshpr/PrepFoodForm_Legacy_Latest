@@ -1,29 +1,23 @@
 import SwiftUI
 import Combine
 
+//TODO: Magic Number 🪄
+let TopBarHeight: CGFloat = 83
+
 class CenteringScrollView: UIScrollView {
     func centerContent(for imageSize: CGSize? = nil) {
         var top: CGFloat = 0
-        //TODO: Magic Number 🪄
-        let bottom: CGFloat = -2
-//        let bottom: CGFloat = -8  /// this was for the simulator
         var left: CGFloat = 0
-        
-        if let imageSize {
-            //TODO: Magic Number 🪄
-            let bounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
-            if imageSize.isWider(than: bounds.size) {
-                top = (bounds.size.height - contentSize.height) * 0.5
-            } else if imageSize.isTaller(than: bounds.size) {
-                left = (bounds.size.width - contentSize.width) * 0.5
-            }
-        } else {
-            if contentSize.width < bounds.size.width {
-                left = (bounds.size.width - contentSize.width) * 0.5
-            }
-            if contentSize.height < bounds.size.height {
-                top = (bounds.size.height - contentSize.height) * 0.5
-            }
+
+        //TODO: Magic Number 🪄
+//        let bottom = 924 - UIScreen.main.bounds.height
+        let bottom: CGFloat = 0
+
+        if contentSize.width < bounds.size.width {
+            left = (bounds.size.width - contentSize.width) * 0.5
+        }
+        if contentSize.height < bounds.size.height {
+            top = (bounds.size.height - contentSize.height) * 0.5
         }
         self.contentInset = UIEdgeInsets(top: top, left: left, bottom: bottom, right: left)
     }
@@ -117,25 +111,9 @@ fileprivate struct ZoomScrollViewRepresentable<Content: View>: UIViewControllerR
             NotificationCenter.default.addObserver(self, selector: #selector(scannerDidDismissKeyboard), name: .scannerDidDismissKeyboard, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(scannerDidSetImage), name: .scannerDidSetImage, object: nil)
             
-            NotificationCenter.default.addObserver(
-                self, selector: #selector(zoomZoomableScrollView),
-                name: .zoomZoomableScrollView, object: nil
-            )
+            NotificationCenter.default.addObserver(self, selector: #selector(zoomZoomableScrollView), name: .zoomZoomableScrollView, object: nil)
         }
-        
-        @objc func scannerDidSetImage(_ notification: Notification) {
-            guard let userInfo = notification.userInfo,
-                  let imageSize = userInfo[Notification.ZoomableScrollViewKeys.imageSize] as? CGSize
-            else { return }
-            scrollView.centerContent(for: imageSize)
-        }
-
-        func update(content: Content, doubleTap: AnyPublisher<Void, Never>) {
-            coordinator.hostingController.rootView = content
-            scrollView.setNeedsUpdateConstraints()
-            doubleTapCancellable = doubleTap.sink { [unowned self] in handleDoubleTap() }
-        }
-        
+                
         override func updateViewConstraints() {
             super.updateViewConstraints()
             let hostedContentSize = coordinator.hostingController.sizeThatFits(in: view.bounds.size)
@@ -145,60 +123,7 @@ fileprivate struct ZoomScrollViewRepresentable<Content: View>: UIViewControllerR
             ]
         }
         
-        //MARK: Event Handlers
-        func handleDoubleTap() {
-            scrollView.setZoomScale(scrollView.zoomScale >= 1 ? scrollView.minimumZoomScale : 1, animated: true)
-        }
-        
-        @objc func zoomZoomableScrollView(notification: Notification) {
-            guard let zoomBox = notification.userInfo?[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
-            else { return }
-            
-            //TODO: Stop using bottomInset
-            self.convertBoundingBoxAndZoom(
-                zoomBox.boundingBox,
-                imageSize: zoomBox.imageSize,
-                bottomInset: BottomInsetWithKeyboard
-            )
-        }
-
-        @objc func scannerDidPresentKeyboard(notification: Notification) {
-            guard let userInfo = notification.userInfo,
-                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
-            else { return }
-            
-            let paddedBoundingBox = zBox.boundingBox.horizontallyPaddedBoundingBox
-            
-            //TODO: Stop using bottomInset
-            self.convertBoundingBoxAndZoom(
-                paddedBoundingBox,
-                imageSize: zBox.imageSize,
-                bottomInset: BottomInsetWithKeyboard
-            )
-        }
-        
-        @objc func scannerDidDismissKeyboard(notification: Notification) {
-            guard let userInfo = notification.userInfo,
-                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
-            else { return }
-
-            //TODO: Stop using bottomInset, also use zoomZoomableScrollView instead
-            self.convertBoundingBoxAndZoom(
-                zBox.boundingBox,
-                imageSize: zBox.imageSize,
-                bottomInset: BottomInsetInitial
-            )
-        }
-        
-        func convertBoundingBoxAndZoom(_ boundingBox: CGRect, imageSize: CGSize, bottomInset: CGFloat) {
-            let imageSizeScaledToFit = CGSize(
-                width: scrollView.contentSize.width / scrollView.zoomScale,
-                height: scrollView.contentSize.height / scrollView.zoomScale
-            )
-            
-            let rect = boundingBox.rectForSize(imageSizeScaledToFit)
-            scrollView.zoom(to: rect, animated: true)
-        }
+        //MARK: - View Lifecycle
         
         override func viewDidAppear(_ animated: Bool) {
             scrollView.zoom(to: hostedView.bounds, animated: false)
@@ -206,10 +131,6 @@ fileprivate struct ZoomScrollViewRepresentable<Content: View>: UIViewControllerR
         
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
-            setScrollViewMinimumZoomScale()
-        }
-        
-        func setScrollViewMinimumZoomScale() {
             let hostedContentSize = coordinator.hostingController.sizeThatFits(in: view.bounds.size)
             scrollView.minimumZoomScale = min(
                 scrollView.bounds.width / hostedContentSize.width,
@@ -222,8 +143,67 @@ fileprivate struct ZoomScrollViewRepresentable<Content: View>: UIViewControllerR
         }
         
         //MARK: UIScrollViewDelegate
+        
         func scrollViewDidZoom(_ scrollView: UIScrollView) {
             self.scrollView.centerContent()
+        }
+        
+        //MARK: - Event Handlers
+        
+        func handleDoubleTap() {
+            scrollView.setZoomScale(scrollView.zoomScale >= 1 ? scrollView.minimumZoomScale : 1, animated: true)
+        }
+        
+        
+        @objc func scannerDidSetImage(_ notification: Notification) {
+            guard let userInfo = notification.userInfo,
+                  let imageSize = userInfo[Notification.ZoomableScrollViewKeys.imageSize] as? CGSize
+            else { return }
+//            scrollView.centerContent(for: imageSize)
+            scrollView.centerContent()
+        }
+
+        func update(content: Content, doubleTap: AnyPublisher<Void, Never>) {
+            coordinator.hostingController.rootView = content
+            scrollView.setNeedsUpdateConstraints()
+            doubleTapCancellable = doubleTap.sink { [unowned self] in handleDoubleTap() }
+        }
+
+        @objc func zoomZoomableScrollView(notification: Notification) {
+            guard let zoomBox = notification.userInfo?[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+            
+            self.convertBoundingBoxAndZoom(zoomBox.boundingBox, imageSize: zoomBox.imageSize)
+        }
+
+        @objc func scannerDidPresentKeyboard(notification: Notification) {
+            guard let userInfo = notification.userInfo,
+                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+            
+            let paddedBoundingBox = zBox.boundingBox.horizontallyPaddedBoundingBox
+            
+            //TODO: Use zoomZoomableScrollView instead
+            self.convertBoundingBoxAndZoom(paddedBoundingBox, imageSize: zBox.imageSize)
+        }
+        
+        @objc func scannerDidDismissKeyboard(notification: Notification) {
+            guard let userInfo = notification.userInfo,
+                  let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
+            else { return }
+
+            //TODO: Use zoomZoomableScrollView instead
+            self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize)
+        }
+        
+        func convertBoundingBoxAndZoom(_ boundingBox: CGRect, imageSize: CGSize) {
+            let imageSizeScaledToFit = CGSize(
+                width: scrollView.contentSize.width / scrollView.zoomScale,
+                height: scrollView.contentSize.height / scrollView.zoomScale
+            )
+            
+            let rect = boundingBox.rectForSize(imageSizeScaledToFit)
+            scrollView.zoom(to: rect, animated: true)
         }
     }
     
@@ -235,5 +215,33 @@ fileprivate struct ZoomScrollViewRepresentable<Content: View>: UIViewControllerR
         init(hostingController: UIHostingController<Content>) {
             self.hostingController = hostingController
         }
+    }
+}
+
+/// Keeping this as a reference in case we encounter errors as this was previously working
+class CenteringScrollView_Legacy_Reference: UIScrollView {
+    let HeightWithKeyboard: CGFloat = 566 - TopBarHeight
+    func centerContent(for imageSize: CGSize? = nil) {
+        var top: CGFloat = 0
+        let bottom: CGFloat = -2
+//        let bottom: CGFloat = -8  /// this was for the simulator
+        var left: CGFloat = 0
+        
+        if let imageSize {
+            let bounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
+            if imageSize.isWider(than: bounds.size) {
+                top = (bounds.size.height - contentSize.height) * 0.5
+            } else if imageSize.isTaller(than: bounds.size) {
+                left = (bounds.size.width - contentSize.width) * 0.5
+            }
+        } else {
+            if contentSize.width < bounds.size.width {
+                left = (bounds.size.width - contentSize.width) * 0.5
+            }
+            if contentSize.height < bounds.size.height {
+                top = (bounds.size.height - contentSize.height) * 0.5
+            }
+        }
+        self.contentInset = UIEdgeInsets(top: top, left: left, bottom: bottom, right: left)
     }
 }

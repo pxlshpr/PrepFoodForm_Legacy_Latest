@@ -35,6 +35,8 @@ extension ScannerViewModel {
     func showColumnPicker() async throws {
         guard let scanResult else { return }
 
+        setState(to: .awaitingColumnSelection)
+
 //        self.shimmering = false
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
         await MainActor.run { [weak self] in

@@ -6,25 +6,6 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 
-//TODO: Make these dynamic
-//let HarcodedBounds = CGRectMake(0, 0, 430, 566)
-let TopBarHeight: CGFloat = 83
-let HeightWithKeyboard: CGFloat = 566 - TopBarHeight
-let HeightWithoutKeyboard: CGFloat = 932 - 47 - 23 - 12
-//var HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
-var HardcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
-var HardcodedBoundsForCentering = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
-
-let TopInset: CGFloat = 0
-//let TopInset: CGFloat = -59.0
-/// Use this for full screen height
-//let BottomSafeAreaHeight: CGFloat = 34.0
-let BottomInset: CGFloat = 57.0
-
-
-let BottomInsetInitial: CGFloat = 62
-let BottomInsetWithKeyboard: CGFloat = 57
-
 extension Scanner {
     
     @ViewBuilder

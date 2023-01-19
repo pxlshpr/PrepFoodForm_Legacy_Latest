@@ -36,6 +36,7 @@ extension FoodForm.Wizard {
         }
         .zIndex(10)
         .transition(.move(edge: .bottom))
+        .edgesIgnoringSafeArea(.all)
     }
     
     var cancelButton: some View {

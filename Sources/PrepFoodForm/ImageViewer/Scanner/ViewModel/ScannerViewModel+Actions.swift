@@ -8,7 +8,9 @@ import PrepDataTypes
 
 extension ScannerViewModel {
 
-    func startScan(_ image: UIImage) {
+    func startRecognizingTexts(from image: UIImage) {
+
+        setState(to: .recognizingTexts)
 
         scanTask = Task.detached { [weak self] in
             
@@ -77,12 +79,14 @@ extension ScannerViewModel {
             
             guard !Task.isCancelled else { return }
             
-            try await self.processScan(textSet: textSet)
+            try await self.classifyRecognizedTextSet(textSet)
         }
     }
 
-    func processScan(textSet: RecognizedTextSet) async throws {
-        
+    func classifyRecognizedTextSet(_ textSet: RecognizedTextSet) async throws {
+
+        setState(to: .classifyingTexts)
+
         processScanTask = Task.detached { [weak self] in
             guard let self else { return }
             let scanResult = textSet.scanResult
@@ -120,6 +124,9 @@ extension ScannerViewModel {
     }
 
     func showValuesPicker() async throws {
+        
+        setState(to: .awaitingUserValidation)
+
         await MainActor.run { [weak self] in
             self?.shimmering = false
         }

@@ -1,38 +1,32 @@
 import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
+import ActivityIndicatorView
 
-public struct ValuesPickerOverlay: View {
+public struct ScannerInput: View {
     
     @Environment(\.colorScheme) var colorScheme
-//    let colorScheme: ColorScheme = .dark
     
     @Binding var keyboardHeight: CGFloat
-    @Binding var isVisibleBinding: Bool
     var didTapDismiss: (() -> ())?
     var didTapCheckmark: () -> ()
     let didTapAutofill: () -> ()
     
     @Namespace var namespace
     @State var showingAttributePicker = false
-//    @State var showingTextField = false
 
     let attributesListAnimation: Animation = Bounce
-//    let attributesListAnimation: Animation = Bounce2
-//    let attributesListAnimation: Animation = .interactiveSpring()
 
     @ObservedObject var viewModel: ScannerViewModel
     
     public init(
         viewModel: ScannerViewModel,
         keyboardHeight: Binding<CGFloat>,
-        isVisibleBinding: Binding<Bool>,
         didTapDismiss: (() -> ())? = nil,
         didTapCheckmark: @escaping () -> (),
         didTapAutofill: @escaping () -> ()
     ) {
         self.viewModel = viewModel
-        _isVisibleBinding = isVisibleBinding
         _keyboardHeight = keyboardHeight
         
         self.didTapDismiss = didTapDismiss
@@ -41,42 +35,62 @@ public struct ValuesPickerOverlay: View {
     }
     
     public var body: some View {
-        ZStack {
-//            if !viewModel.showingTextField {
-            baseLayer
-                .edgesIgnoringSafeArea(.all)
-//            }
-//            if showingAttributePicker {
-//                attributeLayer
-//            }
-            if viewModel.showingTextField {
-                searchLayer
-                    .transition(.move(edge: .bottom))
-            }
+        VStack {
+            Spacer()
+            contents
         }
+        .edgesIgnoringSafeArea(.all)
         .sheet(isPresented: $showingAttributePicker) { attributePickerSheet }
+        .onChange(of: viewModel.state, perform: stateChanged)
     }
     
-    var baseLayer: some View {
-        VStack {
-//            if isVisibleBinding {
-//                title
-//                    .transition(.move(edge: .top))
-//                    .edgesIgnoringSafeArea(.all)
-//            }
-            
-//            Text("")
-//                .frame(maxWidth: .infinity)
-//                .frame(height: TopBarHeight)
-//                .background(.thinMaterial)
-//                .edgesIgnoringSafeArea(.all)
-            
-            Spacer()
-            if isVisibleBinding {
-                bottomVStack
+    var contents: some View {
+        ZStack {
+            if let description = viewModel.state.loadingDescription {
+                loadingView(description)
+            } else {
+                pickerView
+                    .transition(.move(edge: .top))
             }
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: keyboardHeight + TopButtonPaddedHeight)
+        .background(.thinMaterial)
+        .clipped()
     }
+
+    var pickerView: some View {
+        VStack {
+            HStack(spacing: TopButtonsHorizontalPadding) {
+                attributeButton
+                valueButton
+                rightButton
+            }
+            Spacer()
+        }
+        .padding(.horizontal, TopButtonsHorizontalPadding)
+        .padding(.vertical, TopButtonsVerticalPadding)
+    }
+    
+    func loadingView(_ string: String) -> some View {
+        VStack {
+            Spacer()
+            VStack {
+                Text(string)
+                ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                    .frame(width: 30, height: 30)
+                    .foregroundColor(Color(.tertiaryLabel))
+            }
+            Spacer()
+        }
+    }
+    
+    //MARK: - Events
+    func stateChanged(to newState: ScannerState) {
+        print("▫️ Scanner changed state to: \(newState.rawValue)")
+    }
+    
+    //MARK: - Components
     
     var attributesList: some View {
         List {
@@ -407,30 +421,6 @@ public struct ValuesPickerOverlay: View {
             .padding(.top, 62)
     }
     
-    var bottomVStack: some View {
-        VStack {
-//            HStack {
-//                valueButton
-//            }
-//            HStack {
-//                altValuesSlider
-//            }
-            HStack(spacing: TopButtonsHorizontalPadding) {
-//                leftButton
-                attributeButton
-                valueButton
-                rightButton
-            }
-            Spacer()
-        }
-        .edgesIgnoringSafeArea(.all)
-        .padding(.horizontal, TopButtonsHorizontalPadding)
-        .padding(.vertical, TopButtonsVerticalPadding)
-        .frame(height: keyboardHeight + TopButtonPaddedHeight)
-        .background(.thinMaterial)
-        .transition(.move(edge: .bottom))
-    }
-    
     var userInfoForCurrentAttributeZoom: [String: Any]? {
         guard let imageSize = viewModel.image?.size,
               let attributeText = viewModel.currentAttributeText
@@ -590,10 +580,12 @@ public struct ValuesPickerOverlay: View {
     }
 }
 
+import SwiftSugar
 
-public struct ValuesPickerOverlayPreview: View {
-    @State var selectedColumn: Int = 1
+public struct ScannerInputPreview: View {
     
+    let delay: CGFloat = 0.5
+    @State var selectedColumn: Int = 1
     @StateObject var viewModel: ScannerViewModel = ScannerViewModel()
     
     public init() { }
@@ -605,20 +597,79 @@ public struct ValuesPickerOverlayPreview: View {
     }
     
     var overlay: some View {
-        ValuesPickerOverlay(
+        ScannerInput(
             viewModel: viewModel,
-            keyboardHeight: .constant(0),
-            isVisibleBinding: .constant(true),
+            keyboardHeight: .constant(371),
             didTapDismiss: {},
             didTapCheckmark: {},
             didTapAutofill: {}
         )
+        .task {
+            Task {
+                try await sleepTask(delay)
+                await MainActor.run { withAnimation { self.viewModel.state = .loadingImage } }
+                
+                try await sleepTask(delay)
+                await MainActor.run { withAnimation { self.viewModel.state = .recognizingTexts } }
+
+                try await sleepTask(delay)
+                await MainActor.run { withAnimation { self.viewModel.state = .classifyingTexts } }
+
+                try await sleepTask(delay)
+                await MainActor.run { withAnimation { self.viewModel.state = .awaitingUserValidation } }
+            }
+        }
     }
 }
 
-struct ValuesPickerOverlay_Preview: PreviewProvider {
+struct ScannerInput_Preview: PreviewProvider {
     
     static var previews: some View {
-        ValuesPickerOverlayPreview()
+        ScannerInputPreview()
+    }
+}
+
+let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
+let Bounce2: Animation = .easeInOut
+let colorHexKeyboardLight = "CDD0D6"
+let colorHexKeyboardDark = "303030"
+let colorHexSearchTextFieldDark = "535355"
+let colorHexSearchTextFieldLight = "FFFFFF"
+
+let TopButtonHeight: CGFloat = 50.0
+let TopButtonPaddedHeight = TopButtonHeight + (TopButtonsVerticalPadding * 2.0)
+
+let TopButtonsVerticalPadding: CGFloat = 10.0
+let TopButtonsHorizontalPadding: CGFloat = 10.0
+
+enum ScannerState: String {
+    case loadingImage
+    case recognizingTexts
+    case classifyingTexts
+    case awaitingColumnSelection
+    case awaitingUserValidation
+    case showingKeyboard
+    case dismissing
+    
+    var isLoading: Bool {
+        switch self {
+        case .loadingImage, .recognizingTexts, .classifyingTexts:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var loadingDescription: String? {
+        switch self {
+        case .loadingImage:
+            return "Loading Image"
+        case .recognizingTexts:
+            return "Recognizing Texts"
+        case .classifyingTexts:
+            return "Classifying Texts"
+        default:
+            return nil
+        }
     }
 }
