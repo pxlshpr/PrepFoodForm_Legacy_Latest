@@ -215,6 +215,11 @@ public struct Scanner: View {
             keyboardHeight: $keyboardHeight,
             actionHandler: handleScannerAction
         )
+        .onChange(of: viewModel.scannerNutrients, perform: scannerNutrientsChanged)
+    }
+    
+    func scannerNutrientsChanged(_ newValue: [ScannerNutrient]) {
+        print("🥸 scanner nutrients changed from: \(viewModel.scannerNutrients.count) to \(newValue.count)")
     }
     
     func handleScannerAction(_ scannerAction: ScannerAction) {

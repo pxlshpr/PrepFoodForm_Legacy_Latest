@@ -151,13 +151,21 @@ public struct ScannerInput: View {
     
     var list: some View {
         ScrollViewReader { scrollProxy in
-            List {
-                ForEach(viewModel.scannerNutrients, id: \.self.id) { nutrient in
-                    cell(for: nutrient)
-                        .frame(maxWidth: .infinity)
-                        .id(nutrient.attribute)
-                }
+            
+            List($viewModel.scannerNutrients, id: \.self, editActions: .delete) { $nutrient in
+                cell(for: nutrient)
+                    .frame(maxWidth: .infinity)
+                    .id(nutrient.attribute)
             }
+            
+//            List {
+//                ForEach(viewModel.scannerNutrients, id: \.self.id) { nutrient in
+//                    cell(for: nutrient)
+//                        .frame(maxWidth: .infinity)
+//                        .id(nutrient.attribute)
+//                }
+//                .onDelete(perform: deleteAttribute)
+//            }
             .scrollIndicators(.hidden)
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: 54)
@@ -177,9 +185,7 @@ public struct ScannerInput: View {
         }
     }
     
-    func deleteConfirmedAttribute(at offsets: IndexSet) {
-    }
-    func deleteUnconfirmedAttribute(at offsets: IndexSet) {
+    func deleteAttribute(at offsets: IndexSet) {
     }
     
     var pickerView: some View {

@@ -49,11 +49,17 @@ public class ScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
-    @Published var scannerNutrients: [ScannerNutrient] = []
+    @Published var scannerNutrients: [ScannerNutrient] = [] {
+        didSet {
+            /// If we've deleted a nutrient
+            if oldValue.count > scannerNutrients.count {
+                handleDeletedNutrient(oldValue: oldValue)
+            }
+        }
+    }
     @Published var currentAttribute: Attribute = .energy
-
     @Published var showingTextField = false
-
+    
     var lastContentOffset: CGPoint? = nil
     var lastContentSize: CGSize? = nil
     var waitingForZoomToEndToShowCroppedImages = false
@@ -906,6 +912,50 @@ extension ScannerViewModel {
         return unit.description
     }
     
+    func handleDeletedNutrient(oldValue: [ScannerNutrient]) {
+        Haptics.warningFeedback()
+        /// get the index of the deleted attribute
+        var deletedIndex: Int? = nil
+        for index in oldValue.indices {
+            if !scannerNutrients.contains(where: { $0.attribute == oldValue[index].attribute }) {
+                deletedIndex = index
+            }
+        }
+        guard let deletedIndex else { return }
+        
+        /// check if all nutrients are now confirmed after removing one
+        checkIfAllNutrientsAreConfirmed()
+        
+        /// now if the deleted nutrient was the current one, select the next unconfirmed or next-inline attribute to it
+        func moveToNextAttributeIfCurrentWasDeleted() {
+            guard oldValue[deletedIndex].attribute == currentAttribute else {
+                return
+            }
+            if deletedIndex - 1 < scannerNutrients.count,
+               deletedIndex - 1 >= 0,
+               let nextAttributeToDeletedOne = nextAttribute(to: scannerNutrients[deletedIndex - 1].attribute)
+            {
+                /// first see if an item exists before the (old, deleted) one, and if so, move to that
+                moveToAttribute(nextAttributeToDeletedOne)
+            } else {
+                /// otherwise, we either deleted the first item or have none remaining, so move to the first one if it exists
+                if !scannerNutrients.isEmpty {
+                    moveToAttribute(scannerNutrients[0].attribute)
+                }
+            }
+        }
+        
+        moveToNextAttributeIfCurrentWasDeleted()
+    }
+    
+    func checkIfAllNutrientsAreConfirmed() {
+        if scannerNutrients.allSatisfy({ $0.isConfirmed }) {
+            withAnimation {
+                state = .userValidationCompleted
+            }
+        }
+    }
+    
     func confirmCurrentAttributeAndMoveToNext() {
         guard let index = scannerNutrients.firstIndex(where: { $0.attribute == currentAttribute })
         else { return }
@@ -919,11 +969,7 @@ extension ScannerViewModel {
             Haptics.selectionFeedback()
         }
         
-        if scannerNutrients.allSatisfy({ $0.isConfirmed }) {
-            withAnimation {
-                state = .userValidationCompleted
-            }
-        }
+        checkIfAllNutrientsAreConfirmed()
         
         guard let nextAttribute else { return }
         moveToAttribute(nextAttribute)
