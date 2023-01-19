@@ -213,12 +213,21 @@ public struct Scanner: View {
         ScannerInput(
             viewModel: viewModel,
             keyboardHeight: $keyboardHeight,
-//            isVisibleBinding: $viewModel.showingValuePickerUI,
-//            isVisibleBinding: .constant(true),
-            didTapDismiss: viewModel.dismissHandler,
-            didTapCheckmark: { didTapCheckmark() },
-            didTapAutofill: { viewModel.columnSelectionHandler() }
+            actionHandler: handleScannerAction
         )
+    }
+    
+    func handleScannerAction(_ scannerAction: ScannerAction) {
+        switch scannerAction {
+        case .dismiss:
+            viewModel.dismissHandler?()
+        case .confirmCurrentAttribute:
+            didTapCheckmark()
+        case .showAttribute(let attribute):
+            showAttribute(attribute)
+        case .confirmAttribute(let attribute):
+            confirmAttribute(attribute)
+        }
     }
 }
 
@@ -232,8 +241,28 @@ extension Scanner {
     }
     
     func didTapCheckmark() {
-        viewModel.moveToNextAttribute()
+        viewModel.confirmCurrentAttributeAndMoveToNext()
         showFocusedTextBox()
+    }
+    
+    func showAttribute(_ attribute: Attribute) {
+        viewModel.moveToAttribute(attribute)
+        showTextBoxes(for: attribute)
+        Haptics.selectionFeedback()
+    }
+    
+    func showTextBoxes(for attribute: Attribute) {
+        guard let nutrient = viewModel.scannerNutrients.first(where: { $0.attribute == attribute} ) else {
+            return
+        }
+        viewModel.showTextBoxesFor(
+            attributeText: nutrient.attributeText,
+            valueText: nutrient.valueText
+        )
+    }
+    
+    func confirmAttribute(_ attribute: Attribute) {
+        
     }
     
     func configureValuesPickerViewModel(with scanResult: ScanResult) {
@@ -245,7 +274,7 @@ extension Scanner {
         
         let c = viewModel.columns.selectedColumnIndex
         withAnimation {
-            viewModel.nutrientsToConfirm = scanResult.nutrients.rows.map({ row in
+            viewModel.scannerNutrients = scanResult.nutrients.rows.map({ row in
                 ScannerNutrient(
                     attribute: row.attribute,
                     attributeText: row.attributeText.text,

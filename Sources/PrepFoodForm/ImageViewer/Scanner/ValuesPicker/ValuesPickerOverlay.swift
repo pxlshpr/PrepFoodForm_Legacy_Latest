@@ -79,7 +79,7 @@ public struct ValuesPickerOverlay: View {
     
     var attributesList: some View {
         List {
-            ForEach(viewModel.nutrientsToConfirm, id: \.self) {
+            ForEach(viewModel.scannerNutrients, id: \.self) {
                 Text($0.attribute.description)
             }
         }

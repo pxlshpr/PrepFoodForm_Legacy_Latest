@@ -49,8 +49,7 @@ public class ScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
-    @Published var nutrientsToConfirm: [ScannerNutrient] = []
-    @Published var confirmedNutrients: [ScannerNutrient] = []
+    @Published var scannerNutrients: [ScannerNutrient] = []
     @Published var currentAttribute: Attribute = .energy
 
     @Published var showingTextField = false
@@ -75,7 +74,7 @@ public class ScannerViewModel: ObservableObject {
 
     func resetNutrients() {
         currentAttribute = .energy
-        nutrientsToConfirm = []
+        scannerNutrients = []
     }
     
     func reset() {
@@ -114,8 +113,7 @@ public class ScannerViewModel: ObservableObject {
         waitingToShowCroppedImages = false
         
         currentAttribute = .energy
-        nutrientsToConfirm = []
-        confirmedNutrients = []
+        scannerNutrients = []
         showingTextField = false
         state = .loadingImage
 
@@ -895,7 +893,7 @@ extension Array where Element == ScannerNutrient {
 extension ScannerViewModel {
     
     var currentNutrient: ScannerNutrient? {
-        nutrientsToConfirm.first(where: { $0.attribute == currentAttribute })
+        scannerNutrients.first(where: { $0.attribute == currentAttribute })
     }
     
     var currentAmountString: String {
@@ -908,37 +906,39 @@ extension ScannerViewModel {
         return unit.description
     }
     
-    func moveToNextAttribute() {
-        guard let index = nutrientsToConfirm.firstIndex(where: { $0.attribute == currentAttribute })
+    func confirmCurrentAttributeAndMoveToNext() {
+        guard let index = scannerNutrients.firstIndex(where: { $0.attribute == currentAttribute })
         else { return }
 
-        if !nutrientsToConfirm[index].isConfirmed {
+        if !scannerNutrients[index].isConfirmed {
             Haptics.feedback(style: .soft)
             withAnimation {
-                nutrientsToConfirm[index].isConfirmed = true
-//                nutrientsToConfirm = rearrange(array: nutrientsToConfirm, fromIndex: index, toIndex: nutrientsToConfirm.count-1)
+                scannerNutrients[index].isConfirmed = true
             }
         } else {
             Haptics.selectionFeedback()
         }
         
-        if nutrientsToConfirm.allSatisfy({ $0.isConfirmed }) {
+        if scannerNutrients.allSatisfy({ $0.isConfirmed }) {
             withAnimation {
                 state = .userValidationCompleted
             }
         }
         
         guard let nextAttribute else { return }
-        self.currentAttribute = nextAttribute
+        moveToAttribute(nextAttribute)
+    }
+    
+    func moveToAttribute(_ attribute: Attribute) {
+        withAnimation {
+            self.currentAttribute = attribute
+        }
         
         NotificationCenter.default.post(
             name: .scannerDidChangeAttribute,
             object: nil,
-            userInfo: [Notification.ScannerKeys.nextAttribute: nextAttribute]
+            userInfo: [Notification.ScannerKeys.nextAttribute: attribute]
         )
-        
-//        let removed = nutrientsToConfirm.remove(at: index)
-//        confirmedNutrients.append(removed)
     }
     
     var currentAttributeText: RecognizedText? {
@@ -958,16 +958,16 @@ extension ScannerViewModel {
     /// Returns the next element to `attribute` in `nutrients`,
     /// cycling back to the first once the end is reached.
     func nextAttribute(to attribute: Attribute) -> Attribute? {
-        guard let index = nutrientsToConfirm.firstIndex(where: { $0.attribute == attribute })
+        guard let index = scannerNutrients.firstIndex(where: { $0.attribute == attribute })
         else { return nil }
         
         let nextIndex: Int
-        if index >= nutrientsToConfirm.count - 1 {
+        if index >= scannerNutrients.count - 1 {
             nextIndex = 0
         } else {
             nextIndex = index + 1
         }
-        return nutrientsToConfirm[nextIndex].attribute
+        return scannerNutrients[nextIndex].attribute
     }
 }
 

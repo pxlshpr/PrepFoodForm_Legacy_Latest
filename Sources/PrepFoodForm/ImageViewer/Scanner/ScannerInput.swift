@@ -4,14 +4,22 @@ import SwiftUISugar
 import ActivityIndicatorView
 import FoodLabelScanner
 
+public enum ScannerAction {
+    case dismiss
+    case confirmCurrentAttribute
+    case showAttribute(Attribute)
+    case confirmAttribute(Attribute)
+}
+
 public struct ScannerInput: View {
     
     @Environment(\.colorScheme) var colorScheme
     
     @Binding var keyboardHeight: CGFloat
-    var didTapDismiss: (() -> ())?
-    var didTapCheckmark: () -> ()
-    let didTapAutofill: () -> ()
+    var actionHandler: (ScannerAction) -> ()
+//    var didTapDismiss: (() -> ())?
+//    var didTapCheckmark: () -> ()
+//    let didTapAutofill: () -> ()
     
     @Namespace var namespace
     @State var showingAttributePicker = false
@@ -25,16 +33,11 @@ public struct ScannerInput: View {
     public init(
         viewModel: ScannerViewModel,
         keyboardHeight: Binding<CGFloat>,
-        didTapDismiss: (() -> ())? = nil,
-        didTapCheckmark: @escaping () -> (),
-        didTapAutofill: @escaping () -> ()
+        actionHandler: @escaping (ScannerAction) -> ()
     ) {
         self.viewModel = viewModel
         _keyboardHeight = keyboardHeight
-        
-        self.didTapDismiss = didTapDismiss
-        self.didTapCheckmark = didTapCheckmark
-        self.didTapAutofill = didTapAutofill
+        self.actionHandler = actionHandler
     }
     
     func cell(for nutrient: ScannerNutrient) -> some View {
@@ -61,7 +64,7 @@ public struct ScannerInput: View {
         var hstack: some View {
             HStack(spacing: 0) {
                 Button {
-                    
+                    actionHandler(.showAttribute(nutrient.attribute))
                 } label: {
                     HStack(spacing: 0) {
                         Text(nutrient.attribute.description)
@@ -70,15 +73,13 @@ public struct ScannerInput: View {
                     }
                 }
                 Button {
-                    
+                    actionHandler(.confirmAttribute(nutrient.attribute))
                 } label: {
                     Image(systemName: imageName)
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 15)
                         .frame(maxHeight: .infinity)
-                        .background(.yellow)
                 }
-                .buttonStyle(.borderless)
             }
             .foregroundColor(textColor)
             .foregroundColor(.primary)
@@ -151,7 +152,7 @@ public struct ScannerInput: View {
     var list: some View {
         ScrollViewReader { scrollProxy in
             List {
-                ForEach(viewModel.nutrientsToConfirm, id: \.self.id) { nutrient in
+                ForEach(viewModel.scannerNutrients, id: \.self.id) { nutrient in
                     cell(for: nutrient)
                         .frame(maxWidth: .infinity)
                         .id(nutrient.attribute)
@@ -176,52 +177,6 @@ public struct ScannerInput: View {
         }
     }
     
-    var list_legacy: some View {
-        var toConfirmSection: some View {
-            print("🪙 Getting toConfirmSection")
-            return Section {
-                ForEach(viewModel.nutrientsToConfirm, id: \.self.attribute) { nutrient in
-                    HStack {
-                        Text(nutrient.attribute.description)
-                        Spacer()
-                        Text(nutrient.value?.description ?? "")
-                    }
-//                ForEach(strings, id: \.self) {
-//                    Text($0)
-                        .foregroundColor(.secondary)
-                        .listRowBackground(Color.clear)
-                }
-                .onDelete(perform: deleteUnconfirmedAttribute)
-            }
-        }
-        
-        @ViewBuilder
-        var confirmedSection: some View {
-            if !viewModel.confirmedNutrients.isEmpty {
-                Section(" ✅ Confirmed") {
-                    ForEach(viewModel.confirmedNutrients, id: \.self) {
-                        Text($0.attribute.description)
-                            .listRowBackground(Color.clear)
-                    }
-                    .onDelete(perform: deleteConfirmedAttribute)
-                }
-            }
-        }
-        
-        return List {
-            toConfirmSection
-//            confirmedSection
-        }
-//        .id(UUID())
-        .scrollIndicators(.hidden)
-        .safeAreaInset(edge: .bottom) {
-            Color.clear.frame(height: 54)
-        }
-        .scrollContentBackground(.hidden)
-        .listStyle(.plain)
-//        .background(.green)
-    }
-    
     func deleteConfirmedAttribute(at offsets: IndexSet) {
     }
     func deleteUnconfirmedAttribute(at offsets: IndexSet) {
@@ -240,7 +195,7 @@ public struct ScannerInput: View {
                 rightButton
             }
             .padding(.horizontal, TopButtonsHorizontalPadding)
-            if !viewModel.nutrientsToConfirm.isEmpty {
+            if !viewModel.scannerNutrients.isEmpty {
                 listSection
                     .transition(.move(edge: .bottom))
             }
@@ -273,7 +228,7 @@ public struct ScannerInput: View {
     
     var attributesList: some View {
         List {
-            ForEach(viewModel.nutrientsToConfirm, id: \.self) {
+            ForEach(viewModel.scannerNutrients, id: \.self) {
                 Text($0.attribute.description)
             }
         }
@@ -718,7 +673,7 @@ public struct ScannerInput: View {
         }
         
         return Button {
-            didTapCheckmark()
+            actionHandler(.confirmCurrentAttribute)
         } label: {
             Image(systemName: "checkmark")
                 .font(.system(size: 22, weight: .semibold, design: .default))
@@ -785,14 +740,12 @@ public struct ScannerInputPreview: View {
         ScannerInput(
             viewModel: viewModel,
             keyboardHeight: .constant(371),
-            didTapDismiss: {},
-            didTapCheckmark: {},
-            didTapAutofill: {}
+            actionHandler: { _ in }
         )
         .onAppear {
             self.viewModel.state = .awaitingUserValidation
             self.viewModel.currentAttribute = .energy
-            self.viewModel.nutrientsToConfirm = [
+            self.viewModel.scannerNutrients = [
                 ScannerNutrient(
                     attribute: .energy,
                     isConfirmed: false,
