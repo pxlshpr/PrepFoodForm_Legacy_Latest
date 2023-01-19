@@ -136,8 +136,7 @@ public struct ScannerInput: View {
     var buttonsLayer: some View {
         var bottomPadding: CGFloat { TopButtonPaddedHeight + 8.0 }
         
-        return VStack {
-            Spacer()
+        var sideButtonsLayer: some View {
             HStack {
                 Button {
                 } label: {
@@ -160,6 +159,36 @@ public struct ScannerInput: View {
                     DismissButtonLabel(forKeyboard: true)
                 }
                 .transition(.opacity)
+            }
+        }
+        
+        var centerButtonLayer: some View {
+            HStack {
+                Spacer()
+                Text(viewModel.currentAttribute.description)
+//                    .matchedGeometryEffect(id: "attributeName", in: namespace)
+//                    .textCase(.uppercase)
+                    .font(.system(.title3, design: .rounded, weight: .medium))
+                    .foregroundColor(Color(.secondaryLabel))
+//                    .frame(height: 38)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .padding(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .foregroundStyle(.ultraThinMaterial)
+                            .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                    )
+                Spacer()
+            }
+            .padding(.horizontal, 38)
+        }
+        
+        return VStack {
+            Spacer()
+            ZStack(alignment: .bottom) {
+                centerButtonLayer
+                sideButtonsLayer
             }
             .padding(.horizontal, 20)
             .padding(.bottom, bottomPadding)
@@ -374,7 +403,6 @@ public struct ScannerInput: View {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .foregroundStyle(Color(.secondarySystemGroupedBackground))
                 .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-                .matchedGeometryEffect(id: "rect", in: namespace)
         }
         
         var topBar: some View {
@@ -396,7 +424,6 @@ public struct ScannerInput: View {
                     topBar
                     attributesList
                 }
-//                    .matchedGeometryEffect(id: "label", in: namespace)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 500)
@@ -433,9 +460,19 @@ public struct ScannerInput: View {
     }
 
     var textField: some View {
-        TextField("Enter Value", text: .constant(""))
+        let binding = Binding<String>(
+            get: { viewModel.textFieldAmountString },
+            set: { newValue in
+                withAnimation {
+                    viewModel.textFieldAmountString = newValue
+                }
+            }
+        )
+
+        return TextField("Enter Value", text: binding)
             .focused($isFocused)
             .keyboardType(.decimalPad)
+            .font(.system(size: 22, weight: .semibold, design: .default))
             .onSubmit {
                 withAnimation {
 //                    HardcodedBounds = CGRectMake(0, 0, 430, HeightWithoutKeyboard)
@@ -447,6 +484,7 @@ public struct ScannerInput: View {
                     userInfo: userInfoForAllAttributesZoom
                 )
             }
+            .matchedGeometryEffect(id: "textField", in: namespace)
     }
 
     var textFieldLabel: some View {
@@ -662,14 +700,7 @@ public struct ScannerInput: View {
             Haptics.feedback(style: .soft)
             isFocused = true
             withAnimation {
-//                HardcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
-//                viewModel.showingTextField = true
-                viewModel.state = .showingKeyboard
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    withAnimation {
-                        hideBackground = true
-                    }
-                }
+                showKeyboardForCurrentAttribute()
             }
             NotificationCenter.default.post(
                 name: .scannerDidPresentKeyboard,
@@ -680,6 +711,7 @@ public struct ScannerInput: View {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(viewModel.currentAmountString)
                     .foregroundColor(amountColor)
+                    .matchedGeometryEffect(id: "textField", in: namespace)
                 Text(viewModel.currentUnitString)
                     .foregroundColor(unitColor)
                     .font(.system(size: 18, weight: .medium, design: .default))
@@ -693,6 +725,16 @@ public struct ScannerInput: View {
                     .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
             )
             .contentShape(Rectangle())
+        }
+    }
+    
+    func showKeyboardForCurrentAttribute() {
+        viewModel.state = .showingKeyboard
+        viewModel.textFieldAmountString = viewModel.currentAmountString
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation {
+                hideBackground = true
+            }
         }
     }
     
@@ -784,7 +826,7 @@ public struct ScannerInput: View {
                     .font(.title3)
                     .minimumScaleFactor(0.2)
                     .lineLimit(2)
-                    .matchedGeometryEffect(id: "label", in: namespace)
+//                    .matchedGeometryEffect(id: "attributeName", in: namespace)
             }
             .foregroundColor(.primary)
             .padding(.horizontal)
@@ -794,7 +836,6 @@ public struct ScannerInput: View {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .foregroundStyle(Color(.secondarySystemFill))
                     .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-                    .matchedGeometryEffect(id: "rect", in: namespace)
             )
             .contentShape(Rectangle())
         }

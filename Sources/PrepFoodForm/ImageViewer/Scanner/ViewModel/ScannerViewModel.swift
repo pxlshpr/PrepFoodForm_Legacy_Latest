@@ -49,6 +49,10 @@ public class ScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
+    @Published var currentAttribute: Attribute = .energy
+    @Published var showingTextField = false
+    @Published var internalTextfieldDouble: Double? = 0
+    @Published var internalTextfieldString: String = ""
     @Published var scannerNutrients: [ScannerNutrient] = [] {
         didSet {
             /// If we've deleted a nutrient
@@ -57,8 +61,6 @@ public class ScannerViewModel: ObservableObject {
             }
         }
     }
-    @Published var currentAttribute: Attribute = .energy
-    @Published var showingTextField = false
     
     var lastContentOffset: CGPoint? = nil
     var lastContentSize: CGSize? = nil
@@ -117,6 +119,8 @@ public class ScannerViewModel: ObservableObject {
         croppedImages = [:]
         croppingStatus = .idle
         waitingToShowCroppedImages = false
+        internalTextfieldDouble = 0
+        internalTextfieldString = ""
         
         currentAttribute = .energy
         scannerNutrients = []
@@ -905,6 +909,22 @@ extension ScannerViewModel {
     var currentAmountString: String {
         guard let amount = currentNutrient?.value?.amount else { return "" }
         return amount.cleanAmount
+    }
+    
+    var textFieldAmountString: String {
+        get { internalTextfieldString }
+        set {
+            guard !newValue.isEmpty else {
+                internalTextfieldDouble = nil
+                internalTextfieldString = newValue
+                return
+            }
+            guard let double = Double(newValue) else {
+                return
+            }
+            self.internalTextfieldDouble = double
+            self.internalTextfieldString = newValue
+        }
     }
     
     var currentUnitString: String {
