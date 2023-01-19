@@ -960,15 +960,24 @@ extension ScannerViewModel {
             guard oldValue[deletedIndex].attribute == currentAttribute else {
                 return
             }
-            if deletedIndex - 1 < scannerNutrients.count,
-               deletedIndex - 1 >= 0,
-               let nextAttributeToDeletedOne = nextUnconfirmedAttribute(to: scannerNutrients[deletedIndex - 1].attribute)
-            {
-                /// first see if an item exists before the (old, deleted) one, and if so, move to that
-                moveToAttribute(nextAttributeToDeletedOne)
+            if deletedIndex - 1 < scannerNutrients.count, deletedIndex - 1 >= 0 {
+                if let nextAttributeToDeletedOne = nextUnconfirmedAttribute(to: scannerNutrients[deletedIndex - 1].attribute) {
+                    /// first see if an unconfirmed item exists before the (old, deleted) one, and if so, move to that
+                    moveToAttribute(nextAttributeToDeletedOne)
+                } else {
+                    /// otherwise move to the
+                    moveToAttribute(scannerNutrients[deletedIndex - 1].attribute)
+                }
             } else {
-                /// otherwise, we either deleted the first item or have none remaining, so move to the first one if it exists
-                if !scannerNutrients.isEmpty {
+                guard !scannerNutrients.isEmpty else {
+                    return
+                }
+                if !scannerNutrients[0].isConfirmed {
+                    moveToAttribute(scannerNutrients[0].attribute)
+                } else if let nextAttributeToFirstOne = nextUnconfirmedAttribute(to: scannerNutrients[0].attribute) {
+                    /// otherwise, we either deleted the first item or have none remaining, so move to the first one if it exists
+                    moveToAttribute(nextAttributeToFirstOne)
+                } else if !scannerNutrients.isEmpty {
                     moveToAttribute(scannerNutrients[0].attribute)
                 }
             }
