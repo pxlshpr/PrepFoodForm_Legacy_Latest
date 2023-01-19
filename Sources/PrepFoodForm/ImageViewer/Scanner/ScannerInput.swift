@@ -91,6 +91,15 @@ public struct ScannerInput: View {
     }
     
     public var body: some View {
+        ZStack {
+            contentsLayer
+            if viewModel.state == .showingKeyboard {
+                buttonsLayer
+            }
+        }
+    }
+    
+    var contentsLayer: some View {
         VStack {
             Spacer()
             contents
@@ -100,8 +109,16 @@ public struct ScannerInput: View {
         .onChange(of: viewModel.state, perform: stateChanged)
     }
     
+    @State var hideBackground: Bool = false
+    
     var contents: some View {
-        ZStack {
+        var background: some ShapeStyle {
+//            .thinMaterial
+            .thinMaterial.opacity(viewModel.state == .showingKeyboard ? 0 : 1)
+//            Color.green.opacity(hideBackground ? 0 : 1)
+        }
+        
+        return ZStack {
             if let description = viewModel.state.loadingDescription {
                 loadingView(description)
             } else {
@@ -112,9 +129,44 @@ public struct ScannerInput: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: keyboardHeight + TopButtonPaddedHeight)
-        .background(.thinMaterial)
+        .background(background)
         .clipped()
     }
+    
+    var buttonsLayer: some View {
+        var bottomPadding: CGFloat { TopButtonPaddedHeight + 8.0 }
+        
+        return VStack {
+            Spacer()
+            HStack {
+                Button {
+                } label: {
+                    DismissButtonLabel()
+                }
+                .transition(.opacity)
+                Spacer()
+                Button {
+                    Haptics.feedback(style: .soft)
+                    resignFocusOfSearchTextField()
+                    withAnimation {
+                        if viewModel.containsUnconfirmedAttributes {
+                            viewModel.state = .awaitingUserValidation
+                        } else {
+                            viewModel.state = .userValidationCompleted
+                        }
+                        hideBackground = false
+                    }
+                } label: {
+                    DismissButtonLabel(forKeyboard: true)
+                }
+                .transition(.opacity)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, bottomPadding)
+            .frame(width: UIScreen.main.bounds.width)
+        }
+    }
+    
 
     var listSection: some View {
         var sideButtons: some View {
@@ -189,27 +241,65 @@ public struct ScannerInput: View {
     }
     
     var pickerView: some View {
-        VStack {
-            HStack(spacing: TopButtonsHorizontalPadding) {
-//                if viewModel.state != .userValidationCompleted {
-//                    Group {
+        var keyboard: some View {
+            ZStack {
+                textFieldBackground
+                HStack {
+                    textField
+                    Spacer()
+                    unitPicker
+                }
+                .padding(.horizontal, 25)
+            }
+        }
+        
+        var vstack: some View {
+            VStack(spacing: TopButtonsVerticalPadding) {
+                HStack(spacing: TopButtonsHorizontalPadding) {
+                    if viewModel.state == .showingKeyboard {
+                        keyboard
+                    } else {
                         attributeButton
                         valueButton
-//                    }
-//                    .transition(.move(edge: .leading))
-//                }
-                rightButton
+                    }
+                    rightButton
+                }
+                .padding(.horizontal, TopButtonsHorizontalPadding)
+                if !viewModel.scannerNutrients.isEmpty {
+                    listSection
+                        .transition(.move(edge: .bottom))
+                }
             }
-            .padding(.horizontal, TopButtonsHorizontalPadding)
-            if !viewModel.scannerNutrients.isEmpty {
-                listSection
-                    .transition(.move(edge: .bottom))
-            }
-            Spacer()
+            .padding(.vertical, TopButtonsVerticalPadding)
         }
-        .padding(.vertical, TopButtonsVerticalPadding)
+        
+        return ZStack {
+            VStack(spacing: 0) {
+                keyboardBackground
+                Spacer()
+            }
+            vstack
+        }
+        .frame(maxWidth: UIScreen.main.bounds.width)
     }
     
+    @ViewBuilder
+    var keyboardBackground: some View {
+        if viewModel.state == .showingKeyboard {
+            Group {
+                if colorScheme == .dark {
+                    Rectangle()
+                        .foregroundStyle(.ultraThinMaterial)
+                } else {
+                    keyboardColor
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: TopButtonPaddedHeight)
+            .transition(.opacity)
+        }
+    }
+
     func loadingView(_ string: String) -> some View {
         VStack {
             Spacer()
@@ -324,17 +414,21 @@ public struct ScannerInput: View {
     }
 
     var textFieldBackground: some View {
-        var width: CGFloat { UIScreen.main.bounds.width - 18 }
-        var height: CGFloat { 48 }
+        var height: CGFloat { TopButtonHeight }
         var xOffset: CGFloat { 0 }
-        var foregroundColor: Color { expandedTextFieldColor }
+        
+        var foregroundStyle: some ShapeStyle {
+//            Material.thinMaterial
+            expandedTextFieldColor
+//            Color(.secondarySystemFill)
+        }
         var background: some View { Color.clear }
         
-        return RoundedRectangle(cornerRadius: 15, style: .circular)
-            .foregroundColor(foregroundColor)
+        return RoundedRectangle(cornerRadius: TopButtonCornerRadius, style: .circular)
+            .foregroundStyle(foregroundStyle)
             .background(background)
             .frame(height: height)
-            .frame(width: width)
+//            .frame(width: width)
             .offset(x: xOffset)
     }
 
@@ -378,20 +472,10 @@ public struct ScannerInput: View {
     }
 
     var textFieldLayer: some View {
-        
-        var background: some View {
-            keyboardColor
-                .frame(maxWidth: .infinity)
-                .frame(height: 65)
-//                .fixedSize(horizontal: false, vertical: true)
-                .edgesIgnoringSafeArea(.all)
-        }
-        
-        
-        return VStack {
+        VStack {
             Spacer()
             ZStack {
-                background
+                keyboardBackground
 //                textFieldBackground
                 HStack {
                     textField
@@ -443,33 +527,6 @@ public struct ScannerInput: View {
             userInfo: userInfoForAllAttributesZoom
         )
     }
-    
-    var buttonsLayer: some View {
-        var bottomPadding: CGFloat { 70 }
-        
-        return VStack {
-            Spacer()
-            HStack {
-                Button {
-                } label: {
-                    DismissButtonLabel()
-                }
-                .transition(.opacity)
-                Spacer()
-                Button {
-                    Haptics.feedback(style: .soft)
-                    resignFocusOfSearchTextField()
-                } label: {
-                    DismissButtonLabel(forKeyboard: true)
-                }
-                .transition(.opacity)
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, bottomPadding)
-            .frame(width: UIScreen.main.bounds.width)
-        }
-    }
-    
 
     var searchLayer: some View {
         ZStack {
@@ -477,6 +534,7 @@ public struct ScannerInput: View {
                 Spacer()
                 ZStack {
                     keyboardColor
+                        .opacity(colorScheme == .dark ? 0 : 1)
                         .frame(height: 100)
                         .transition(.opacity)
                     Button {
@@ -605,7 +663,13 @@ public struct ScannerInput: View {
             isFocused = true
             withAnimation {
 //                HardcodedBounds = CGRectMake(0, 0, 430, HeightWithKeyboard)
-                viewModel.showingTextField = true
+//                viewModel.showingTextField = true
+                viewModel.state = .showingKeyboard
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    withAnimation {
+                        hideBackground = true
+                    }
+                }
             }
             NotificationCenter.default.post(
                 name: .scannerDidPresentKeyboard,
@@ -699,7 +763,7 @@ public struct ScannerInput: View {
                 .frame(width: width)
                 .frame(height: TopButtonHeight)
                 .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    RoundedRectangle(cornerRadius: TopButtonCornerRadius, style: .continuous)
                         .foregroundStyle(foregroundStyle)
                 )
                 .contentShape(Rectangle())
@@ -760,7 +824,8 @@ public struct ScannerInputPreview: View {
             actionHandler: { _ in }
         )
         .onAppear {
-            self.viewModel.state = .awaitingUserValidation
+            self.viewModel.state = .showingKeyboard
+//            self.viewModel.state = .awaitingUserValidation
             self.viewModel.currentAttribute = .energy
             self.viewModel.scannerNutrients = [
                 ScannerNutrient(
@@ -814,6 +879,7 @@ let colorHexSearchTextFieldLight = "FFFFFF"
 
 let TopButtonHeight: CGFloat = 50.0
 let TopButtonWidth: CGFloat = 70.0
+let TopButtonCornerRadius: CGFloat = 12.0
 let TopButtonPaddedHeight = TopButtonHeight + (TopButtonsVerticalPadding * 2.0)
 
 let TopButtonsVerticalPadding: CGFloat = 10.0
