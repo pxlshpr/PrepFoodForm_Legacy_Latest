@@ -913,10 +913,13 @@ extension ScannerViewModel {
         else { return }
 
         if !nutrientsToConfirm[index].isConfirmed {
+            Haptics.feedback(style: .soft)
             withAnimation {
                 nutrientsToConfirm[index].isConfirmed = true
 //                nutrientsToConfirm = rearrange(array: nutrientsToConfirm, fromIndex: index, toIndex: nutrientsToConfirm.count-1)
             }
+        } else {
+            Haptics.selectionFeedback()
         }
         
         if nutrientsToConfirm.allSatisfy({ $0.isConfirmed }) {
@@ -927,6 +930,12 @@ extension ScannerViewModel {
         
         guard let nextAttribute else { return }
         self.currentAttribute = nextAttribute
+        
+        NotificationCenter.default.post(
+            name: .scannerDidChangeAttribute,
+            object: nil,
+            userInfo: [Notification.ScannerKeys.nextAttribute: nextAttribute]
+        )
         
 //        let removed = nutrientsToConfirm.remove(at: index)
 //        confirmedNutrients.append(removed)

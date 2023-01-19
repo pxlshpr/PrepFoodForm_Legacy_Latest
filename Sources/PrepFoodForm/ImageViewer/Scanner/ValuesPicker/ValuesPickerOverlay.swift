@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
-
 public struct ValuesPickerOverlay: View {
     
     @Environment(\.colorScheme) var colorScheme

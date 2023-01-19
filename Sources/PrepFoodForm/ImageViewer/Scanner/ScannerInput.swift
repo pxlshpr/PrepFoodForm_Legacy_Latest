@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 import ActivityIndicatorView
+import FoodLabelScanner
 
 public struct ScannerInput: View {
     
@@ -18,6 +19,8 @@ public struct ScannerInput: View {
     let attributesListAnimation: Animation = Bounce
 
     @ObservedObject var viewModel: ScannerViewModel
+    
+    let scannerDidChangeAttribute = NotificationCenter.default.publisher(for: .scannerDidChangeAttribute)
     
     public init(
         viewModel: ScannerViewModel,
@@ -55,30 +58,33 @@ public struct ScannerInput: View {
             : .clear
         }
         
-        return HStack(spacing: 0) {
-//            Image(systemName: "arrowtriangle.right")
-//                .opacity(isCurrentAttribute ? 1 : 0)
-//                .foregroundColor(Color(.secondaryLabel))
-//                .imageScale(.small)
-//                .padding(.trailing, 10)
-            Text(nutrient.attribute.description)
-            Spacer()
-            Text(nutrient.value?.description ?? "")
-            Button {
-                
-            } label: {
-                Image(systemName: imageName)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 15)
-                    .frame(maxHeight: .infinity)
-//                    .background(.yellow)
+        var hstack: some View {
+            HStack(spacing: 0) {
+                Button {
+                    
+                } label: {
+                    HStack(spacing: 0) {
+                        Text(nutrient.attribute.description)
+                        Spacer()
+                        Text(nutrient.value?.description ?? "")
+                    }
+                }
+                Button {
+                    
+                } label: {
+                    Image(systemName: imageName)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 15)
+                        .frame(maxHeight: .infinity)
+                        .background(.yellow)
+                }
+                .buttonStyle(.borderless)
             }
-            .buttonStyle(.borderless)
-//                .opacity(0.5)
+            .foregroundColor(textColor)
+            .foregroundColor(.primary)
         }
-//        .strikethrough(isConfirmed)
-        .foregroundColor(textColor)
-        .foregroundColor(.primary)
+        
+        return hstack
         .listRowBackground(listRowBackground)
         .listRowInsets(.init(top: 0, leading: 25, bottom: 0, trailing: 0))
     }
@@ -133,7 +139,7 @@ public struct ScannerInput: View {
                             color: colorScheme == .dark ? Color(.black).opacity(0.6) : Color(.black).opacity(0.2),
                             radius: 3, x: 0, y: 3)
                 )
-                .offset(x: -25, y: -15)
+                .offset(x: -25, y: -10)
         }
         
         return ZStack(alignment: .bottomTrailing) {
@@ -143,18 +149,31 @@ public struct ScannerInput: View {
     }
     
     var list: some View {
-        List {
-            ForEach(viewModel.nutrientsToConfirm, id: \.self.id) { nutrient in
-                cell(for: nutrient)
-                    .frame(maxWidth: .infinity)
+        ScrollViewReader { scrollProxy in
+            List {
+                ForEach(viewModel.nutrientsToConfirm, id: \.self.id) { nutrient in
+                    cell(for: nutrient)
+                        .frame(maxWidth: .infinity)
+                        .id(nutrient.attribute)
+                }
+            }
+            .scrollIndicators(.hidden)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: 54)
+            }
+            .scrollContentBackground(.hidden)
+            .listStyle(.plain)
+            .buttonStyle(.borderless)
+            .onReceive(scannerDidChangeAttribute) { notification in
+                guard let userInfo = notification.userInfo,
+                      let attribute = userInfo[Notification.ScannerKeys.nextAttribute] as? Attribute else {
+                    return
+                }
+                withAnimation {
+                    scrollProxy.scrollTo(attribute, anchor: .center)
+                }
             }
         }
-        .scrollIndicators(.hidden)
-        .safeAreaInset(edge: .bottom) {
-            Color.clear.frame(height: 54)
-        }
-        .scrollContentBackground(.hidden)
-        .listStyle(.plain)
     }
     
     var list_legacy: some View {
@@ -699,7 +718,6 @@ public struct ScannerInput: View {
         }
         
         return Button {
-            Haptics.feedback(style: .soft)
             didTapCheckmark()
         } label: {
             Image(systemName: "checkmark")
@@ -863,3 +881,14 @@ enum ScannerState: String {
         }
     }
 }
+
+extension Notification.Name {
+    public static var scannerDidChangeAttribute: Notification.Name { return .init("scannerDidChangeAttribute" )}
+}
+
+extension Notification {
+    public struct ScannerKeys {
+        public static let nextAttribute = "nextAttribute"
+    }
+}
+
