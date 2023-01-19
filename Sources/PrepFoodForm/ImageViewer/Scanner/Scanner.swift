@@ -245,6 +245,7 @@ extension Scanner {
             ScannerNutrient(
                 attribute: row.attribute,
                 attributeText: row.attributeText.text,
+                isConfirmed: false,
                 value: c == 1 ? row.valueText1?.value : row.valueText2?.value,
                 valueText: c == 1 ? row.valueText1?.text : row.valueText2?.text
             )

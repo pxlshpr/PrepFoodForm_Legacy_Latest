@@ -34,6 +34,27 @@ public struct ScannerInput: View {
         self.didTapAutofill = didTapAutofill
     }
     
+    var listContents: some View {
+        ForEach(viewModel.nutrientsToConfirm, id: \.self.id) { nutrient in
+            cell(for: nutrient)
+        }
+    }
+    
+    func cell(for nutrient: ScannerNutrient) -> some View {
+        var isConfirmed: Bool { nutrient.isConfirmed }
+        var imageName: String { isConfirmed ? "circle.inset.filled" : "circle" }
+        var textColor: Color { isConfirmed ? .secondary : .primary }
+        
+        return HStack {
+            Text(nutrient.attribute.description)
+            Spacer()
+            Text(nutrient.value?.description ?? "")
+            Image(systemName: imageName)
+        }
+        .foregroundColor(textColor)
+        .listRowBackground(Color.clear)
+    }
+    
     public var body: some View {
         VStack {
             Spacer()
@@ -89,12 +110,19 @@ public struct ScannerInput: View {
         }
     }
     
-    @State var strings = ["Here", "We", "Go"]
-    
-    @State var toConfirm: [ScannerNutrient] = []
-    @State var confirmed: [ScannerNutrient] = []
-
     var list: some View {
+        List {
+            listContents
+        }
+        .scrollIndicators(.hidden)
+        .safeAreaInset(edge: .bottom) {
+            Color.clear.frame(height: 54)
+        }
+        .scrollContentBackground(.hidden)
+        .listStyle(.plain)
+    }
+    
+    var list_legacy: some View {
         var toConfirmSection: some View {
             print("🪙 Getting toConfirmSection")
             return Section {
@@ -110,9 +138,6 @@ public struct ScannerInput: View {
                         .listRowBackground(Color.clear)
                 }
                 .onDelete(perform: deleteUnconfirmedAttribute)
-                .onChange(of: toConfirm) { newValue in
-                    self.toConfirm = toConfirm
-                }
             }
         }
         
@@ -133,7 +158,7 @@ public struct ScannerInput: View {
             toConfirmSection
 //            confirmedSection
         }
-        .id(UUID())
+//        .id(UUID())
         .scrollIndicators(.hidden)
         .safeAreaInset(edge: .bottom) {
             Color.clear.frame(height: 54)
@@ -696,7 +721,26 @@ public struct ScannerInputPreview: View {
             didTapCheckmark: {},
             didTapAutofill: {}
         )
-        .onAppear { self.viewModel.state = .awaitingUserValidation }
+        .onAppear {
+            self.viewModel.state = .awaitingUserValidation
+            self.viewModel.nutrientsToConfirm = [
+                ScannerNutrient(
+                    attribute: .energy,
+                    isConfirmed: false,
+                    value: .init(amount: 360, unit: .kcal)
+                ),
+                ScannerNutrient(
+                    attribute: .carbohydrate,
+                    isConfirmed: false,
+                    value: .init(amount: 25, unit: .g)
+                ),
+                ScannerNutrient(
+                    attribute: .protein,
+                    isConfirmed: true,
+                    value: .init(amount: 30, unit: .g)
+                )
+            ]
+        }
 //        .task {
 //            Task {
 //                try await sleepTask(delay)

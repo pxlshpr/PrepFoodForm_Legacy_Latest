@@ -912,11 +912,18 @@ extension ScannerViewModel {
         guard let index = nutrientsToConfirm.firstIndex(where: { $0.attribute == currentAttribute })
         else { return }
 
+        nutrientsToConfirm[index].isConfirmed = true
+        withAnimation {
+            nutrientsToConfirm = rearrange(array: nutrientsToConfirm, fromIndex: index, toIndex: nutrientsToConfirm.count-1)
+//            nutrientsToConfirm.rearrange(from: index, to: nutrientsToConfirm.count-1)
+//            nutrientsToConfirm.move(from: index, to: nutrientsToConfirm.endIndex)
+        }
+        
         guard let nextAttribute else { return }
         self.currentAttribute = nextAttribute
         
-        let removed = nutrientsToConfirm.remove(at: index)
-        confirmedNutrients.append(removed)
+//        let removed = nutrientsToConfirm.remove(at: index)
+//        confirmedNutrients.append(removed)
     }
     
     var currentAttributeText: RecognizedText? {
@@ -947,4 +954,12 @@ extension ScannerViewModel {
         }
         return nutrientsToConfirm[nextIndex].attribute
     }
+}
+
+func rearrange<T>(array: Array<T>, fromIndex: Int, toIndex: Int) -> Array<T>{
+    var arr = array
+    let element = arr.remove(at: fromIndex)
+    arr.insert(element, at: toIndex)
+
+    return arr
 }
