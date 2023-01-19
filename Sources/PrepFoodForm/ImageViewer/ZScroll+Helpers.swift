@@ -1,11 +1,7 @@
 import SwiftUI
 import SwiftSugar
 
-enum RelativeAspectRatioType {
-    case taller
-    case wider
-    case equal
-}
+//MARK: - Notifications
 
 extension Notification.Name {
     public static var zoomableScrollViewDidEndZooming: Notification.Name { return .init("zoomableScrollViewDidEndZooming") }
@@ -23,32 +19,49 @@ extension Notification {
     }
 }
 
+//MARK: - ZBox
 
-extension UIViewControllerTransitionCoordinator {
-    // Fix UIKit method that's named poorly for trailing closure style
-    @discardableResult
-    func animateAlongsideTransition(_ animation: ((UIViewControllerTransitionCoordinatorContext) -> Void)?, completion: ((UIViewControllerTransitionCoordinatorContext) -> Void)? = nil) -> Bool {
-        return animate(alongsideTransition: animation, completion: completion)
+/// This identifies an area to zoom onto
+public struct ZBox {
+    
+    /// This is the boundingBox—in terms of a 0 to 1 ratio on each dimension of what the CGRect is (similar to the boundingBox in Vision, with the y-axis starting from the bottom)
+    public let boundingBox: CGRect
+    public let padded: Bool
+    public let paddedForSingleBox: Bool
+    public let animated: Bool
+    public let imageSize: CGSize
+    public let imageId: UUID?
+    
+    public init(boundingBox: CGRect, animated: Bool = true, padded: Bool = true, paddedForSingleBox: Bool = false, imageSize: CGSize, imageId: UUID? = nil) {
+        self.boundingBox = boundingBox
+        self.padded = padded
+        self.paddedForSingleBox = paddedForSingleBox
+        self.animated = animated
+        self.imageSize = imageSize
+        self.imageId = imageId
     }
 }
 
-/// Execute scoped modifications to `arg`.
-///
-/// Useful when multiple modifications need to be made to a single nested property. For example,
-/// ```
-/// view.frame.origin.x -= view.frame.width / 2
-/// view.frame.origin.y -= view.frame.height / 2
-/// ```
-/// can be rewritten as
-/// ```
-/// mutate(&view.frame) {
-///   $0.origin.x -= $0.width / 2
-///   $0.origin.y -= $0.height / 2
-/// }
-/// ```
-///
-public func mutate<T>(_ arg: inout T, _ body: (inout T) -> Void) {
-    body(&arg)
+//MARK: - Extensions
+extension CGSize {
+    func isWider(than other: CGSize) -> Bool {
+        widthToHeightRatio > other.widthToHeightRatio
+    }
+    func isTaller(than other: CGSize) -> Bool {
+        widthToHeightRatio < other.widthToHeightRatio
+    }
+}
+
+extension CGRect {
+    var horizontallyPaddedBoundingBox: CGRect {
+        let padding = (self.width / 2.0)
+        return CGRect(
+            x: max(0.0, self.origin.x - (padding / 2.0)),
+            y: self.origin.y,
+            width: min(self.width + padding, 1.0),
+            height: self.size.height
+        )
+    }
 }
 
 extension CGFloat {

@@ -53,7 +53,7 @@ struct ImageViewer: View {
     
     
     var zoomableScrollView: some View {
-        NewZScroll {
+        ZoomScrollView {
 //        OriginalZScroll {
 //        ZScroll {
             VStack(spacing: 0) {
