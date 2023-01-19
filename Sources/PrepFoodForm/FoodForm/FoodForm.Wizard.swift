@@ -145,23 +145,10 @@ extension FoodForm.Wizard {
         .cornerRadius(20)
         .frame(height: 320)
         .frame(maxWidth: 350)
-//        .overlay(
-//            RoundedRectangle(cornerRadius: 20)
-//                .stroke(separatorColor, lineWidth: 0.5)
-//        )
         .padding(.horizontal, 30)
         .shadow(color: colorScheme == .dark ? .black : .gray.opacity(0.6), radius: 30, x: 0, y: 0)
         .offset(y: 40)
     }
-    
-    var dividerColor: Color {
-        Color(hex: colorScheme == .light ? DiaryDividerLineColor.light : DiaryDividerLineColor.dark)
-    }
-
-    var separatorColor: Color {
-        Color(hex: colorScheme == .light ? DiarySeparatorLineColor.light : DiarySeparatorLineColor.dark)
-    }
-
     
     var learnMoreFooter: some View {
         Button {

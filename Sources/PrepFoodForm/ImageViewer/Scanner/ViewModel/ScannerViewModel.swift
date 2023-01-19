@@ -49,7 +49,8 @@ public class ScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
-    @Published var nutrients: [ScannerNutrient] = []
+    @Published var nutrientsToConfirm: [ScannerNutrient] = []
+    @Published var confirmedNutrients: [ScannerNutrient] = []
     @Published var currentAttribute: Attribute = .energy
 
     @Published var showingTextField = false
@@ -74,7 +75,7 @@ public class ScannerViewModel: ObservableObject {
 
     func resetNutrients() {
         currentAttribute = .energy
-        nutrients = []
+        nutrientsToConfirm = []
     }
     
     func reset() {
@@ -113,7 +114,8 @@ public class ScannerViewModel: ObservableObject {
         waitingToShowCroppedImages = false
         
         currentAttribute = .energy
-        nutrients = []
+        nutrientsToConfirm = []
+        confirmedNutrients = []
         showingTextField = false
         state = .loadingImage
 
@@ -893,7 +895,7 @@ extension Array where Element == ScannerNutrient {
 extension ScannerViewModel {
     
     var currentNutrient: ScannerNutrient? {
-        nutrients.first(where: { $0.attribute == currentAttribute })
+        nutrientsToConfirm.first(where: { $0.attribute == currentAttribute })
     }
     
     var currentAmountString: String {
@@ -907,8 +909,14 @@ extension ScannerViewModel {
     }
     
     func moveToNextAttribute() {
+        guard let index = nutrientsToConfirm.firstIndex(where: { $0.attribute == currentAttribute })
+        else { return }
+
         guard let nextAttribute else { return }
         self.currentAttribute = nextAttribute
+        
+        let removed = nutrientsToConfirm.remove(at: index)
+        confirmedNutrients.append(removed)
     }
     
     var currentAttributeText: RecognizedText? {
@@ -928,15 +936,15 @@ extension ScannerViewModel {
     /// Returns the next element to `attribute` in `nutrients`,
     /// cycling back to the first once the end is reached.
     func nextAttribute(to attribute: Attribute) -> Attribute? {
-        guard let index = nutrients.firstIndex(where: { $0.attribute == attribute })
+        guard let index = nutrientsToConfirm.firstIndex(where: { $0.attribute == attribute })
         else { return nil }
         
         let nextIndex: Int
-        if index >= nutrients.count - 1 {
+        if index >= nutrientsToConfirm.count - 1 {
             nextIndex = 0
         } else {
             nextIndex = index + 1
         }
-        return nutrients[nextIndex].attribute
+        return nutrientsToConfirm[nextIndex].attribute
     }
 }

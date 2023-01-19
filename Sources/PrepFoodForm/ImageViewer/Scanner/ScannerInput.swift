@@ -59,6 +59,95 @@ public struct ScannerInput: View {
         .clipped()
     }
 
+    var listSection: some View {
+        var sideButtons: some View {
+            VStack {
+                Text("OK")
+                Spacer()
+            }
+            .frame(width: TopButtonWidth)
+            .background(.yellow)
+        }
+        
+        var addButton: some View {
+            Image(systemName: "plus")
+                .imageScale(.medium)
+                .fontWeight(.medium)
+                .foregroundColor(Color(.secondaryLabel))
+                .frame(width: 38, height: 38)
+                .background(
+                    Circle()
+                        .foregroundStyle(.ultraThinMaterial)
+                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                )
+                .offset(x: -5, y: -15)
+        }
+        
+        return ZStack(alignment: .bottomTrailing) {
+            list
+            addButton
+        }
+    }
+    
+    @State var strings = ["Here", "We", "Go"]
+    
+    @State var toConfirm: [ScannerNutrient] = []
+    @State var confirmed: [ScannerNutrient] = []
+
+    var list: some View {
+        var toConfirmSection: some View {
+            print("🪙 Getting toConfirmSection")
+            return Section {
+                ForEach(viewModel.nutrientsToConfirm, id: \.self.attribute) { nutrient in
+                    HStack {
+                        Text(nutrient.attribute.description)
+                        Spacer()
+                        Text(nutrient.value?.description ?? "")
+                    }
+//                ForEach(strings, id: \.self) {
+//                    Text($0)
+                        .foregroundColor(.secondary)
+                        .listRowBackground(Color.clear)
+                }
+                .onDelete(perform: deleteUnconfirmedAttribute)
+                .onChange(of: toConfirm) { newValue in
+                    self.toConfirm = toConfirm
+                }
+            }
+        }
+        
+        @ViewBuilder
+        var confirmedSection: some View {
+            if !viewModel.confirmedNutrients.isEmpty {
+                Section(" ✅ Confirmed") {
+                    ForEach(viewModel.confirmedNutrients, id: \.self) {
+                        Text($0.attribute.description)
+                            .listRowBackground(Color.clear)
+                    }
+                    .onDelete(perform: deleteConfirmedAttribute)
+                }
+            }
+        }
+        
+        return List {
+            toConfirmSection
+//            confirmedSection
+        }
+        .id(UUID())
+        .scrollIndicators(.hidden)
+        .safeAreaInset(edge: .bottom) {
+            Color.clear.frame(height: 54)
+        }
+        .scrollContentBackground(.hidden)
+        .listStyle(.plain)
+//        .background(.green)
+    }
+    
+    func deleteConfirmedAttribute(at offsets: IndexSet) {
+    }
+    func deleteUnconfirmedAttribute(at offsets: IndexSet) {
+    }
+    
     var pickerView: some View {
         VStack {
             HStack(spacing: TopButtonsHorizontalPadding) {
@@ -66,6 +155,7 @@ public struct ScannerInput: View {
                 valueButton
                 rightButton
             }
+            listSection
             Spacer()
         }
         .padding(.horizontal, TopButtonsHorizontalPadding)
@@ -96,7 +186,7 @@ public struct ScannerInput: View {
     
     var attributesList: some View {
         List {
-            ForEach(viewModel.nutrients, id: \.self) {
+            ForEach(viewModel.nutrientsToConfirm, id: \.self) {
                 Text($0.attribute.description)
             }
         }
@@ -541,8 +631,8 @@ public struct ScannerInput: View {
             Image(systemName: "checkmark")
                 .font(.system(size: 22, weight: .semibold, design: .default))
                 .foregroundColor(.white)
-                .frame(height: TopButtonHeight)
-                .padding(.horizontal)
+                .frame(width: TopButtonWidth, height: TopButtonHeight)
+//                .padding(.horizontal)
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
 //                        .foregroundStyle(Color(.tertiarySystemFill))
@@ -606,21 +696,22 @@ public struct ScannerInputPreview: View {
             didTapCheckmark: {},
             didTapAutofill: {}
         )
-        .task {
-            Task {
-                try await sleepTask(delay)
-                await MainActor.run { withAnimation { self.viewModel.state = .loadingImage } }
-                
-                try await sleepTask(delay)
-                await MainActor.run { withAnimation { self.viewModel.state = .recognizingTexts } }
-
-                try await sleepTask(delay)
-                await MainActor.run { withAnimation { self.viewModel.state = .classifyingTexts } }
-
-                try await sleepTask(delay)
-                await MainActor.run { withAnimation { self.viewModel.state = .awaitingUserValidation } }
-            }
-        }
+        .onAppear { self.viewModel.state = .awaitingUserValidation }
+//        .task {
+//            Task {
+//                try await sleepTask(delay)
+//                await MainActor.run { withAnimation { self.viewModel.state = .loadingImage } }
+//
+//                try await sleepTask(delay)
+//                await MainActor.run { withAnimation { self.viewModel.state = .recognizingTexts } }
+//
+//                try await sleepTask(delay)
+//                await MainActor.run { withAnimation { self.viewModel.state = .classifyingTexts } }
+//
+//                try await sleepTask(delay)
+//                await MainActor.run { withAnimation { self.viewModel.state = .awaitingUserValidation } }
+//            }
+//        }
     }
 }
 
@@ -639,6 +730,7 @@ let colorHexSearchTextFieldDark = "535355"
 let colorHexSearchTextFieldLight = "FFFFFF"
 
 let TopButtonHeight: CGFloat = 50.0
+let TopButtonWidth: CGFloat = 70.0
 let TopButtonPaddedHeight = TopButtonHeight + (TopButtonsVerticalPadding * 2.0)
 
 let TopButtonsVerticalPadding: CGFloat = 10.0
