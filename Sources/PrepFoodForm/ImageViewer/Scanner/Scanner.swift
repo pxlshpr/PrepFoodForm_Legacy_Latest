@@ -36,9 +36,12 @@ public struct Scanner: View {
         .onChange(of: viewModel.showingValuePickerUI) { showingValuePickerUI in
             guard showingValuePickerUI, let scanResult = viewModel.scanResult
             else { return }
-            
             configureValuesPickerViewModel(with: scanResult)
         }
+//        .onChange(of: viewModel.scanResult) { scanResult in
+//            guard let scanResult else { return }
+//            configureValuesPickerViewModel(with: scanResult)
+//        }
 //        .onChange(of: viewModel.animatingCollapse) { newValue in
 //            withAnimation {
 //                self.animatingCollapse = newValue
@@ -241,15 +244,17 @@ extension Scanner {
         viewModel.currentAttribute = firstAttribute
         
         let c = viewModel.columns.selectedColumnIndex
-        viewModel.nutrientsToConfirm = scanResult.nutrients.rows.map({ row in
-            ScannerNutrient(
-                attribute: row.attribute,
-                attributeText: row.attributeText.text,
-                isConfirmed: false,
-                value: c == 1 ? row.valueText1?.value : row.valueText2?.value,
-                valueText: c == 1 ? row.valueText1?.text : row.valueText2?.text
-            )
-        })
+        withAnimation {
+            viewModel.nutrientsToConfirm = scanResult.nutrients.rows.map({ row in
+                ScannerNutrient(
+                    attribute: row.attribute,
+                    attributeText: row.attributeText.text,
+                    isConfirmed: false,
+                    value: c == 1 ? row.valueText1?.value : row.valueText2?.value,
+                    valueText: c == 1 ? row.valueText1?.text : row.valueText2?.text
+                )
+            })
+        }
         
         print("🪙 Set nutrientsToConfirm")
         showFocusedTextBox()

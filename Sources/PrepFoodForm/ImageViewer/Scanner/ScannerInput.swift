@@ -34,25 +34,53 @@ public struct ScannerInput: View {
         self.didTapAutofill = didTapAutofill
     }
     
-    var listContents: some View {
-        ForEach(viewModel.nutrientsToConfirm, id: \.self.id) { nutrient in
-            cell(for: nutrient)
-        }
-    }
-    
     func cell(for nutrient: ScannerNutrient) -> some View {
         var isConfirmed: Bool { nutrient.isConfirmed }
-        var imageName: String { isConfirmed ? "circle.inset.filled" : "circle" }
+        var isCurrentAttribute: Bool { viewModel.currentAttribute == nutrient.attribute }
+        var imageName: String {
+            isConfirmed
+//            ? "circle.inset.filled"
+//            : "circle"
+            ? "checkmark.square.fill"
+            : "square"
+        }
         var textColor: Color { isConfirmed ? .secondary : .primary }
         
-        return HStack {
+        var listRowBackground: some View {
+            isCurrentAttribute
+            ? (colorScheme == .dark
+               ? Color(.tertiarySystemFill)
+               : Color(.systemFill)
+            )
+            : .clear
+        }
+        
+        return HStack(spacing: 0) {
+//            Image(systemName: "arrowtriangle.right")
+//                .opacity(isCurrentAttribute ? 1 : 0)
+//                .foregroundColor(Color(.secondaryLabel))
+//                .imageScale(.small)
+//                .padding(.trailing, 10)
             Text(nutrient.attribute.description)
             Spacer()
             Text(nutrient.value?.description ?? "")
-            Image(systemName: imageName)
+            Button {
+                
+            } label: {
+                Image(systemName: imageName)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 15)
+                    .frame(maxHeight: .infinity)
+//                    .background(.yellow)
+            }
+            .buttonStyle(.borderless)
+//                .opacity(0.5)
         }
+//        .strikethrough(isConfirmed)
         .foregroundColor(textColor)
-        .listRowBackground(Color.clear)
+        .foregroundColor(.primary)
+        .listRowBackground(listRowBackground)
+        .listRowInsets(.init(top: 0, leading: 25, bottom: 0, trailing: 0))
     }
     
     public var body: some View {
@@ -72,6 +100,7 @@ public struct ScannerInput: View {
             } else {
                 pickerView
                     .transition(.move(edge: .top))
+                    .zIndex(10)
             }
         }
         .frame(maxWidth: .infinity)
@@ -98,10 +127,13 @@ public struct ScannerInput: View {
                 .frame(width: 38, height: 38)
                 .background(
                     Circle()
-                        .foregroundStyle(.ultraThinMaterial)
-                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+//                        .foregroundStyle(.ultraThinMaterial)
+                        .foregroundStyle(.thickMaterial)
+                        .shadow(
+                            color: colorScheme == .dark ? Color(.black).opacity(0.6) : Color(.black).opacity(0.2),
+                            radius: 3, x: 0, y: 3)
                 )
-                .offset(x: -5, y: -15)
+                .offset(x: -25, y: -15)
         }
         
         return ZStack(alignment: .bottomTrailing) {
@@ -112,7 +144,10 @@ public struct ScannerInput: View {
     
     var list: some View {
         List {
-            listContents
+            ForEach(viewModel.nutrientsToConfirm, id: \.self.id) { nutrient in
+                cell(for: nutrient)
+                    .frame(maxWidth: .infinity)
+            }
         }
         .scrollIndicators(.hidden)
         .safeAreaInset(edge: .bottom) {
@@ -176,14 +211,22 @@ public struct ScannerInput: View {
     var pickerView: some View {
         VStack {
             HStack(spacing: TopButtonsHorizontalPadding) {
-                attributeButton
-                valueButton
+                if viewModel.state != .userValidationCompleted {
+                    Group {
+                        attributeButton
+                        valueButton
+                    }
+                    .transition(.move(edge: .leading))
+                }
                 rightButton
             }
-            listSection
+            .padding(.horizontal, TopButtonsHorizontalPadding)
+            if !viewModel.nutrientsToConfirm.isEmpty {
+                listSection
+                    .transition(.move(edge: .bottom))
+            }
             Spacer()
         }
-        .padding(.horizontal, TopButtonsHorizontalPadding)
         .padding(.vertical, TopButtonsVerticalPadding)
     }
     
@@ -649,14 +692,21 @@ public struct ScannerInput: View {
     
     
     var rightButton: some View {
-        Button {
+        var width: CGFloat {
+            viewModel.state == .userValidationCompleted
+            ? UIScreen.main.bounds.width - (TopButtonsHorizontalPadding * 2.0)
+            : TopButtonWidth
+        }
+        
+        return Button {
             Haptics.feedback(style: .soft)
             didTapCheckmark()
         } label: {
             Image(systemName: "checkmark")
                 .font(.system(size: 22, weight: .semibold, design: .default))
                 .foregroundColor(.white)
-                .frame(width: TopButtonWidth, height: TopButtonHeight)
+                .frame(width: width)
+                .frame(height: TopButtonHeight)
 //                .padding(.horizontal)
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -723,6 +773,7 @@ public struct ScannerInputPreview: View {
         )
         .onAppear {
             self.viewModel.state = .awaitingUserValidation
+            self.viewModel.currentAttribute = .energy
             self.viewModel.nutrientsToConfirm = [
                 ScannerNutrient(
                     attribute: .energy,
@@ -786,6 +837,7 @@ enum ScannerState: String {
     case classifyingTexts
     case awaitingColumnSelection
     case awaitingUserValidation
+    case userValidationCompleted
     case showingKeyboard
     case dismissing
     

@@ -100,7 +100,7 @@ extension ScannerViewModel {
             
             guard !Task.isCancelled else { return }
 
-            await self.startCroppingImages()
+//            await self.startCroppingImages()
 
             if scanResult.columnCount == 2 {
                 try await self.showColumnPicker()
@@ -126,6 +126,10 @@ extension ScannerViewModel {
     func showValuesPicker() async throws {
         
         setState(to: .awaitingUserValidation)
+        withAnimation {
+            showingValuePicker = true
+            showingValuePickerUI = true
+        }
 
         await MainActor.run { [weak self] in
             self?.shimmering = false
@@ -133,11 +137,11 @@ extension ScannerViewModel {
         
         Haptics.feedback(style: .soft)
         
-        withAnimation {
-            showingValuePicker = true
-            showingValuePickerUI = true
-        }
-
+//        withAnimation {
+//            showingValuePicker = true
+//            showingValuePickerUI = true
+//        }
+//
 //        zoom(to: self.nutrients.texts)
         await zoomToColumns()
     }

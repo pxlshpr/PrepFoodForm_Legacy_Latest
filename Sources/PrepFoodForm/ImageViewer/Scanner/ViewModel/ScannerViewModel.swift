@@ -912,11 +912,17 @@ extension ScannerViewModel {
         guard let index = nutrientsToConfirm.firstIndex(where: { $0.attribute == currentAttribute })
         else { return }
 
-        nutrientsToConfirm[index].isConfirmed = true
-        withAnimation {
-            nutrientsToConfirm = rearrange(array: nutrientsToConfirm, fromIndex: index, toIndex: nutrientsToConfirm.count-1)
-//            nutrientsToConfirm.rearrange(from: index, to: nutrientsToConfirm.count-1)
-//            nutrientsToConfirm.move(from: index, to: nutrientsToConfirm.endIndex)
+        if !nutrientsToConfirm[index].isConfirmed {
+            withAnimation {
+                nutrientsToConfirm[index].isConfirmed = true
+//                nutrientsToConfirm = rearrange(array: nutrientsToConfirm, fromIndex: index, toIndex: nutrientsToConfirm.count-1)
+            }
+        }
+        
+        if nutrientsToConfirm.allSatisfy({ $0.isConfirmed }) {
+            withAnimation {
+                state = .userValidationCompleted
+            }
         }
         
         guard let nextAttribute else { return }
