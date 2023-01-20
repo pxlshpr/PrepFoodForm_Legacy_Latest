@@ -867,7 +867,6 @@ public struct ScannerInput: View {
 //                userInfo: userInfoForCurrentAttributeZoom
                 userInfo: userInfoForAllAttributesZoom
             )
-            
             viewModel.showTappableTextBoxesForCurrentAttribute()
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 2) {

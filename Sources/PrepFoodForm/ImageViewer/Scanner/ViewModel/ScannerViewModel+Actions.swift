@@ -178,7 +178,7 @@ extension ScannerViewModel {
             textBoxes.append(TextBox(
                 boundingBox: attributeText.boundingBox,
                 color: .accentColor,
-                tapHandler: {}
+                tapHandler: nil
             ))
             texts.append(attributeText)
         }
@@ -186,7 +186,7 @@ extension ScannerViewModel {
             textBoxes.append(TextBox(
                 boundingBox: valueText.boundingBox,
                 color: .blue,
-                tapHandler: {}
+                tapHandler: nil
             ))
             texts.append(valueText)
         }

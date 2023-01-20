@@ -181,10 +181,10 @@ fileprivate struct ZoomScrollViewRepresentable<Content: View>: UIViewControllerR
                   let zBox = userInfo[Notification.ZoomableScrollViewKeys.zoomBox] as? ZBox
             else { return }
             
-            let paddedBoundingBox = zBox.boundingBox.horizontallyPaddedBoundingBox
-            
             //TODO: Use zoomZoomableScrollView instead
-            self.convertBoundingBoxAndZoom(paddedBoundingBox, imageSize: zBox.imageSize)
+//            let paddedBoundingBox = zBox.boundingBox.horizontallyPaddedBoundingBox
+//            self.convertBoundingBoxAndZoom(paddedBoundingBox, imageSize: zBox.imageSize)
+            self.convertBoundingBoxAndZoom(zBox.boundingBox, imageSize: zBox.imageSize)
         }
         
         @objc func scannerDidDismissKeyboard(notification: Notification) {
