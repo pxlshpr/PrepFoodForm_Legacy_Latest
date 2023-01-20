@@ -296,11 +296,16 @@ extension Scanner {
         let c = viewModel.columns.selectedColumnIndex
         withAnimation {
             viewModel.scannerNutrients = scanResult.nutrients.rows.map({ row in
-                ScannerNutrient(
+                
+                //TODO: Correct units here
+                var value = c == 1 ? row.valueText1?.value : row.valueText2?.value
+                value?.correctUnit(for: row.attribute)
+                
+                return ScannerNutrient(
                     attribute: row.attribute,
                     attributeText: row.attributeText.text,
                     isConfirmed: false,
-                    value: c == 1 ? row.valueText1?.value : row.valueText2?.value,
+                    value: value,
                     valueText: c == 1 ? row.valueText1?.text : row.valueText2?.text
                 )
             })
@@ -309,5 +314,21 @@ extension Scanner {
         viewModel.currentAttribute = firstAttribute
         
         showFocusedTextBox()
+    }
+}
+
+import PrepDataTypes
+
+extension FoodLabelValue {
+    mutating func correctUnit(for attribute: Attribute) {
+        guard let unit else {
+            self.unit = attribute.defaultUnit
+            return
+        }
+        
+        if !attribute.supportsUnit(unit) {
+            self.unit = attribute.defaultUnit
+        }
+        return
     }
 }
