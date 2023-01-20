@@ -222,6 +222,7 @@ extension ScannerViewModel {
         guard let firstValue = text.firstFoodLabelValue else {
             return
         }
+        Haptics.feedback(style: .rigid)
         self.textFieldAmountString = firstValue.amount.cleanAmount
         if let unit = firstValue.unit {
             self.pickedAttributeUnit = unit
