@@ -121,10 +121,13 @@ public struct Scanner: View {
         return screenHeight - (keyboardHeight + TopButtonPaddedHeight) + correctivePadding
     }
 
+    @ViewBuilder
     var keyboardHeightProxyTextFieldLayer: some View {
-        TextField("", text: .constant(""))
-            .keyboardType(.decimalPad)
-            .focused($proxyTextFieldIsFocused)
+        if !capturedKeyboardHeight {
+            TextField("", text: .constant(""))
+                .keyboardType(.decimalPad)
+                .focused($proxyTextFieldIsFocused)
+        }
     }
 
     var contents_legacy: some View {
@@ -228,6 +231,8 @@ public struct Scanner: View {
             viewModel.dismissHandler?()
         case .confirmCurrentAttribute:
             confirmCurrentAttribute()
+        case .deleteCurrentAttribute:
+            deleteCurrentAttribute()
         case .moveToAttribute(let attribute):
             moveToAttribute(attribute)
         case .toggleAttributeConfirmation(let attribute):
@@ -248,6 +253,12 @@ extension Scanner {
     func confirmCurrentAttribute() {
         viewModel.confirmCurrentAttributeAndMoveToNext()
         showFocusedTextBox()
+    }
+    
+    func deleteCurrentAttribute() {
+        withAnimation {
+            viewModel.deleteCurrentAttribute()
+        }
     }
     
     func moveToAttribute(_ attribute: Attribute) {

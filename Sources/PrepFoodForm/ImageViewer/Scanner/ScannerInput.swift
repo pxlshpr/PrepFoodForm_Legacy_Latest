@@ -7,6 +7,7 @@ import FoodLabelScanner
 public enum ScannerAction {
     case dismiss
     case confirmCurrentAttribute
+    case deleteCurrentAttribute
     case moveToAttribute(Attribute)
     case toggleAttributeConfirmation(Attribute)
 }
@@ -937,17 +938,25 @@ public struct ScannerInput: View {
             return currentNutrient.isConfirmed
         }
         
+        var isDeleteButton: Bool {
+            viewModel.currentNutrient?.isConfirmed == true && viewModel.state != .showingKeyboard
+        }
+        
         var imageName: String {
-            viewModel.currentNutrient?.isConfirmed == true ? "trash" : "checkmark"
+            isDeleteButton ? "trash" : "checkmark"
         }
 
         var foregroundStyle: some ShapeStyle {
-            viewModel.currentNutrient?.isConfirmed == true ? Color.red.gradient : Color.green.gradient
+            isDeleteButton ? Color.red.gradient : Color.green.gradient
         }
         
         return Button {
             resignFocusOfSearchTextField()
-            actionHandler(.confirmCurrentAttribute)
+            if isDeleteButton {
+                actionHandler(.deleteCurrentAttribute)
+            } else {
+                actionHandler(.confirmCurrentAttribute)
+            }
         } label: {
             Image(systemName: imageName)
                 .font(.system(size: 22, weight: .semibold, design: .default))
@@ -966,12 +975,12 @@ public struct ScannerInput: View {
     }
 
     var attributeButton: some View {
-        Button {
-            Haptics.feedback(style: .soft)
-            withAnimation(attributesListAnimation) {
-                showingAttributePicker = true
-            }
-        } label: {
+//        Button {
+//            Haptics.feedback(style: .soft)
+//            withAnimation(attributesListAnimation) {
+//                showingAttributePicker = true
+//            }
+//        } label: {
             VStack {
                 Text(viewModel.currentAttribute?.description ?? "")
                     .font(.title3)
@@ -991,7 +1000,7 @@ public struct ScannerInput: View {
                     .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
             )
             .contentShape(Rectangle())
-        }
+//        }
     }
 }
 

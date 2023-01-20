@@ -1038,6 +1038,13 @@ extension ScannerViewModel {
         }
     }
     
+    func deleteCurrentAttribute() {
+        guard let currentAttribute else { return }
+        guard let index = scannerNutrients.firstIndex(where: { $0.attribute == currentAttribute })
+        else { return }
+        scannerNutrients.remove(at: index)
+    }
+    
     func confirmCurrentAttributeAndMoveToNext() {
         guard let currentAttribute else { return }
         guard let index = scannerNutrients.firstIndex(where: { $0.attribute == currentAttribute })
