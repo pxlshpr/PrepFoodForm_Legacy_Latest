@@ -201,6 +201,38 @@ extension ScannerViewModel {
 //        zoom(to: self.nutrients.texts)
     }
     
+    func showTappableTextBoxesForCurrentAttribute() {
+        guard let currentAttribute, let scanResult else { return }
+        let texts = scanResult.textsWithFoodLabelValues.filter { text in
+            !self.textBoxes.contains(where: { $0.boundingBox == text.boundingBox })
+        }
+        let textBoxes = texts.map { text in
+            TextBox(
+                id: text.id,
+                boundingBox: text.boundingBox,
+                color: .yellow,
+                opacity: 0.3,
+                tapHandler: { self.tappedText(text) }
+            )
+        }
+        self.textBoxes.append(contentsOf: textBoxes)
+    }
+    
+    func tappedText(_ text: RecognizedText) {
+        guard let firstValue = text.firstFoodLabelValue else {
+            return
+        }
+        self.textFieldAmountString = firstValue.amount.cleanAmount
+        if let unit = firstValue.unit {
+            self.pickedAttributeUnit = unit
+        }
+    }
+
+    func hideTappableTextBoxesForCurrentAttribute() {
+        /// All we need to do is remove the text boxes that don't have a tap handler assigned to them
+        textBoxes = textBoxes.filter { $0.tapHandler == nil }
+    }
+
     func texts(for attribute: Attribute) -> [RecognizedText]? {
         guard let scanResult, let row = scanResult.row(for: attribute)
         else { return nil }

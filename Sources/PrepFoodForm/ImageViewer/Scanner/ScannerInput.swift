@@ -701,7 +701,7 @@ public struct ScannerInput: View {
 
     func resignFocusOfSearchTextField() {
         isFocused = false
-        
+        viewModel.hideTappableTextBoxesForCurrentAttribute()
 //        guard let imageSize = viewModel.image?.size else { return }
 //        let delay: CGFloat
 //        if imageSize.isTaller(than: HardcodedBounds.size) {
@@ -864,8 +864,11 @@ public struct ScannerInput: View {
             NotificationCenter.default.post(
                 name: .scannerDidPresentKeyboard,
                 object: nil,
-                userInfo: userInfoForCurrentAttributeZoom
+//                userInfo: userInfoForCurrentAttributeZoom
+                userInfo: userInfoForAllAttributesZoom
             )
+            
+            viewModel.showTappableTextBoxesForCurrentAttribute()
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 if viewModel.currentAmountString.isEmpty {
