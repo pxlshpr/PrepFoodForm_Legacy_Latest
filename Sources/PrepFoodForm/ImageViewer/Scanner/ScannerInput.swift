@@ -7,7 +7,7 @@ import FoodLabelScanner
 public enum ScannerAction {
     case dismiss
     case confirmCurrentAttribute
-    case showAttribute(Attribute)
+    case moveToAttribute(Attribute)
     case toggleAttributeConfirmation(Attribute)
 }
 
@@ -64,7 +64,7 @@ public struct ScannerInput: View {
         var hstack: some View {
             HStack(spacing: 0) {
                 Button {
-                    actionHandler(.showAttribute(nutrient.attribute))
+                    actionHandler(.moveToAttribute(nutrient.attribute))
                 } label: {
                     HStack(spacing: 0) {
                         Text(nutrient.attribute.description)
@@ -136,29 +136,7 @@ public struct ScannerInput: View {
     var bottomButtonsLayer: some View {
         
         var bottomPadding: CGFloat {
-            if viewModel.state == .showingKeyboard {
-                return TopButtonPaddedHeight + 8.0
-            } else {
-                return -7
-            }
-        }
-        
-        var dismissButton: some View {
-            Button {
-            } label: {
-                Image(systemName: "chevron.down")
-                    .imageScale(.medium)
-                    .fontWeight(.medium)
-                    .foregroundColor(Color(.secondaryLabel))
-                    .frame(width: 38, height: 38)
-                    .background(
-                        Circle()
-                            .foregroundStyle(.ultraThinMaterial)
-                            .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-//                            .shadow(color: colorScheme == .dark ? Color(.black).opacity(0.4) : Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-                    )
-            }
-            .transition(.opacity)
+            return 34
         }
         
         var addButton: some View {
@@ -173,30 +151,83 @@ public struct ScannerInput: View {
                         Circle()
                             .foregroundStyle(.ultraThinMaterial)
                             .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-//                            .shadow(color: colorScheme == .dark ? Color(.black).opacity(0.4) : Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
                     )
             }
-            .transition(.opacity)
         }
         
-        var buttonsLayer: some View {
+        var sideButtons: some View {
             HStack {
                 dismissButton
                 Spacer()
-                if viewModel.state != .showingKeyboard {
-                    addButton
+                addButton
+            }
+        }
+        
+        var centerButton: some View {
+            var string: String {
+//                viewModel.state == .allConfirmed
+//                ? "Add \(viewModel.scannerNutrients.count) Nutrients"
+//                : "Confirm and Add \(viewModel.scannerNutrients.count) Nutrients"
+                "Add \(viewModel.scannerNutrients.count) Nutrients"
+            }
+            
+            var textColor: Color {
+                viewModel.state == .allConfirmed
+                ? Color.white
+                : Color(.secondaryLabel)
+            }
+            
+            @ViewBuilder
+            var backgroundView: some View {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12)
+                        .foregroundStyle(.ultraThinMaterial)
+                        .opacity(viewModel.state == .allConfirmed ? 0 : 1)
+                    RoundedRectangle(cornerRadius: 12)
+                        .foregroundStyle(Color.accentColor)
+                        .opacity(viewModel.state == .allConfirmed ? 1 : 0)
+                }
+                .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+            }
+            
+            var row: some View {
+                HStack {
+                    Spacer()
+                    Button {
+                        
+                    } label: {
+                        Text(string)
+                            .imageScale(.medium)
+                            .fontWeight(.medium)
+                            .foregroundColor(textColor)
+                            .frame(height: 38)
+                            .padding(.horizontal, 10)
+                            .background(backgroundView)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 40)
+            }
+            
+            return Group {
+                if !viewModel.state.isLoading {
+                    row
+                        .transition(.move(edge: .bottom))
                 }
             }
         }
+        
         return VStack {
             Spacer()
             ZStack(alignment: .bottom) {
-                buttonsLayer
+                sideButtons
+                centerButton
             }
             .padding(.horizontal, 20)
             .padding(.bottom, bottomPadding)
-            .frame(width: UIScreen.main.bounds.width)
         }
+        .frame(width: UIScreen.main.bounds.width)
+        .edgesIgnoringSafeArea(.all)
     }
     
     var topButtonsLayer: some View {
@@ -204,25 +235,30 @@ public struct ScannerInput: View {
             TopButtonPaddedHeight + 8.0
         }
         
+        var keyboardButton: some View {
+            Button {
+                Haptics.feedback(style: .soft)
+                resignFocusOfSearchTextField()
+                withAnimation {
+                    if viewModel.containsUnconfirmedAttributes {
+                        viewModel.state = .awaitingConfirmation
+                    } else {
+                        viewModel.state = .allConfirmed
+                    }
+                    hideBackground = false
+                }
+            } label: {
+                DismissButtonLabel(forKeyboard: true)
+            }
+        }
+        
         var sideButtonsLayer: some View {
             HStack {
+                dismissButton
                 Spacer()
-                Button {
-                    Haptics.feedback(style: .soft)
-                    resignFocusOfSearchTextField()
-                    withAnimation {
-                        if viewModel.containsUnconfirmedAttributes {
-                            viewModel.state = .awaitingConfirmation
-                        } else {
-                            viewModel.state = .allConfirmed
-                        }
-                        hideBackground = false
-                    }
-                } label: {
-                    DismissButtonLabel(forKeyboard: true)
-                }
-                .transition(.opacity)
+                keyboardButton
             }
+            .transition(.opacity)
         }
         
         @ViewBuilder
@@ -344,7 +380,7 @@ public struct ScannerInput: View {
 //            }
             .scrollIndicators(.hidden)
             .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: 54)
+                Color.clear.frame(height: 60)
             }
             .scrollContentBackground(.hidden)
             .listStyle(.plain)
@@ -377,17 +413,47 @@ public struct ScannerInput: View {
             }
         }
         
+        var statusMessage: some View {
+            var string: String {
+                viewModel.state == .allConfirmed
+                ? "All nutrients confirmed"
+                : "Confirm that all nutrients are correct"
+            }
+            return Text(string)
+            .font(.system(size: 18, weight: .medium, design: .default))
+            .foregroundColor(.secondary)
+            .padding(.horizontal)
+            .frame(height: TopButtonHeight)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .foregroundStyle(Color(.tertiarySystemFill))
+            )
+            .contentShape(Rectangle())
+        }
+        
+        var topButtonsRow: some View {
+            Group {
+                if viewModel.currentAttribute == nil {
+                    statusMessage
+                        .transition(.move(edge: .trailing))
+                } else {
+                    HStack(spacing: TopButtonsHorizontalPadding) {
+                        if viewModel.state == .showingKeyboard {
+                            keyboard
+                        } else {
+                            attributeButton
+                            valueButton
+                        }
+                        rightButton
+                    }
+                    .transition(.move(edge: .leading))
+                }
+            }
+        }
+        
         var vstack: some View {
             VStack(spacing: TopButtonsVerticalPadding) {
-                HStack(spacing: TopButtonsHorizontalPadding) {
-                    if viewModel.state == .showingKeyboard {
-                        keyboard
-                    } else {
-                        attributeButton
-                        valueButton
-                    }
-                    rightButton
-                }
+                topButtonsRow
                 .padding(.horizontal, TopButtonsHorizontalPadding)
                 if !viewModel.scannerNutrients.isEmpty {
                     list
@@ -441,7 +507,6 @@ public struct ScannerInput: View {
     
     //MARK: - Events
     func stateChanged(to newState: ScannerState) {
-        print("▫️ Scanner changed state to: \(newState.rawValue)")
     }
     
     //MARK: - Components
@@ -472,27 +537,19 @@ public struct ScannerInput: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
     }
-    
-    var attributeLayer: some View {
-        var dismissButton: some View {
-            Button {
-                Haptics.feedback(style: .soft)
-                withAnimation(attributesListAnimation) {
-                    showingAttributePicker = false
-                }
-            } label: {
-                Image(systemName: "chevron.down")
-                    .imageScale(.medium)
-                    .fontWeight(.medium)
-                    .foregroundColor(Color(.secondaryLabel))
-                    .frame(width: 38, height: 38)
-                    .background(
-                        Circle()
-                            .foregroundStyle(.ultraThinMaterial)
-                            .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-                    )
+
+    var dismissButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            withAnimation(attributesListAnimation) {
+                showingAttributePicker = false
             }
+        } label: {
+            DismissButtonLabel()
         }
+    }
+
+    var attributeLayer: some View {
         
         var background: some View {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -800,7 +857,7 @@ public struct ScannerInput: View {
             }
             .font(.system(size: 22, weight: .semibold, design: .default))
             .padding(.horizontal)
-            .frame(height: 50)
+            .frame(height: TopButtonHeight)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .foregroundStyle(backgroundStyle)
@@ -812,7 +869,6 @@ public struct ScannerInput: View {
     
     func showKeyboardForCurrentAttribute() {
         viewModel.state = .showingKeyboard
-        viewModel.textFieldAmountString = viewModel.currentAmountString
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             withAnimation {
                 hideBackground = true
@@ -870,18 +926,30 @@ public struct ScannerInput: View {
         
         var shouldDisablePrimaryButton: Bool {
             guard let currentNutrient = viewModel.currentNutrient else { return true }
+            if let textFieldDouble = viewModel.internalTextfieldDouble {
+                if textFieldDouble != currentNutrient.value?.amount {
+                    return false
+                }
+                if viewModel.pickedAttributeUnit != currentNutrient.value?.unit {
+                    return false
+                }
+            }
             return currentNutrient.isConfirmed
         }
         
+        var imageName: String {
+            viewModel.currentNutrient?.isConfirmed == true ? "trash" : "checkmark"
+        }
+
         var foregroundStyle: some ShapeStyle {
-            Color.green.gradient
-//            currentNutrientIsConfirmed ? Color.gray.gradient : Color.green.gradient
+            viewModel.currentNutrient?.isConfirmed == true ? Color.red.gradient : Color.green.gradient
         }
         
         return Button {
+            resignFocusOfSearchTextField()
             actionHandler(.confirmCurrentAttribute)
         } label: {
-            Image(systemName: "checkmark")
+            Image(systemName: imageName)
                 .font(.system(size: 22, weight: .semibold, design: .default))
                 .foregroundColor(.white)
                 .frame(width: width)
@@ -892,8 +960,9 @@ public struct ScannerInput: View {
                 )
                 .contentShape(Rectangle())
         }
-        .disabled(shouldDisablePrimaryButton)
-        .grayscale(shouldDisablePrimaryButton ? 1.0 : 0.0)
+//        .disabled(shouldDisablePrimaryButton)
+//        .grayscale(shouldDisablePrimaryButton ? 1.0 : 0.0)
+        .animation(.interactiveSpring(), value: shouldDisablePrimaryButton)
     }
 
     var attributeButton: some View {
@@ -906,6 +975,7 @@ public struct ScannerInput: View {
             VStack {
                 Text(viewModel.currentAttribute?.description ?? "")
                     .font(.title3)
+                    .foregroundColor(.secondary)
                     .minimumScaleFactor(0.2)
                     .lineLimit(2)
 //                    .matchedGeometryEffect(id: "attributeName", in: namespace)
@@ -916,7 +986,8 @@ public struct ScannerInput: View {
             .frame(height: TopButtonHeight)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .foregroundStyle(Color(.secondarySystemFill))
+//                    .foregroundStyle(Color(.secondarySystemFill))
+                    .foregroundStyle(Color(.quaternarySystemFill))
                     .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
             )
             .contentShape(Rectangle())
@@ -948,14 +1019,19 @@ public struct ScannerInputPreview: View {
         )
         .onAppear {
 //            self.viewModel.state = .showingKeyboard
-//            self.viewModel.state = .awaitingConfirmation
-            self.viewModel.state = .allConfirmed
-            self.viewModel.currentAttribute = .energy
+            self.viewModel.state = .awaitingConfirmation
+//            self.viewModel.state = .allConfirmed
+            self.viewModel.currentAttribute = .polyunsaturatedFat
             self.viewModel.scannerNutrients = [
                 ScannerNutrient(
                     attribute: .energy,
                     isConfirmed: false,
                     value: .init(amount: 360, unit: .kcal)
+                ),
+                ScannerNutrient(
+                    attribute: .polyunsaturatedFat,
+                    isConfirmed: true,
+                    value: .init(amount: 500, unit: .g)
                 ),
                 ScannerNutrient(
                     attribute: .carbohydrate,
@@ -980,8 +1056,24 @@ public struct ScannerInputPreview: View {
 //                try await sleepTask(delay)
 //                await MainActor.run { withAnimation { self.viewModel.state = .classifyingTexts } }
 //
-//                try await sleepTask(delay)
-//                await MainActor.run { withAnimation { self.viewModel.state = .allConfirmed } }
+                try await sleepTask(delay)
+                try await sleepTask(delay)
+                try await sleepTask(delay)
+                await MainActor.run {
+                    withAnimation {
+//                        self.viewModel.state = .showingKeyboard
+                        self.viewModel.state = .allConfirmed
+//                        self.viewModel.currentAttribute = nil
+                    }
+                }
+                
+//                try await sleepTask(delay * 3.0)
+//                await MainActor.run {
+//                    withAnimation {
+//                        self.viewModel.currentAttribute = .energy
+//                    }
+//                }
+
             }
         }
     }
@@ -1016,7 +1108,6 @@ enum ScannerState: String {
     case awaitingColumnSelection
     case awaitingConfirmation
     case allConfirmed
-    case allConfirmedShowingAttribute
     case showingKeyboard
     case dismissing
     

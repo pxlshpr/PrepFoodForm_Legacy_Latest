@@ -227,10 +227,9 @@ public struct Scanner: View {
         case .dismiss:
             viewModel.dismissHandler?()
         case .confirmCurrentAttribute:
-            didTapCheckmark()
-        case .showAttribute(let attribute):
-            Haptics.selectionFeedback()
-            showAttribute(attribute)
+            confirmCurrentAttribute()
+        case .moveToAttribute(let attribute):
+            moveToAttribute(attribute)
         case .toggleAttributeConfirmation(let attribute):
             toggleAttributeConfirmation(attribute)
         }
@@ -246,12 +245,13 @@ extension Scanner {
         )
     }
     
-    func didTapCheckmark() {
+    func confirmCurrentAttribute() {
         viewModel.confirmCurrentAttributeAndMoveToNext()
         showFocusedTextBox()
     }
     
-    func showAttribute(_ attribute: Attribute) {
+    func moveToAttribute(_ attribute: Attribute) {
+        Haptics.selectionFeedback()
         viewModel.moveToAttribute(attribute)
         showTextBoxes(for: attribute)
     }
@@ -267,9 +267,7 @@ extension Scanner {
     }
     
     func toggleAttributeConfirmation(_ attribute: Attribute) {
-        if let attributeMovedTo = viewModel.toggleAttributeConfirmation(attribute) {
-            showAttribute(attributeMovedTo)
-        }
+        viewModel.toggleAttributeConfirmation(attribute)
     }
     
     func configureValuesPickerViewModel(with scanResult: ScanResult) {
@@ -277,8 +275,6 @@ extension Scanner {
         guard let firstAttribute = scanResult.nutrientAttributes.first else {
             return
         }
-        viewModel.currentAttribute = firstAttribute
-        
         let c = viewModel.columns.selectedColumnIndex
         withAnimation {
             viewModel.scannerNutrients = scanResult.nutrients.rows.map({ row in
@@ -292,7 +288,8 @@ extension Scanner {
             })
         }
         
-        print("🪙 Set nutrientsToConfirm")
+        viewModel.currentAttribute = firstAttribute
+        
         showFocusedTextBox()
     }
 }

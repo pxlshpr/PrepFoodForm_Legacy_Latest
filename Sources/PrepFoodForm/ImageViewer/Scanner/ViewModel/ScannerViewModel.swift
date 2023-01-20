@@ -6,6 +6,7 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 import VisionSugar
+import PrepDataTypes
 
 @MainActor
 public class ScannerViewModel: ObservableObject {
@@ -49,8 +50,14 @@ public class ScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
-    @Published var currentAttribute: Attribute? = nil
-    @Published var internalTextfieldDouble: Double? = 0
+    @Published var currentAttribute: Attribute? = nil {
+        didSet {
+            pickedAttributeUnit = currentUnit
+            textFieldAmountString = currentAmountString
+        }
+    }
+    @Published var pickedAttributeUnit: FoodLabelUnit = .g
+    @Published var internalTextfieldDouble: Double? = nil
     @Published var internalTextfieldString: String = ""
     @Published var scannerNutrients: [ScannerNutrient] = [] {
         didSet {
@@ -118,7 +125,8 @@ public class ScannerViewModel: ObservableObject {
         croppedImages = [:]
         croppingStatus = .idle
         waitingToShowCroppedImages = false
-        internalTextfieldDouble = 0
+        pickedAttributeUnit = .g
+        internalTextfieldDouble = nil
         internalTextfieldString = ""
         
         currentAttribute = nil
@@ -909,7 +917,11 @@ extension ScannerViewModel {
         guard let amount = currentNutrient?.value?.amount else { return "" }
         return amount.cleanAmount
     }
-    
+
+    var currentUnit: FoodLabelUnit {
+        currentNutrient?.value?.unit ?? .g
+    }
+
     var textFieldAmountString: String {
         get { internalTextfieldString }
         set {
@@ -935,29 +947,28 @@ extension ScannerViewModel {
         scannerNutrients.contains(where: { !$0.isConfirmed })
     }
     
-    func toggleAttributeConfirmation(_ attribute: Attribute) -> Attribute? {
+    func toggleAttributeConfirmation(_ attribute: Attribute) {
         guard let index = scannerNutrients.firstIndex(where: { $0.attribute == attribute }) else {
-            return nil
+            return
         }
         Haptics.feedback(style: .soft)
         withAnimation {
             scannerNutrients[index].isConfirmed.toggle()
         }
         
-        /// Update this
         checkIfAllNutrientsAreConfirmed()
 
-        /// If we've confirmed it and there are unconfirmed ones left, move to the next one, otherwise move to the toggled attribute
-        let attributeMovedTo: Attribute
-        if scannerNutrients[index].isConfirmed, containsUnconfirmedAttributes,
-           let nextAttributeToToggled = nextUnconfirmedAttribute(to: attribute)
-        {
-            attributeMovedTo = nextAttributeToToggled
-        } else {
-            attributeMovedTo = attribute
-        }
-        moveToAttribute(attributeMovedTo)
-        return attributeMovedTo
+//        /// If we've confirmed it and there are unconfirmed ones left, move to the next one, otherwise move to the toggled attribute
+//        let attributeMovedTo: Attribute
+//        if scannerNutrients[index].isConfirmed, containsUnconfirmedAttributes,
+//           let nextAttributeToToggled = nextUnconfirmedAttribute(to: attribute)
+//        {
+//            attributeMovedTo = nextAttributeToToggled
+//        } else {
+//            attributeMovedTo = attribute
+//        }
+//        moveToAttribute(attributeMovedTo)
+//        return attributeMovedTo
     }
     
     func handleDeletedNutrient(oldValue: [ScannerNutrient]) {
@@ -971,45 +982,58 @@ extension ScannerViewModel {
         }
         guard let deletedIndex else { return }
         
-        /// check if all nutrients are now confirmed after removing one
-        checkIfAllNutrientsAreConfirmed()
-        
-        /// now if the deleted nutrient was the current one, select the next unconfirmed or next-inline attribute to it
-        func moveToNextAttributeIfCurrentWasDeleted() {
-            guard let currentAttribute else { return }
-            guard oldValue[deletedIndex].attribute == currentAttribute else {
-                return
-            }
-            if deletedIndex - 1 < scannerNutrients.count, deletedIndex - 1 >= 0 {
-                if let nextAttributeToDeletedOne = nextUnconfirmedAttribute(to: scannerNutrients[deletedIndex - 1].attribute) {
-                    /// first see if an unconfirmed item exists before the (old, deleted) one, and if so, move to that
-                    moveToAttribute(nextAttributeToDeletedOne)
-                } else {
-                    /// otherwise move to the
-                    moveToAttribute(scannerNutrients[deletedIndex - 1].attribute)
-                }
-            } else {
-                guard !scannerNutrients.isEmpty else {
-                    return
-                }
-                if !scannerNutrients[0].isConfirmed {
-                    moveToAttribute(scannerNutrients[0].attribute)
-                } else if let nextAttributeToFirstOne = nextUnconfirmedAttribute(to: scannerNutrients[0].attribute) {
-                    /// otherwise, we either deleted the first item or have none remaining, so move to the first one if it exists
-                    moveToAttribute(nextAttributeToFirstOne)
-                } else if !scannerNutrients.isEmpty {
-                    moveToAttribute(scannerNutrients[0].attribute)
-                }
-            }
+        let shouldUnsetCurrentAttributeUponCompletion: Bool
+        if self.currentAttribute == oldValue[deletedIndex].attribute {
+            self.currentAttribute = nil
+            shouldUnsetCurrentAttributeUponCompletion = true
+        } else {
+            shouldUnsetCurrentAttributeUponCompletion = false
         }
+        checkIfAllNutrientsAreConfirmed(unsettingCurrentAttribute: shouldUnsetCurrentAttributeUponCompletion)
         
-        moveToNextAttributeIfCurrentWasDeleted()
+//        /// now if the deleted nutrient was the current one, select the next unconfirmed or next-inline attribute to it
+//        func moveToNextAttributeIfCurrentWasDeleted() {
+//            guard let currentAttribute else { return }
+//            guard oldValue[deletedIndex].attribute == currentAttribute else {
+//                return
+//            }
+//            if deletedIndex - 1 < scannerNutrients.count, deletedIndex - 1 >= 0 {
+//                if let nextAttributeToDeletedOne = nextUnconfirmedAttribute(to: scannerNutrients[deletedIndex - 1].attribute) {
+//                    /// first see if an unconfirmed item exists before the (old, deleted) one, and if so, move to that
+//                    moveToAttribute(nextAttributeToDeletedOne)
+//                } else {
+//                    /// otherwise move to the
+//                    moveToAttribute(scannerNutrients[deletedIndex - 1].attribute)
+//                }
+//            } else {
+//                guard !scannerNutrients.isEmpty else {
+//                    return
+//                }
+//                if !scannerNutrients[0].isConfirmed {
+//                    moveToAttribute(scannerNutrients[0].attribute)
+//                } else if let nextAttributeToFirstOne = nextUnconfirmedAttribute(to: scannerNutrients[0].attribute) {
+//                    /// otherwise, we either deleted the first item or have none remaining, so move to the first one if it exists
+//                    moveToAttribute(nextAttributeToFirstOne)
+//                } else if !scannerNutrients.isEmpty {
+//                    moveToAttribute(scannerNutrients[0].attribute)
+//                }
+//            }
+//        }
+//
+//        moveToNextAttributeIfCurrentWasDeleted()
     }
     
-    func checkIfAllNutrientsAreConfirmed() {
+    func checkIfAllNutrientsAreConfirmed(unsettingCurrentAttribute: Bool = true) {
         if scannerNutrients.allSatisfy({ $0.isConfirmed }) {
             withAnimation {
                 state = .allConfirmed
+                if unsettingCurrentAttribute {
+                    currentAttribute = nil
+                }
+            }
+        } else {
+            withAnimation {
+                state = .awaitingConfirmation
             }
         }
     }
@@ -1028,6 +1052,10 @@ extension ScannerViewModel {
             Haptics.selectionFeedback()
         }
         
+        if let internalTextfieldDouble {
+            scannerNutrients[index].value = FoodLabelValue(amount: internalTextfieldDouble, unit: pickedAttributeUnit)
+        }
+
         checkIfAllNutrientsAreConfirmed()
         
         guard let nextUnconfirmedAttribute else { return }
@@ -1037,6 +1065,7 @@ extension ScannerViewModel {
     func moveToAttribute(_ attribute: Attribute) {
         withAnimation {
             self.currentAttribute = attribute
+            textFieldAmountString = currentAmountString
         }
         
         NotificationCenter.default.post(
@@ -1064,7 +1093,7 @@ extension ScannerViewModel {
     /// cycling back to the first once the end is reached.
     func nextUnconfirmedAttribute(to attribute: Attribute? = nil) -> Attribute? {
         let index: Int
-        if let currentAttribute, let currentAttributeIndex = scannerNutrients.firstIndex(where: { $0.attribute == attribute }) {
+        if let currentAttributeIndex = scannerNutrients.firstIndex(where: { $0.attribute == attribute }) {
             index = currentAttributeIndex
         } else {
             index = 0
