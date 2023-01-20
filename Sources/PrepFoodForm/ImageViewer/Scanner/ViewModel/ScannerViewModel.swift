@@ -49,8 +49,7 @@ public class ScannerViewModel: ObservableObject {
     @Published var showingBoxes = false
     @Published var showingCutouts = false
     @Published var clearSelectedImage: Bool = false
-    @Published var currentAttribute: Attribute = .energy
-    @Published var showingTextField = false
+    @Published var currentAttribute: Attribute? = nil
     @Published var internalTextfieldDouble: Double? = 0
     @Published var internalTextfieldString: String = ""
     @Published var scannerNutrients: [ScannerNutrient] = [] {
@@ -81,7 +80,7 @@ public class ScannerViewModel: ObservableObject {
     var moveToNextAttributeTask: Task<(), Error>? = nil
 
     func resetNutrients() {
-        currentAttribute = .energy
+        currentAttribute = nil
         scannerNutrients = []
     }
     
@@ -122,9 +121,8 @@ public class ScannerViewModel: ObservableObject {
         internalTextfieldDouble = 0
         internalTextfieldString = ""
         
-        currentAttribute = .energy
+        currentAttribute = nil
         scannerNutrients = []
-        showingTextField = false
         state = .loadingImage
 
         cancelAllTasks()
@@ -903,7 +901,8 @@ extension Array where Element == ScannerNutrient {
 extension ScannerViewModel {
     
     var currentNutrient: ScannerNutrient? {
-        scannerNutrients.first(where: { $0.attribute == currentAttribute })
+        guard let currentAttribute else { return nil }
+        return scannerNutrients.first(where: { $0.attribute == currentAttribute })
     }
     
     var currentAmountString: String {
@@ -977,6 +976,7 @@ extension ScannerViewModel {
         
         /// now if the deleted nutrient was the current one, select the next unconfirmed or next-inline attribute to it
         func moveToNextAttributeIfCurrentWasDeleted() {
+            guard let currentAttribute else { return }
             guard oldValue[deletedIndex].attribute == currentAttribute else {
                 return
             }
@@ -1009,12 +1009,13 @@ extension ScannerViewModel {
     func checkIfAllNutrientsAreConfirmed() {
         if scannerNutrients.allSatisfy({ $0.isConfirmed }) {
             withAnimation {
-                state = .userValidationCompleted
+                state = .allConfirmed
             }
         }
     }
     
     func confirmCurrentAttributeAndMoveToNext() {
+        guard let currentAttribute else { return }
         guard let index = scannerNutrients.firstIndex(where: { $0.attribute == currentAttribute })
         else { return }
 
@@ -1061,9 +1062,13 @@ extension ScannerViewModel {
 
     /// Returns the next element to `attribute` in `nutrients`,
     /// cycling back to the first once the end is reached.
-    func nextUnconfirmedAttribute(to attribute: Attribute) -> Attribute? {
-        guard let index = scannerNutrients.firstIndex(where: { $0.attribute == attribute })
-        else { return nil }
+    func nextUnconfirmedAttribute(to attribute: Attribute? = nil) -> Attribute? {
+        let index: Int
+        if let currentAttribute, let currentAttributeIndex = scannerNutrients.firstIndex(where: { $0.attribute == attribute }) {
+            index = currentAttributeIndex
+        } else {
+            index = 0
+        }
         
         /// Make sure we only loop once around the nutrients
         let maxNumberOfHops = scannerNutrients.count

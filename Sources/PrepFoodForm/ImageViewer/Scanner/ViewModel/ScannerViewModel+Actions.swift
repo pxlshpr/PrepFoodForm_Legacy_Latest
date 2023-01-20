@@ -125,7 +125,7 @@ extension ScannerViewModel {
 
     func showValuesPicker() async throws {
         
-        setState(to: .awaitingUserValidation)
+        setState(to: .awaitingConfirmation)
         withAnimation {
             showingValuePicker = true
             showingValuePickerUI = true
