@@ -235,6 +235,8 @@ public struct Scanner: View {
             deleteCurrentAttribute()
         case .moveToAttribute(let attribute):
             moveToAttribute(attribute)
+        case .moveToAttributeAndShowKeyboard(let attribute):
+            moveToAttributeAndShowKeyboard(attribute)
         case .toggleAttributeConfirmation(let attribute):
             toggleAttributeConfirmation(attribute)
         }
@@ -261,6 +263,11 @@ extension Scanner {
         }
     }
     
+    func moveToAttributeAndShowKeyboard(_ attribute: Attribute) {
+        moveToAttribute(attribute)
+        viewModel.state = .showingKeyboard
+    }
+
     func moveToAttribute(_ attribute: Attribute) {
         Haptics.selectionFeedback()
         viewModel.moveToAttribute(attribute)

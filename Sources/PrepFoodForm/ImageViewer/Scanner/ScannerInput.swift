@@ -9,6 +9,7 @@ public enum ScannerAction {
     case confirmCurrentAttribute
     case deleteCurrentAttribute
     case moveToAttribute(Attribute)
+    case moveToAttributeAndShowKeyboard(Attribute)
     case toggleAttributeConfirmation(Attribute)
 }
 
@@ -51,8 +52,7 @@ public struct ScannerInput: View {
             ? "checkmark.square.fill"
             : "square"
         }
-        var textColor: Color { isConfirmed ? .secondary : .primary }
-        
+
         var listRowBackground: some View {
             isCurrentAttribute
             ? (colorScheme == .dark
@@ -63,15 +63,36 @@ public struct ScannerInput: View {
         }
         
         var hstack: some View {
-            HStack(spacing: 0) {
+            var valueDescription: String {
+                nutrient.value?.description ?? "Enter a value"
+            }
+            
+            var textColor: Color {
+                isConfirmed ? .secondary : .primary
+            }
+            
+            var valueTextColor: Color {
+                guard nutrient.value != nil else {
+                    return Color(.tertiaryLabel)
+                }
+                return textColor
+            }
+            
+            return HStack(spacing: 0) {
                 Button {
                     actionHandler(.moveToAttribute(nutrient.attribute))
                 } label: {
                     HStack(spacing: 0) {
                         Text(nutrient.attribute.description)
+                            .foregroundColor(textColor)
                         Spacer()
-                        Text(nutrient.value?.description ?? "")
                     }
+                }
+                Button {
+                    actionHandler(.moveToAttributeAndShowKeyboard(nutrient.attribute))
+                } label: {
+                    Text(valueDescription)
+                        .foregroundColor(valueTextColor)
                 }
                 Button {
                     actionHandler(.toggleAttributeConfirmation(nutrient.attribute))
@@ -822,17 +843,14 @@ public struct ScannerInput: View {
 
     var valueButton: some View {
         var amountColor: Color {
-//            Color.white
             Color.primary
         }
         
         var unitColor: Color {
-//            Color.white.opacity(0.9)
             Color.secondary
         }
         
         var backgroundStyle: some ShapeStyle {
-//            Color.accentColor.gradient
             Color(.secondarySystemFill)
         }
         
@@ -849,12 +867,16 @@ public struct ScannerInput: View {
             )
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text(viewModel.currentAmountString)
-                    .foregroundColor(amountColor)
-                    .matchedGeometryEffect(id: "textField", in: namespace)
-                Text(viewModel.currentUnitString)
-                    .foregroundColor(unitColor)
-                    .font(.system(size: 18, weight: .medium, design: .default))
+                if viewModel.currentAmountString.isEmpty {
+                    Image(systemName: "keyboard")
+                } else {
+                    Text(viewModel.currentAmountString)
+                        .foregroundColor(amountColor)
+                        .matchedGeometryEffect(id: "textField", in: namespace)
+                    Text(viewModel.currentUnitString)
+                        .foregroundColor(unitColor)
+                        .font(.system(size: 18, weight: .medium, design: .default))
+                }
             }
             .font(.system(size: 22, weight: .semibold, design: .default))
             .padding(.horizontal)
@@ -1039,8 +1061,8 @@ public struct ScannerInputPreview: View {
                 ),
                 ScannerNutrient(
                     attribute: .polyunsaturatedFat,
-                    isConfirmed: true,
-                    value: .init(amount: 500, unit: .g)
+                    isConfirmed: false,
+                    value: nil
                 ),
                 ScannerNutrient(
                     attribute: .carbohydrate,
@@ -1089,7 +1111,6 @@ public struct ScannerInputPreview: View {
 }
 
 struct ScannerInput_Preview: PreviewProvider {
-    
     static var previews: some View {
         ScannerInputPreview()
     }
