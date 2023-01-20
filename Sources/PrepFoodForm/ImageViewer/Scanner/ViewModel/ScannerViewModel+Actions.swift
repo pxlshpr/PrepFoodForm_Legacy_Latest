@@ -185,7 +185,7 @@ extension ScannerViewModel {
         if let valueText {
             textBoxes.append(TextBox(
                 boundingBox: valueText.boundingBox,
-                color: .blue,
+                color: .accentColor,
                 tapHandler: nil
             ))
             texts.append(valueText)

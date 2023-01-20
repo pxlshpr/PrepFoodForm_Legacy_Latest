@@ -7,17 +7,18 @@ import SwiftSugar
 import Shimmer
 import VisionSugar
 
+
+//TODO: Have a helper that chooses this based on device
+let KeyboardHeight: CGFloat = 301
+
 public struct Scanner: View {
     
     @Binding var selectedImage: UIImage?
     @ObservedObject var viewModel: ScannerViewModel
 
-    @FocusState var proxyTextFieldIsFocused: Bool
-    @State var keyboardHeight: CGFloat = 0
-    @State var capturedKeyboardHeight = false
-
-    let keyboardDidShow = NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)
-    let keyboardDidHide = NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)
+    /// ⌨️ Keyboard-height stuff
+//    let keyboardDidShow = NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)
+//    let keyboardDidHide = NotificationCenter.default.publisher(for: UIResponder.keyboardDidHideNotification)
 
     public init(
         scanner: ScannerViewModel,
@@ -53,30 +54,31 @@ public struct Scanner: View {
                 self.selectedImage = nil
             }
         }
-        .onReceive(keyboardDidHide) { _ in
-            print("⌨️ keyboardDidHide, setting capturedKeyboardHeight to true")
-            print("⌨️ ----")
-            if !capturedKeyboardHeight {
-                capturedKeyboardHeight = true
-            }
-        }
-        .onReceive(keyboardDidShow) { notification in
-            guard !capturedKeyboardHeight else { return }
-            print("⌨️ Setting proxyTextFieldIsFocused to false IN NOTIFICATION")
-            self.proxyTextFieldIsFocused = false
-            guard let frameEnd = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
-            else {
-                print("⌨️ Couldn't get bounds")
-                return
-            }
-            print("⌨️ keyboard frame: \(frameEnd)")
-            keyboardHeight = frameEnd.height
-            print("⌨️ ----")
-        }
-        .onAppear {
-            print("⌨️ Setting proxyTextFieldIsFocused to true")
-            proxyTextFieldIsFocused = true
-        }
+        /// ⌨️ Keyboard-height stuff
+//        .onReceive(keyboardDidHide) { _ in
+//            print("⌨️ keyboardDidHide, setting capturedKeyboardHeight to true")
+//            print("⌨️ ----")
+//            if !capturedKeyboardHeight {
+//                capturedKeyboardHeight = true
+//            }
+//        }
+//        .onReceive(keyboardDidShow) { notification in
+////            guard !capturedKeyboardHeight else { return }
+//            print("⌨️ Setting proxyTextFieldIsFocused to false IN NOTIFICATION")
+////            self.proxyTextFieldIsFocused = false
+//            guard let frameEnd = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+//            else {
+//                print("⌨️ Couldn't get bounds")
+//                return
+//            }
+//            print("⌨️ keyboard frame: \(frameEnd)")
+//            keyboardHeight = frameEnd.height
+//            print("⌨️ ----")
+//        }
+//        .onAppear {
+//            print("⌨️ Setting proxyTextFieldIsFocused to true")
+//            proxyTextFieldIsFocused = true
+//        }
     }
     
     var contents: some View {
@@ -94,41 +96,40 @@ public struct Scanner: View {
 //                buttonsLayer
 //                    .transition(.scale)
 //            }
-            keyboardHeightProxyTextFieldLayer
+            /// ⌨️ Keyboard-height stuff
+//            keyboardHeightProxyTextFieldLayer
         }
     }
     
     @ViewBuilder
     var actualImageViewerLayer: some View {
-        if capturedKeyboardHeight {
-            VStack(spacing: 0) {
-                ZStack {
-                    imageViewerLayer
-                }
-                .frame(height: imageViewerHeight)
-                Spacer()
+        VStack(spacing: 0) {
+            ZStack {
+                imageViewerLayer
             }
-            .edgesIgnoringSafeArea(.all)
+            .frame(height: imageViewerHeight)
+            Spacer()
         }
+        .edgesIgnoringSafeArea(.all)
     }
     
     var imageViewerHeight: CGFloat {
         let screenHeight = UIScreen.main.bounds.height
         
-        /// 🪄 Magic Number, god knows why but this works on iPhone 13 Pro Max, iPhone 14 Pro Max and iPhone X
+        /// 🪄 Magic Number, no idea why but this works on iPhone 13 Pro Max, iPhone 14 Pro Max and iPhone X (there's a gap without it)
         let correctivePadding = 8.0
         
-        return screenHeight - (keyboardHeight + TopButtonPaddedHeight) + correctivePadding
+        return screenHeight - (KeyboardHeight + TopButtonPaddedHeight) + correctivePadding
     }
 
-    @ViewBuilder
-    var keyboardHeightProxyTextFieldLayer: some View {
-        if !capturedKeyboardHeight {
-            TextField("", text: .constant(""))
-                .keyboardType(.decimalPad)
-                .focused($proxyTextFieldIsFocused)
-        }
-    }
+    /// ⌨️ Keyboard-height stuff
+//    var keyboardHeightProxyTextFieldLayer: some View {
+//        TextField("", text: .constant(""))
+//        .keyboardType(.decimalPad)
+////            .keyboardType(.asciiCapable)
+////            .autocorrectionDisabled()
+//        .focused($proxyTextFieldIsFocused)
+//    }
 
     var contents_legacy: some View {
         ZStack {
@@ -215,7 +216,6 @@ public struct Scanner: View {
 //        ValuesPickerOverlay(
         ScannerInput(
             viewModel: viewModel,
-            keyboardHeight: $keyboardHeight,
             actionHandler: handleScannerAction
         )
         .onChange(of: viewModel.scannerNutrients, perform: scannerNutrientsChanged)

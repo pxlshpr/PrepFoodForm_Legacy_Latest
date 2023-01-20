@@ -3,11 +3,14 @@ import SwiftUI
 struct TextBoxesLayer: View {
     
     @Binding var textBoxes: [TextBox]
+    @Binding var shimmering: Bool
     
+    //TODO: Replace this with style
     let isCutOut: Bool
     
-    init(textBoxes: Binding<[TextBox]>, isCutOut: Bool = false) {
+    init(textBoxes: Binding<[TextBox]>, shimmering: Binding<Bool> = .constant(false), isCutOut: Bool = false) {
         _textBoxes = textBoxes
+        _shimmering = shimmering
         self.isCutOut = isCutOut
     }
     
@@ -35,7 +38,11 @@ struct TextBoxesLayer: View {
             get: { textBoxes[index] },
             set: { _ in }
         )
-        return TextBoxView(textBox: binding,  size: size)
+        return TextBoxView(
+            textBox: binding,
+            size: size,
+            shimmering: $shimmering
+        )
     }
     
     func cutoutView(at index: Int, size: CGSize) -> some View {

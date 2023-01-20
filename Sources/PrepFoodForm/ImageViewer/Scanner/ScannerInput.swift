@@ -17,11 +17,7 @@ public struct ScannerInput: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-    @Binding var keyboardHeight: CGFloat
     var actionHandler: (ScannerAction) -> ()
-//    var didTapDismiss: (() -> ())?
-//    var didTapCheckmark: () -> ()
-//    let didTapAutofill: () -> ()
     
     @Namespace var namespace
     @State var showingAttributePicker = false
@@ -34,11 +30,9 @@ public struct ScannerInput: View {
     
     public init(
         viewModel: ScannerViewModel,
-        keyboardHeight: Binding<CGFloat>,
         actionHandler: @escaping (ScannerAction) -> ()
     ) {
         self.viewModel = viewModel
-        _keyboardHeight = keyboardHeight
         self.actionHandler = actionHandler
     }
     
@@ -151,11 +145,11 @@ public struct ScannerInput: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: keyboardHeight + TopButtonPaddedHeight)
+        .frame(height: KeyboardHeight + TopButtonPaddedHeight)
         .background(background)
         .clipped()
     }
-
+    
     var bottomButtonsLayer: some View {
         
         var bottomPadding: CGFloat {
@@ -331,7 +325,7 @@ public struct ScannerInput: View {
 
     var confirmButtonLayer: some View {
         var bottomPadding: CGFloat {
-            keyboardHeight + TopButtonPaddedHeight
+            KeyboardHeight + TopButtonPaddedHeight
         }
         
         var buttonLayer: some View {
@@ -1048,7 +1042,6 @@ public struct ScannerInputPreview: View {
     var overlay: some View {
         ScannerInput(
             viewModel: viewModel,
-            keyboardHeight: .constant(371),
             actionHandler: { _ in }
         )
         .onAppear {

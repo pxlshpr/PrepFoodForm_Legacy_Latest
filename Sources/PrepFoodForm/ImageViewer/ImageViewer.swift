@@ -84,13 +84,16 @@ struct ImageViewer: View {
             if shimmering || isFocused { return 1 }
             return 0.3
         }
-        return TextBoxesLayer(textBoxes: $textBoxes)
-            .opacity(opacity)
-            .animation(.default, value: textPickerHasAppeared)
-            .animation(.default, value: showingBoxes)
-            .animation(.default, value: shimmering)
-            .animation(.default, value: scannedTextBoxes.count)
-            .shimmering(active: shimmering)
+        return TextBoxesLayer(
+            textBoxes: $textBoxes,
+            shimmering: $shimmering
+        )
+        .opacity(opacity)
+        .animation(.default, value: textPickerHasAppeared)
+        .animation(.default, value: showingBoxes)
+        .animation(.default, value: shimmering)
+        .animation(.default, value: scannedTextBoxes.count)
+        .shimmering(active: shimmering)
     }
     
     var scannedTextBoxesLayer: some View {
