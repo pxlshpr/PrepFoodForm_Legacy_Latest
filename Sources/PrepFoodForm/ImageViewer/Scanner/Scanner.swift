@@ -266,12 +266,15 @@ extension Scanner {
     func moveToAttributeAndShowKeyboard(_ attribute: Attribute) {
         moveToAttribute(attribute)
         viewModel.state = .showingKeyboard
+        viewModel.showTappableTextBoxesForCurrentAttribute()
     }
 
     func moveToAttribute(_ attribute: Attribute) {
         Haptics.selectionFeedback()
         viewModel.moveToAttribute(attribute)
-        showTextBoxes(for: attribute)
+        withAnimation {
+            showTextBoxes(for: attribute)
+        }
     }
     
     func showTextBoxes(for attribute: Attribute) {

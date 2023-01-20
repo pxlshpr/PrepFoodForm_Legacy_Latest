@@ -227,6 +227,22 @@ extension ScannerViewModel {
         if let unit = firstValue.unit {
             self.pickedAttributeUnit = unit
         }
+        
+        //TODO: Now re-generate textboxes so that the selected text is shown
+        guard let currentNutrientIndex else { return }
+        scannerNutrients[currentNutrientIndex].valueText = text
+        scannerNutrients[currentNutrientIndex].value = firstValue
+        
+        showTextBoxesFor(
+            attributeText: currentAttributeText,
+            valueText: text
+        )
+        showTappableTextBoxesForCurrentAttribute()
+    }
+    
+    var currentNutrientIndex: Int? {
+        guard let currentAttribute else { return nil }
+        return scannerNutrients.firstIndex(where: { $0.attribute == currentAttribute })
     }
 
     func hideTappableTextBoxesForCurrentAttribute() {

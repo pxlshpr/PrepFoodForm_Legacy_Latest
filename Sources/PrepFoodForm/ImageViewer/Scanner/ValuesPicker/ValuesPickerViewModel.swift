@@ -72,6 +72,9 @@ public class ScannerNutrient: ObservableObject, Identifiable {
     @Published var value: FoodLabelValue? = nil
     @Published var valueText: RecognizedText? = nil
     
+    var scannerValue: FoodLabelValue? = nil
+    var scannerValueText: RecognizedText? = nil
+
     init(
         attribute: Attribute,
         attributeText: RecognizedText? = nil,
@@ -84,6 +87,8 @@ public class ScannerNutrient: ObservableObject, Identifiable {
         self.isConfirmed = isConfirmed
         self.value = value
         self.valueText = valueText
+        self.scannerValue = value
+        self.scannerValueText = valueText
     }
     
     public var id: Attribute {
@@ -97,6 +102,8 @@ extension ScannerNutrient: Hashable {
         hasher.combine(isConfirmed)
         hasher.combine(value)
         hasher.combine(valueText)
+        hasher.combine(scannerValue)
+        hasher.combine(scannerValueText)
     }
 }
 
