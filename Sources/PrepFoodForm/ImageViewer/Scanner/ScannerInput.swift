@@ -89,6 +89,7 @@ public struct ScannerInput: View {
                     }
                 }
                 Button {
+                    isFocused = true
                     actionHandler(.moveToAttributeAndShowKeyboard(nutrient.attribute))
                 } label: {
                     Text(valueDescription)
