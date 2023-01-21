@@ -3,6 +3,7 @@ import SwiftHaptics
 import SwiftUISugar
 import ActivityIndicatorView
 import FoodLabelScanner
+import PrepDataTypes
 
 public enum ScannerAction {
     case dismiss
@@ -15,7 +16,7 @@ public enum ScannerAction {
 
 //TODO: Have a helper that chooses this based on device
 let KeyboardHeight: CGFloat = 301
-let SuggestionsBarHeight: CGFloat = 50
+let SuggestionsBarHeight: CGFloat = 40
 
 let TextFieldHorizontalPadding: CGFloat = 25
 
@@ -520,14 +521,55 @@ public struct ScannerInput: View {
                 }
             }
         }
+        
+        var valueSuggestions: [FoodLabelValue] {
+//            [.init(amount: 320, unit: .kcal), .init(amount: 320, unit: .kj), .init(amount: 320), .init(amount: 3200, unit: .kcal), .init(amount: 3200, unit: .kj)]
+            guard let text = viewModel.currentValueText,
+                  let currentAttribute = viewModel.currentAttribute
+            else { return [] }
+            return text.allDetectedFoodLabelValues(for: attribute)
+        }
+        
+        var suggestionsLayer: some View {
+            var backgroundColor: Color {
+//                Color(.tertiarySystemFill)
+                colorScheme == .dark ? Color(hex: "737373") : Color(hex: "EBEDF0")
+            }
+            
+            var textColor: Color {
+                .primary
+//                .secondary
+            }
+            
+            return ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack {
+                    ForEach(valueSuggestions, id: \.self) { value in
+                        Text(value.description)
+//                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .foregroundColor(textColor)
+                            .padding(.horizontal, 15)
+                            .frame(height: SuggestionsBarHeight)
+                            .background(
+//                                Capsule(style: .continuous)
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .foregroundColor(backgroundColor)
+                            )
+                    }
+                }
+                .padding(.horizontal, 10)
+            }
+            .frame(height: SuggestionsBarHeight)
+//            .background(.green)
+            .padding(.bottom, KeyboardHeight + 2)
+        }
+        
         return VStack(spacing: 0) {
             Spacer()
             if viewModel.state == .showingKeyboard {
                 ZStack(alignment: .bottom) {
                     keyboardColor
                     attributeLayer
-//                    Color.blue
-//                        .frame(height: KeyboardHeight)
+                    suggestionsLayer
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: KeyboardHeight + TopButtonPaddedHeight + SuggestionsBarHeight)
@@ -1227,3 +1269,28 @@ extension Notification {
     }
 }
 
+import VisionSugar
+
+extension RecognizedText {
+    func allDetectedFoodLabelValues(for attribute: Attribute) -> [FoodLabelValue] {
+        var allValues: [FoodLabelValue] = []
+        for candidate in candidates {
+            let detectedValues = candidate.detectedValues
+            for value in detectedValues {
+                
+                /// If the value has no unit, assign the attribute's default unit
+                let valueWithUnit: FoodLabelValue
+                if value.unit == nil {
+                    valueWithUnit = FoodLabelValue(amount: value.amount, unit: attribute.defaultUnit)
+                } else {
+                    valueWithUnit = value
+                }
+                
+                /// Make sure we're not returning duplicate values
+                guard !allValues.contains(valueWithUnit) else { continue }
+                allValues.append(value)
+            }
+        }
+        return allValues
+    }
+}
