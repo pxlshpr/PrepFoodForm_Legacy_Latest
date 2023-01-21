@@ -523,11 +523,11 @@ public struct ScannerInput: View {
         }
         
         var valueSuggestions: [FoodLabelValue] {
-            [.init(amount: 320, unit: .kcal), .init(amount: 320, unit: .kj), .init(amount: 320), .init(amount: 3200, unit: .kcal), .init(amount: 3200, unit: .kj)]
-//            guard let text = viewModel.currentValueText, let attribute = viewModel.currentAttribute else {
-//                return []
-//            }
-//            return text.allDetectedFoodLabelValues(for: attribute)
+//            [.init(amount: 320, unit: .kcal), .init(amount: 320, unit: .kj), .init(amount: 320), .init(amount: 3200, unit: .kcal), .init(amount: 3200, unit: .kj)]
+            guard let text = viewModel.currentValueText, let attribute = viewModel.currentAttribute else {
+                return []
+            }
+            return text.allDetectedFoodLabelValues(for: attribute)
         }
         
         var suggestionsLayer: some View {
