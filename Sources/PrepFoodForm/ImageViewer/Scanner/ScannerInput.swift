@@ -20,6 +20,8 @@ let SuggestionsBarHeight: CGFloat = 40
 
 let TextFieldHorizontalPadding: CGFloat = 25
 
+let NutrientsPickerTransitionAnimation: Animation = .interactiveSpring()
+
 public struct ScannerInput: View {
     
     @Environment(\.colorScheme) var colorScheme
@@ -166,6 +168,10 @@ public struct ScannerInput: View {
         
         var addButton: some View {
             Button {
+                Haptics.feedback(style: .soft)
+                withAnimation(NutrientsPickerTransitionAnimation) {
+                    viewModel.state = .showingNutrientsPicker
+                }
             } label: {
                 Image(systemName: "plus")
                     .imageScale(.medium)
@@ -180,11 +186,18 @@ public struct ScannerInput: View {
             }
         }
         
-        var sideButtons: some View {
-            HStack {
-//                dismissButton
+        var addButtonRow: some View {
+            var shouldShow: Bool {
+                !viewModel.state.isLoading
+                && !viewModel.state.isShowingNutrientsPicker
+            }
+            
+            return HStack {
                 Spacer()
-                addButton
+                if shouldShow {
+                    addButton
+                        .transition(.move(edge: .trailing))
+                }
             }
         }
         
@@ -208,8 +221,12 @@ public struct ScannerInput: View {
                 .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
             }
             
+            var shouldShow: Bool {
+                !viewModel.state.isLoading
+            }
+            
             return Group {
-                if !viewModel.state.isLoading {
+                if shouldShow {
                     Button {
                         
                     } label: {
@@ -221,6 +238,7 @@ public struct ScannerInput: View {
                             .padding(.horizontal, 15)
                             .background(backgroundView)
                     }
+                    .transition(.move(edge: .trailing))
                 }
             }
         }
@@ -237,10 +255,7 @@ public struct ScannerInput: View {
             topButtons
                 .padding(.horizontal, 20)
             Spacer()
-            ZStack(alignment: .bottom) {
-                sideButtons
-//                centerButton
-            }
+            addButtonRow
             .padding(.horizontal, 20)
             .padding(.bottom, bottomPadding)
         }
@@ -419,7 +434,7 @@ public struct ScannerInput: View {
     }
     
     var pickerView: some View {
-        var textFieldContents: some View {
+        var valueTextFieldContents: some View {
             ZStack {
                 textFieldBackground
                 HStack {
@@ -457,7 +472,7 @@ public struct ScannerInput: View {
                 } else {
                     HStack(spacing: TopButtonsHorizontalPadding) {
                         if viewModel.state == .showingKeyboard {
-                            textFieldContents
+                            valueTextFieldContents
                         } else {
                             attributeButton
                             valueButton
@@ -469,7 +484,7 @@ public struct ScannerInput: View {
             }
         }
         
-        var vstack: some View {
+        var nutrients: some View {
             VStack(spacing: TopButtonsVerticalPadding) {
                 topButtonsRow
                 .padding(.horizontal, TopButtonsHorizontalPadding)
@@ -482,12 +497,126 @@ public struct ScannerInput: View {
             .padding(.vertical, TopButtonsVerticalPadding)
         }
         
+        var nutrientsPickerTopBar: some View {
+            var backButton: some View {
+                return Button {
+                    withAnimation(NutrientsPickerTransitionAnimation) {
+                        viewModel.state = .awaitingConfirmation
+                    }
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .imageScale(.large)
+//                        .padding(.horizontal)
+                        .frame(width: TopButtonHeight, height: TopButtonHeight)
+//                        .background(
+//                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+//                                .foregroundStyle(Color(.secondarySystemFill))
+//                                .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+//                        )
+                        .contentShape(Rectangle())
+                }
+            }
+            
+            var title: some View {
+                HStack {
+                    Text("Add Nutrients")
+                        .font(.headline)
+                    Spacer()
+                }
+            }
+            
+            var filterButton: some View {
+                var width: CGFloat {
+                    let font = UIFont.systemFont(ofSize: 15)
+                    let fontAttributes = [NSAttributedString.Key.font: font]
+                    let size = (filterString as NSString).size(withAttributes: fontAttributes)
+                    let textSize = size.width
+                    
+                    let width = textSize + 38 + (horizontalPadding * 3)
+                    let maxWidth: CGFloat = 200
+                    return min(maxWidth, width)
+                }
+                
+                var horizontalPadding: CGFloat {
+                    (38 - 25) / 2.0
+                }
+                
+                var filterString: String {
+                    "Search"
+//                    "Polyunsaturated Fat here we go here's a long one now"
+                }
+                
+                return Button {
+                    withAnimation {
+                        viewModel.state = .showingNutrientsPickerSearch
+                    }
+                } label: {
+                    ZStack(alignment: .trailing) {
+                        RoundedRectangle(cornerRadius: 19, style: .continuous)
+                            .foregroundColor(Color(.secondarySystemFill))
+                            .frame(height: 38)
+                        HStack(spacing: 0) {
+                            Text(filterString)
+                                .foregroundColor(Color(.tertiaryLabel))
+//                                .foregroundColor(Color(.secondaryLabel))
+                                .padding(.horizontal, horizontalPadding)
+                                .lineLimit(1)
+                            Image(systemName: "magnifyingglass.circle")
+                                .font(.system(size: 25))
+                                .frame(width: 25, height: 25)
+                                .padding(.trailing, horizontalPadding)
+                        }
+                    }
+                    .frame(width: width)
+                    .fontWeight(.regular)
+                    .foregroundColor(.accentColor)
+//                    .frame(width: width)
+                    .frame(height: TopButtonHeight)
+                    .contentShape(Rectangle())
+                }
+            }
+            
+            return Group {
+                HStack(spacing: TopButtonsHorizontalPadding) {
+                    if viewModel.state == .showingKeyboard {
+                        valueTextFieldContents
+                    } else {
+                        backButton
+                        title
+//                        Color.blue.frame(height: 38)
+                        filterButton
+                    }
+                }
+                .transition(.move(edge: .leading))
+                .padding(.horizontal, TopButtonsHorizontalPadding)
+                .padding(.vertical, TopButtonsVerticalPadding)
+                .background(keyboardColor)
+            }
+        }
+        
+        @ViewBuilder
+        var nutrientPicker: some View {
+            if viewModel.state.isShowingNutrientsPicker {
+                ZStack {
+                    Color(.secondarySystemBackground)
+//                    Color.clear
+//                        .background(
+//                            .ultraThinMaterial
+//                        )
+                    VStack(spacing: 0) {
+                        nutrientsPickerTopBar
+                        Spacer()
+//                        Color.yellow
+                    }
+                }
+                .transition(.move(edge: .leading))
+            }
+        }
+        
         return ZStack {
-//            VStack(spacing: 0) {
-//                keyboardBackground
-//                Spacer()
-//            }
-            vstack
+            nutrients
+            nutrientPicker
+                .zIndex(20)
         }
         .frame(maxWidth: UIScreen.main.bounds.width)
     }
@@ -1144,7 +1273,7 @@ public struct ScannerInputPreview: View {
             actionHandler: { _ in }
         )
         .onAppear {
-            self.viewModel.state = .showingKeyboard
+            self.viewModel.state = .showingNutrientsPickerSearch
 //            self.viewModel.state = .awaitingConfirmation
 //            self.viewModel.state = .allConfirmed
             self.viewModel.currentAttribute = .polyunsaturatedFat
@@ -1187,7 +1316,7 @@ public struct ScannerInputPreview: View {
                 try await sleepTask(delay)
                 await MainActor.run {
                     withAnimation {
-//                        self.viewModel.state = .showingKeyboard
+//                        self.viewModel.state = .showingNutrientsPickerSearch
 //                        self.viewModel.state = .allConfirmed
 //                        self.viewModel.currentAttribute = nil
                     }
@@ -1232,9 +1361,20 @@ enum ScannerState: String {
     case classifyingTexts
     case awaitingColumnSelection
     case awaitingConfirmation
+    case showingNutrientsPicker
+    case showingNutrientsPickerSearch
     case allConfirmed
     case showingKeyboard
     case dismissing
+    
+    var isShowingNutrientsPicker: Bool {
+        switch self {
+        case .showingNutrientsPicker, .showingNutrientsPickerSearch:
+            return true
+        default:
+            return false
+        }
+    }
     
     var isLoading: Bool {
         switch self {
