@@ -182,7 +182,7 @@ extension ScannerViewModel {
             ))
             texts.append(attributeText)
         }
-        if let valueText {
+        if let valueText, valueText.boundingBox != attributeText?.boundingBox {
             textBoxes.append(TextBox(
                 boundingBox: valueText.boundingBox,
                 color: .accentColor,
@@ -191,6 +191,9 @@ extension ScannerViewModel {
             texts.append(valueText)
         }
 
+        //TODO: Don't reset it, move them with animations
+        //TODO: Hide/show tappable ones with opacity
+        //TODO: Dynamic corner radius and line widths based on smallest image size
         self.textBoxes = textBoxes
         
 //        zoom(to: texts)

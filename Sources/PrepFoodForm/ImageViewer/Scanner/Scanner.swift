@@ -8,9 +8,6 @@ import Shimmer
 import VisionSugar
 
 
-//TODO: Have a helper that chooses this based on device
-let KeyboardHeight: CGFloat = 301
-
 public struct Scanner: View {
     
     @Binding var selectedImage: UIImage?
@@ -119,7 +116,7 @@ public struct Scanner: View {
         /// 🪄 Magic Number, no idea why but this works on iPhone 13 Pro Max, iPhone 14 Pro Max and iPhone X (there's a gap without it)
         let correctivePadding = 8.0
         
-        return screenHeight - (KeyboardHeight + TopButtonPaddedHeight) + correctivePadding
+        return screenHeight - (KeyboardHeight + TopButtonPaddedHeight + SuggestionsBarHeight) + correctivePadding
     }
 
     /// ⌨️ Keyboard-height stuff

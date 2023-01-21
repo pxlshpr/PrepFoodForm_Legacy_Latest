@@ -43,10 +43,14 @@ struct TextBoxView: View {
             FocusRectangle(color: textBox.color)
                 .frame(width: rect.width, height: rect.height)
         } else {
-            box_legacy
-//            RoundedRectangle(cornerRadius: 2.0, style: .continuous)
-//                .foregroundColor(textBox.color.opacity(0.3))
+//            box_legacy
+
+//            FocusRectangle(color: textBox.color)
 //                .frame(width: rect.width, height: rect.height)
+
+            RoundedRectangle(cornerRadius: 2.0, style: .continuous)
+                .foregroundColor(textBox.color.opacity(0.4))
+                .frame(width: rect.width, height: rect.height)
         }
     }
     
@@ -165,7 +169,7 @@ struct FocusRectangle: View {
     }
 
     func lineWidth(_ proxy: GeometryProxy) -> CGFloat {
-        1.5
+        0.75
 //        max(min(min(proxy.size.width, proxy.size.height) / 11.0, 5.0), 1)
     }
 }

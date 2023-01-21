@@ -6,6 +6,10 @@ import ZoomableScrollView
 import SwiftSugar
 import Shimmer
 
+//TODO: Magic Number 🪄
+//let TopBarHeight: CGFloat = 83
+let TopBarHeight: CGFloat = 59
+
 extension Scanner {
     
     @ViewBuilder

@@ -89,7 +89,8 @@ extension ScannerViewModel {
         if selectedImageTexts.contains(where: { $0.text == text }) {
             return Color.accentColor
         } else {
-            return Color(.systemBackground).opacity(0.8)
+            return Color.yellow
+//            return Color(.systemBackground).opacity(0.8)
 //            return Color.white
         }
     }

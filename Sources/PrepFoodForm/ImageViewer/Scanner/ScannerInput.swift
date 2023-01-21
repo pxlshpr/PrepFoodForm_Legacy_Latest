@@ -13,6 +13,12 @@ public enum ScannerAction {
     case toggleAttributeConfirmation(Attribute)
 }
 
+//TODO: Have a helper that chooses this based on device
+let KeyboardHeight: CGFloat = 301
+let SuggestionsBarHeight: CGFloat = 50
+
+let TextFieldHorizontalPadding: CGFloat = 25
+
 public struct ScannerInput: View {
     
     @Environment(\.colorScheme) var colorScheme
@@ -111,8 +117,9 @@ public struct ScannerInput: View {
         ZStack {
             topButtonsLayer
 //            confirmButtonLayer
+            keyboardColorLayer
             contentsLayer
-            bottomButtonsLayer
+            buttonsLayer
         }
     }
     
@@ -145,12 +152,12 @@ public struct ScannerInput: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: KeyboardHeight + TopButtonPaddedHeight)
+        .frame(height: KeyboardHeight + TopButtonPaddedHeight + SuggestionsBarHeight)
         .background(background)
         .clipped()
     }
     
-    var bottomButtonsLayer: some View {
+    var buttonsLayer: some View {
         
         var bottomPadding: CGFloat {
             return 34
@@ -174,20 +181,13 @@ public struct ScannerInput: View {
         
         var sideButtons: some View {
             HStack {
-                dismissButton
+//                dismissButton
                 Spacer()
                 addButton
             }
         }
         
-        var centerButton: some View {
-            var string: String {
-//                viewModel.state == .allConfirmed
-//                ? "Add \(viewModel.scannerNutrients.count) Nutrients"
-//                : "Confirm and Add \(viewModel.scannerNutrients.count) Nutrients"
-                "Add \(viewModel.scannerNutrients.count) Nutrients"
-            }
-            
+        var doneButton: some View {
             var textColor: Color {
                 viewModel.state == .allConfirmed
                 ? Color.white
@@ -197,59 +197,59 @@ public struct ScannerInput: View {
             @ViewBuilder
             var backgroundView: some View {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 19, style: .continuous)
                         .foregroundStyle(.ultraThinMaterial)
                         .opacity(viewModel.state == .allConfirmed ? 0 : 1)
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 19, style: .continuous)
                         .foregroundStyle(Color.accentColor)
                         .opacity(viewModel.state == .allConfirmed ? 1 : 0)
                 }
                 .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
             }
             
-            var row: some View {
-                HStack {
-                    Spacer()
+            return Group {
+                if !viewModel.state.isLoading {
                     Button {
                         
                     } label: {
-                        Text(string)
+                        Text("Done")
                             .imageScale(.medium)
                             .fontWeight(.medium)
                             .foregroundColor(textColor)
                             .frame(height: 38)
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 15)
                             .background(backgroundView)
                     }
-                    Spacer()
-                }
-                .padding(.horizontal, 40)
-            }
-            
-            return Group {
-                if !viewModel.state.isLoading {
-                    row
-                        .transition(.move(edge: .bottom))
                 }
             }
         }
         
+        var topButtons: some View {
+            HStack {
+                dismissButton
+                Spacer()
+                doneButton
+            }
+        }
+        
         return VStack {
+            topButtons
+                .padding(.horizontal, 20)
             Spacer()
             ZStack(alignment: .bottom) {
                 sideButtons
-                centerButton
+//                centerButton
             }
             .padding(.horizontal, 20)
             .padding(.bottom, bottomPadding)
         }
         .frame(width: UIScreen.main.bounds.width)
-        .edgesIgnoringSafeArea(.all)
+        .edgesIgnoringSafeArea(.bottom)
     }
     
     var topButtonsLayer: some View {
         var bottomPadding: CGFloat {
-            TopButtonPaddedHeight + 8.0
+            TopButtonPaddedHeight + SuggestionsBarHeight + 8.0
         }
         
         var keyboardButton: some View {
@@ -271,7 +271,7 @@ public struct ScannerInput: View {
         
         var sideButtonsLayer: some View {
             HStack {
-                dismissButton
+//                dismissButton
                 Spacer()
                 keyboardButton
             }
@@ -312,7 +312,7 @@ public struct ScannerInput: View {
                 VStack {
                     Spacer()
                     ZStack(alignment: .bottom) {
-                        centerButtonLayer
+//                        centerButtonLayer
                         sideButtonsLayer
                     }
                     .padding(.horizontal, 20)
@@ -418,7 +418,7 @@ public struct ScannerInput: View {
     }
     
     var pickerView: some View {
-        var keyboard: some View {
+        var textFieldContents: some View {
             ZStack {
                 textFieldBackground
                 HStack {
@@ -426,7 +426,7 @@ public struct ScannerInput: View {
                     Spacer()
                     unitPicker
                 }
-                .padding(.horizontal, 25)
+                .padding(.horizontal, TextFieldHorizontalPadding)
             }
         }
         
@@ -434,7 +434,7 @@ public struct ScannerInput: View {
             var string: String {
                 viewModel.state == .allConfirmed
                 ? "All nutrients confirmed"
-                : "Confirm that all nutrients are correct"
+                : "Confirm or correct nutrients"
             }
             return Text(string)
             .font(.system(size: 18, weight: .medium, design: .default))
@@ -456,7 +456,7 @@ public struct ScannerInput: View {
                 } else {
                     HStack(spacing: TopButtonsHorizontalPadding) {
                         if viewModel.state == .showingKeyboard {
-                            keyboard
+                            textFieldContents
                         } else {
                             attributeButton
                             valueButton
@@ -475,19 +475,66 @@ public struct ScannerInput: View {
                 if !viewModel.scannerNutrients.isEmpty {
                     list
                         .transition(.move(edge: .bottom))
+                        .opacity(viewModel.state == .showingKeyboard ? 0 : 1)
                 }
             }
             .padding(.vertical, TopButtonsVerticalPadding)
         }
         
         return ZStack {
-            VStack(spacing: 0) {
-                keyboardBackground
-                Spacer()
-            }
+//            VStack(spacing: 0) {
+//                keyboardBackground
+//                Spacer()
+//            }
             vstack
         }
         .frame(maxWidth: UIScreen.main.bounds.width)
+    }
+    
+    var keyboardColorLayer: some View {
+        @ViewBuilder
+        var attributeLayer: some View {
+            if let currentAttribute = viewModel.currentAttribute {
+                VStack {
+                    HStack {
+                        Text(currentAttribute.description)
+                            .matchedGeometryEffect(id: "attributeName", in: namespace)
+//                            .textCase(.uppercase)
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .offset(y: -3)
+                            .foregroundColor(Color(.secondaryLabel))
+                            .padding(.horizontal, 15)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .foregroundColor(keyboardColor)
+//                                    .foregroundColor(.blue)
+                                    .frame(height: 35)
+                                    .transition(.scale)
+                            )
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .frame(height: 20)
+                    .offset(y: -10)
+                    Spacer()
+                }
+            }
+        }
+        return VStack(spacing: 0) {
+            Spacer()
+            if viewModel.state == .showingKeyboard {
+                ZStack(alignment: .bottom) {
+                    keyboardColor
+                    attributeLayer
+//                    Color.blue
+//                        .frame(height: KeyboardHeight)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: KeyboardHeight + TopButtonPaddedHeight + SuggestionsBarHeight)
+                .transition(.opacity)
+            }
+        }
+        .edgesIgnoringSafeArea(.all)
     }
     
     @ViewBuilder
@@ -562,7 +609,16 @@ public struct ScannerInput: View {
                 showingAttributePicker = false
             }
         } label: {
-            DismissButtonLabel()
+            Image(systemName: "multiply")
+                .imageScale(.medium)
+                .fontWeight(.medium)
+                .foregroundColor(Color(.secondaryLabel))
+                .frame(width: 38, height: 38)
+                .background(
+                    Circle()
+                        .foregroundStyle(.ultraThinMaterial)
+                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                )
         }
     }
 
@@ -611,7 +667,7 @@ public struct ScannerInput: View {
 
     var textFieldBackground: some View {
         var height: CGFloat { TopButtonHeight }
-        var xOffset: CGFloat { 0 }
+//        var xOffset: CGFloat { 0 }
         
         var foregroundStyle: some ShapeStyle {
 //            Material.thinMaterial
@@ -625,7 +681,7 @@ public struct ScannerInput: View {
             .background(background)
             .frame(height: height)
 //            .frame(width: width)
-            .offset(x: xOffset)
+//            .offset(x: xOffset)
     }
 
     var textField: some View {
@@ -1002,6 +1058,7 @@ public struct ScannerInput: View {
 //        } label: {
             VStack {
                 Text(viewModel.currentAttribute?.description ?? "")
+                    .matchedGeometryEffect(id: "attributeName", in: namespace)
                     .font(.title3)
                     .foregroundColor(.secondary)
                     .minimumScaleFactor(0.2)
@@ -1045,8 +1102,8 @@ public struct ScannerInputPreview: View {
             actionHandler: { _ in }
         )
         .onAppear {
-//            self.viewModel.state = .showingKeyboard
-            self.viewModel.state = .awaitingConfirmation
+            self.viewModel.state = .showingKeyboard
+//            self.viewModel.state = .awaitingConfirmation
 //            self.viewModel.state = .allConfirmed
             self.viewModel.currentAttribute = .polyunsaturatedFat
             self.viewModel.scannerNutrients = [
@@ -1089,7 +1146,7 @@ public struct ScannerInputPreview: View {
                 await MainActor.run {
                     withAnimation {
 //                        self.viewModel.state = .showingKeyboard
-                        self.viewModel.state = .allConfirmed
+//                        self.viewModel.state = .allConfirmed
 //                        self.viewModel.currentAttribute = nil
                     }
                 }

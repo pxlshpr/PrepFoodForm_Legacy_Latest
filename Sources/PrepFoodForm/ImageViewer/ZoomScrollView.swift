@@ -1,9 +1,6 @@
 import SwiftUI
 import Combine
 
-//TODO: Magic Number 🪄
-let TopBarHeight: CGFloat = 83
-
 class CenteringScrollView: UIScrollView {
     func centerContent(for imageSize: CGSize? = nil) {
         var top: CGFloat = 0
