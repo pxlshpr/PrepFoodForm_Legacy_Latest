@@ -4,6 +4,7 @@ import SwiftUISugar
 import ActivityIndicatorView
 import FoodLabelScanner
 import PrepDataTypes
+import PrepViews
 
 public enum ScannerAction {
     case dismiss
@@ -160,6 +161,54 @@ public struct ScannerInput: View {
         .clipped()
     }
     
+    @State var showingNutrientsPicker = false
+    
+    var nutrientsPicker: some View {
+        let shouldShowEnergy = !viewModel.scannerNutrients.contains(where: { $0.attribute == .energy })
+        
+        func hasUnusedMicros(in group: NutrientTypeGroup, matching searchString: String = "") -> Bool {
+            group.nutrients.contains(where: {
+                if searchString.isEmpty {
+                    return !hasMicronutrient(for: $0)
+                } else {
+                    return !hasMicronutrient(for: $0) && $0.matchesSearchString(searchString)
+                }
+            })
+        }
+        
+        func hasMicronutrient(for nutrientType: NutrientType) -> Bool {
+            viewModel.scannerNutrients.contains(where: { $0.attribute.nutrientType == nutrientType })
+        }
+
+        func shouldShowMacro(_ macro: Macro) -> Bool {
+            !viewModel.scannerNutrients.contains(where: { $0.attribute.macro == macro })
+        }
+        
+        func didAddNutrients(energy: Bool, macros: [Macro], micros: [NutrientType]) {
+            withAnimation {
+                if energy {
+                    viewModel.scannerNutrients.insert(.init(attribute: .energy), at: 0)
+                }
+                for macro in macros {
+                    viewModel.scannerNutrients.append(.init(attribute: macro.attribute))
+                }
+                for nutrientType in micros {
+                    guard let attribute = nutrientType.attribute else { continue }
+                    viewModel.scannerNutrients.append(.init(attribute: attribute))
+                }
+            }
+        }
+
+        return NutrientsPicker(
+            supportsEnergyAndMacros: true,
+            shouldShowEnergy: shouldShowEnergy,
+            shouldShowMacro: shouldShowMacro,
+            hasUnusedMicros: hasUnusedMicros,
+            hasMicronutrient: hasMicronutrient,
+            didAddNutrients: didAddNutrients
+        )
+    }
+    
     var buttonsLayer: some View {
         
         var bottomPadding: CGFloat {
@@ -169,9 +218,10 @@ public struct ScannerInput: View {
         var addButton: some View {
             Button {
                 Haptics.feedback(style: .soft)
-                withAnimation(NutrientsPickerTransitionAnimation) {
-                    viewModel.state = .showingNutrientsPicker
-                }
+                showingNutrientsPicker = true
+//                withAnimation(NutrientsPickerTransitionAnimation) {
+//                    viewModel.state = .showingNutrientsPicker
+//                }
             } label: {
                 Image(systemName: "plus")
                     .imageScale(.medium)
@@ -184,6 +234,7 @@ public struct ScannerInput: View {
                             .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
                     )
             }
+            .sheet(isPresented: $showingNutrientsPicker) { nutrientsPicker }
         }
         
         var addButtonRow: some View {
@@ -546,34 +597,43 @@ public struct ScannerInput: View {
 //                    "Polyunsaturated Fat here we go here's a long one now"
                 }
                 
-                return Button {
-                    withAnimation {
-                        viewModel.state = .showingNutrientsPickerSearch
-                    }
-                } label: {
-                    ZStack(alignment: .trailing) {
-                        RoundedRectangle(cornerRadius: 19, style: .continuous)
-                            .foregroundColor(Color(.secondarySystemFill))
-                            .frame(height: 38)
-                        HStack(spacing: 0) {
-                            Text(filterString)
-                                .foregroundColor(Color(.tertiaryLabel))
+                return ZStack(alignment: .trailing) {
+                    RoundedRectangle(cornerRadius: 19, style: .continuous)
+                        .foregroundColor(Color(.secondarySystemFill))
+                        .frame(height: 38)
+                    HStack(spacing: 0) {
+                        TextField("Search", text: $nutrientSearchString)
+//                            Text(filterString)
+                            .focused($nutrientSearchIsFocused)
+                            .foregroundColor(Color(.tertiaryLabel))
+                            .autocorrectionDisabled(true)
+                            .keyboardType(.asciiCapable)
 //                                .foregroundColor(Color(.secondaryLabel))
-                                .padding(.horizontal, horizontalPadding)
-                                .lineLimit(1)
-                            Image(systemName: "magnifyingglass.circle")
-                                .font(.system(size: 25))
-                                .frame(width: 25, height: 25)
-                                .padding(.trailing, horizontalPadding)
-                        }
+                            .padding(.horizontal, horizontalPadding)
+                            .padding(.leading, horizontalPadding)
+                            .lineLimit(1)
+//                                .disabled(viewModel.state == .showingNutrientsPicker)
+                        Image(systemName: "magnifyingglass.circle")
+                            .font(.system(size: 25))
+                            .frame(width: 25, height: 25)
+                            .padding(.trailing, horizontalPadding)
                     }
-                    .frame(width: width)
-                    .fontWeight(.regular)
-                    .foregroundColor(.accentColor)
-//                    .frame(width: width)
-                    .frame(height: TopButtonHeight)
-                    .contentShape(Rectangle())
+                    Button {
+                        withAnimation {
+                            viewModel.state = .showingNutrientsPickerSearch
+                        }
+                        nutrientSearchIsFocused = true
+                    } label: {
+                        Color.clear
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .contentShape(Rectangle())
+                    }
                 }
+                .frame(width: width)
+                .fontWeight(.regular)
+                .foregroundColor(.accentColor)
+//                    .frame(width: width)
+                .frame(height: TopButtonHeight)
             }
             
             return Group {
@@ -620,6 +680,9 @@ public struct ScannerInput: View {
         }
         .frame(maxWidth: UIScreen.main.bounds.width)
     }
+    
+    @FocusState var nutrientSearchIsFocused: Bool
+    @State var nutrientSearchString: String = ""
     
     var keyboardColorLayer: some View {
         @ViewBuilder
@@ -1273,8 +1336,8 @@ public struct ScannerInputPreview: View {
             actionHandler: { _ in }
         )
         .onAppear {
-            self.viewModel.state = .showingNutrientsPickerSearch
-//            self.viewModel.state = .awaitingConfirmation
+//            self.viewModel.state = .showingNutrientsPickerSearch
+            self.viewModel.state = .awaitingConfirmation
 //            self.viewModel.state = .allConfirmed
             self.viewModel.currentAttribute = .polyunsaturatedFat
             self.viewModel.scannerNutrients = [

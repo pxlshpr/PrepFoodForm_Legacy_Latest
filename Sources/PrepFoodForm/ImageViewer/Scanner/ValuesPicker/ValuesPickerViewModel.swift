@@ -78,7 +78,7 @@ public class ScannerNutrient: ObservableObject, Identifiable {
     init(
         attribute: Attribute,
         attributeText: RecognizedText? = nil,
-        isConfirmed: Bool,
+        isConfirmed: Bool = false,
         value: FoodLabelValue? = nil,
         valueText: RecognizedText? = nil
     ) {
