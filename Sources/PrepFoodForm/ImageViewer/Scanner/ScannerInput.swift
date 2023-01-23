@@ -31,7 +31,9 @@ public struct ScannerInput: View {
     
     @Namespace var namespace
     @State var showingAttributePicker = false
-
+    @State var hideBackground: Bool = false
+    @State var showingNutrientsPicker = false
+    
     let attributesListAnimation: Animation = Bounce
 
     @ObservedObject var viewModel: ScannerViewModel
@@ -46,6 +48,48 @@ public struct ScannerInput: View {
         self.actionHandler = actionHandler
     }
     
+    public var body: some View {
+        ZStack {
+            topButtonsLayer
+//            confirmButtonLayer
+            keyboardColorLayer
+            contentsLayer
+            buttonsLayer
+        }
+    }
+    
+    var contentsLayer: some View {
+        VStack {
+            Spacer()
+            contents
+        }
+        .edgesIgnoringSafeArea(.all)
+        .sheet(isPresented: $showingAttributePicker) { attributePickerSheet }
+        .onChange(of: viewModel.state, perform: stateChanged)
+    }
+    
+    var contents: some View {
+        var background: some ShapeStyle {
+//            .thinMaterial
+            .thinMaterial.opacity(viewModel.state == .showingKeyboard ? 0 : 1)
+//            Color.green.opacity(hideBackground ? 0 : 1)
+        }
+        
+        return ZStack {
+            if let description = viewModel.state.loadingDescription {
+                loadingView(description)
+            } else {
+                pickerView
+                    .transition(.move(edge: .top))
+                    .zIndex(10)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: KeyboardHeight + TopButtonPaddedHeight + SuggestionsBarHeight)
+        .background(background)
+        .clipped()
+    }
+        
     func cell(for nutrient: ScannerNutrient) -> some View {
         var isConfirmed: Bool { nutrient.isConfirmed }
         var isCurrentAttribute: Bool { viewModel.currentAttribute == nutrient.attribute }
@@ -93,8 +137,7 @@ public struct ScannerInput: View {
                     }
                 }
                 Button {
-                    isFocused = true
-                    actionHandler(.moveToAttributeAndShowKeyboard(nutrient.attribute))
+                    tappedCellValue(for: nutrient.attribute)
                 } label: {
                     Text(valueDescription)
                         .foregroundColor(valueTextColor)
@@ -117,52 +160,34 @@ public struct ScannerInput: View {
         .listRowInsets(.init(top: 0, leading: 25, bottom: 0, trailing: 0))
     }
     
-    public var body: some View {
-        ZStack {
-            topButtonsLayer
-//            confirmButtonLayer
-            keyboardColorLayer
-            contentsLayer
-            buttonsLayer
+    func tappedValueButton() {
+        Haptics.feedback(style: .soft)
+        isFocused = true
+        withAnimation {
+            showKeyboardForCurrentAttribute()
         }
+        viewModel.showTappableTextBoxesForCurrentAttribute()
     }
     
-    var contentsLayer: some View {
-        VStack {
-            Spacer()
-            contents
+    func tappedCellValue(for attribute: Attribute) {
+        actionHandler(.moveToAttribute(attribute))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            tappedValueButton()
         }
-        .edgesIgnoringSafeArea(.all)
-        .sheet(isPresented: $showingAttributePicker) { attributePickerSheet }
-        .onChange(of: viewModel.state, perform: stateChanged)
+//        isFocused = true
+//        actionHandler(.moveToAttributeAndShowKeyboard(attribute))
     }
     
-    @State var hideBackground: Bool = false
-    
-    var contents: some View {
-        var background: some ShapeStyle {
-//            .thinMaterial
-            .thinMaterial.opacity(viewModel.state == .showingKeyboard ? 0 : 1)
-//            Color.green.opacity(hideBackground ? 0 : 1)
-        }
-        
-        return ZStack {
-            if let description = viewModel.state.loadingDescription {
-                loadingView(description)
-            } else {
-                pickerView
-                    .transition(.move(edge: .top))
-                    .zIndex(10)
+    func showKeyboardForCurrentAttribute() {
+        viewModel.state = .showingKeyboard
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            withAnimation {
+                hideBackground = true
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: KeyboardHeight + TopButtonPaddedHeight + SuggestionsBarHeight)
-        .background(background)
-        .clipped()
     }
     
-    @State var showingNutrientsPicker = false
-    
+
     var nutrientsPicker: some View {
         let shouldShowEnergy = !viewModel.scannerNutrients.contains(where: { $0.attribute == .energy })
         
@@ -1003,11 +1028,11 @@ public struct ScannerInput: View {
 //            }
 //        }
         
-        NotificationCenter.default.post(
-            name: .scannerDidDismissKeyboard,
-            object: nil,
-            userInfo: userInfoForAllAttributesZoom
-        )
+//        NotificationCenter.default.post(
+//            name: .scannerDidDismissKeyboard,
+//            object: nil,
+//            userInfo: userInfoForAllAttributesZoom
+//        )
     }
 
     var searchLayer: some View {
@@ -1126,6 +1151,7 @@ public struct ScannerInput: View {
         return [Notification.ZoomableScrollViewKeys.zoomBox: zBox]
     }
 
+
     var valueButton: some View {
         var amountColor: Color {
             Color.primary
@@ -1140,18 +1166,7 @@ public struct ScannerInput: View {
         }
         
         return Button {
-            Haptics.feedback(style: .soft)
-            isFocused = true
-            withAnimation {
-                showKeyboardForCurrentAttribute()
-            }
-            NotificationCenter.default.post(
-                name: .scannerDidPresentKeyboard,
-                object: nil,
-//                userInfo: userInfoForCurrentAttributeZoom
-                userInfo: userInfoForAllAttributesZoom
-            )
-            viewModel.showTappableTextBoxesForCurrentAttribute()
+            tappedValueButton()
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 if viewModel.currentAmountString.isEmpty {
@@ -1174,15 +1189,6 @@ public struct ScannerInput: View {
                     .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
             )
             .contentShape(Rectangle())
-        }
-    }
-    
-    func showKeyboardForCurrentAttribute() {
-        viewModel.state = .showingKeyboard
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation {
-                hideBackground = true
-            }
         }
     }
     
