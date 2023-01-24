@@ -16,7 +16,8 @@ public enum ScannerAction {
 }
 
 //TODO: Have a helper that chooses this based on device
-let KeyboardHeight: CGFloat = 301
+let KeyboardHeight: CGFloat = UIScreen.main.bounds.height < 850 ? 291 : 301
+let KeyboardHeightSmall: CGFloat = 301
 let SuggestionsBarHeight: CGFloat = 40
 
 let TextFieldHorizontalPadding: CGFloat = 25
@@ -52,23 +53,23 @@ public struct ScannerInput: View {
         ZStack {
             topButtonsLayer
 //            confirmButtonLayer
-            keyboardColorLayer
-            contentsLayer
+            supplementaryContentLayer
+            primaryContentLayer
             buttonsLayer
         }
     }
     
-    var contentsLayer: some View {
+    var primaryContentLayer: some View {
         VStack {
             Spacer()
-            contents
+            primaryContent
         }
         .edgesIgnoringSafeArea(.all)
         .sheet(isPresented: $showingAttributePicker) { attributePickerSheet }
         .onChange(of: viewModel.state, perform: stateChanged)
     }
     
-    var contents: some View {
+    var primaryContent: some View {
         var background: some ShapeStyle {
 //            .thinMaterial
             .thinMaterial.opacity(viewModel.state == .showingKeyboard ? 0 : 1)
@@ -709,7 +710,7 @@ public struct ScannerInput: View {
     @FocusState var nutrientSearchIsFocused: Bool
     @State var nutrientSearchString: String = ""
     
-    var keyboardColorLayer: some View {
+    var supplementaryContentLayer: some View {
         @ViewBuilder
         var attributeLayer: some View {
             if let currentAttribute = viewModel.currentAttribute {
@@ -739,47 +740,6 @@ public struct ScannerInput: View {
             }
         }
         
-        var valueSuggestions: [FoodLabelValue] {
-//            [.init(amount: 320, unit: .kcal), .init(amount: 320, unit: .kj), .init(amount: 320), .init(amount: 3200, unit: .kcal), .init(amount: 3200, unit: .kj)]
-            guard let text = viewModel.currentValueText, let attribute = viewModel.currentAttribute else {
-                return []
-            }
-            return text.allDetectedFoodLabelValues(for: attribute)
-        }
-        
-        var suggestionsLayer: some View {
-            var backgroundColor: Color {
-//                Color(.tertiarySystemFill)
-                colorScheme == .dark ? Color(hex: "737373") : Color(hex: "EBEDF0")
-            }
-            
-            var textColor: Color {
-//                .primary
-                .secondary
-            }
-            
-            return ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(valueSuggestions, id: \.self) { value in
-                        Text(value.description)
-//                            .font(.system(size: 18, weight: .medium, design: .rounded))
-                            .foregroundColor(textColor)
-                            .padding(.horizontal, 15)
-                            .frame(height: SuggestionsBarHeight)
-                            .background(
-//                                Capsule(style: .continuous)
-                                RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                    .foregroundColor(backgroundColor)
-                            )
-                    }
-                }
-                .padding(.horizontal, 10)
-            }
-            .frame(height: SuggestionsBarHeight)
-//            .background(.green)
-            .padding(.bottom, KeyboardHeight + 2)
-        }
-        
         return VStack(spacing: 0) {
             Spacer()
             if viewModel.state == .showingKeyboard {
@@ -795,6 +755,72 @@ public struct ScannerInput: View {
         }
         .edgesIgnoringSafeArea(.all)
     }
+    
+    var suggestionsLayer: some View {
+        
+        var valueSuggestions: [FoodLabelValue] {
+//            [.init(amount: 320, unit: .kcal), .init(amount: 320, unit: .kj), .init(amount: 320), .init(amount: 3200, unit: .kcal), .init(amount: 3200, unit: .kj)]
+            guard let text = viewModel.currentValueText, let attribute = viewModel.currentAttribute else {
+                return []
+            }
+            return text.allDetectedFoodLabelValues(for: attribute)
+        }
+        
+        var backgroundColor: Color {
+//                Color(.tertiarySystemFill)
+            colorScheme == .dark ? Color(hex: "737373") : Color(hex: "EBEDF0")
+        }
+        
+        var textColor: Color {
+//                .primary
+            .secondary
+        }
+        
+        var scrollView: some View {
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack {
+                    ForEach(valueSuggestions, id: \.self) { value in
+                        Text(value.description)
+    //                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .foregroundColor(textColor)
+                            .padding(.horizontal, 15)
+                            .frame(height: SuggestionsBarHeight)
+                            .background(
+    //                                Capsule(style: .continuous)
+                                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                    .foregroundColor(backgroundColor)
+                            )
+                    }
+                }
+                .padding(.horizontal, 10)
+            }
+        }
+        
+        var noTextBoxPrompt: String {
+            "Select a text from the image to autofill its value."
+//            viewModel.textFieldAmountString.isEmpty
+//            ? "or select a detected text from the image."
+//            : "Select a detected text from the image."
+        }
+        
+        return Group {
+            if valueSuggestions.isEmpty {
+                Text(noTextBoxPrompt)
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.horizontal, 20)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+            } else {
+                scrollView
+            }
+        }
+        .frame(height: SuggestionsBarHeight)
+//        .background(.green)
+        .padding(.bottom, KeyboardHeight + 2)
+    }
+    
     
     @ViewBuilder
     var keyboardBackground: some View {
@@ -953,7 +979,7 @@ public struct ScannerInput: View {
             }
         )
 
-        return TextField("Enter Value", text: binding)
+        return TextField("Enter a value", text: binding)
             .focused($isFocused)
             .keyboardType(.decimalPad)
             .font(.system(size: 22, weight: .semibold, design: .default))
@@ -1290,33 +1316,31 @@ public struct ScannerInput: View {
     }
 
     var attributeButton: some View {
-//        Button {
+        Button {
+            tappedValueButton()
 //            Haptics.feedback(style: .soft)
 //            withAnimation(attributesListAnimation) {
 //                showingAttributePicker = true
 //            }
-//        } label: {
-            VStack {
-                Text(viewModel.currentAttribute?.description ?? "")
-                    .matchedGeometryEffect(id: "attributeName", in: namespace)
-                    .font(.title3)
-                    .foregroundColor(.secondary)
-                    .minimumScaleFactor(0.2)
-                    .lineLimit(2)
-//                    .matchedGeometryEffect(id: "attributeName", in: namespace)
-            }
-            .foregroundColor(.primary)
-            .padding(.horizontal)
-            .frame(maxWidth: .infinity)
-            .frame(height: TopButtonHeight)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-//                    .foregroundStyle(Color(.secondarySystemFill))
-                    .foregroundStyle(Color(.quaternarySystemFill))
-                    .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-            )
-            .contentShape(Rectangle())
-//        }
+        } label: {
+            Text(viewModel.currentAttribute?.description ?? "")
+                .matchedGeometryEffect(id: "attributeName", in: namespace)
+//                .font(.title3)
+                .font(.system(size: 22, weight: .semibold, design: .default))
+                .foregroundColor(.primary)
+                .minimumScaleFactor(0.2)
+                .lineLimit(2)
+                .foregroundColor(.primary)
+                .padding(.horizontal)
+                .frame(maxWidth: .infinity)
+                .frame(height: TopButtonHeight)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .foregroundStyle(Color(.quaternarySystemFill))
+                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                )
+                .contentShape(Rectangle())
+        }
     }
 }
 
@@ -1411,8 +1435,10 @@ struct ScannerInput_Preview: PreviewProvider {
 
 let Bounce: Animation = .interactiveSpring(response: 0.35, dampingFraction: 0.66, blendDuration: 0.35)
 let Bounce2: Animation = .easeInOut
-let colorHexKeyboardLight = "CDD0D6"
-let colorHexKeyboardDark = "303030"
+let colorHexKeyboardLight_legacy = "CDD0D6"
+let colorHexKeyboardDark_legacy = "303030"
+let colorHexKeyboardLight = "CFD3D9"
+let colorHexKeyboardDark = "383838"
 let colorHexSearchTextFieldDark = "535355"
 let colorHexSearchTextFieldLight = "FFFFFF"
 

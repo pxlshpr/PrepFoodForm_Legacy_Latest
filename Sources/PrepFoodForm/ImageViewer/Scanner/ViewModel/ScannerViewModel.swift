@@ -57,7 +57,11 @@ public class ScannerViewModel: ObservableObject {
         }
     }
     @Published var pickedAttributeUnit: FoodLabelUnit = .g
-    @Published var internalTextfieldDouble: Double? = nil
+    @Published var internalTextfieldDouble: Double? = nil {
+        didSet {
+            removeValueTextForCurrentAttributeIfDifferent()
+        }
+    }
     @Published var internalTextfieldString: String = ""
     @Published var scannerNutrients: [ScannerNutrient] = [] {
         didSet {
@@ -920,6 +924,21 @@ extension ScannerViewModel {
 
     var currentUnit: FoodLabelUnit {
         currentNutrient?.value?.unit ?? .g
+    }
+    
+    func removeValueTextForCurrentAttributeIfDifferent() {
+        guard internalTextfieldDouble != currentNutrient?.value?.amount else {
+            return
+        }
+        withAnimation {
+            currentNutrient?.valueText = nil
+            //TODO: Rewrite this once we change how we're showing the texts
+            showTextBoxesFor(
+                attributeText: currentAttributeText,
+                valueText: nil
+            )
+            showTappableTextBoxesForCurrentAttribute()
+        }
     }
 
     var textFieldAmountString: String {
