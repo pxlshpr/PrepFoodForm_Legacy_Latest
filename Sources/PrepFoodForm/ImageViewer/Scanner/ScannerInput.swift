@@ -1177,7 +1177,7 @@ public struct ScannerInput: View {
 
     var userInfoForAllAttributesZoom: [String: Any]? {
         guard let imageSize = viewModel.image?.size,
-              let boundingBox = viewModel.scanResult?.columnsWithAttributesBoundingBox
+              let boundingBox = viewModel.scanResult?.nutrientsBoundingBox(includeAttributes: true)
         else { return nil }
         let zBox = ZBox(boundingBox: boundingBox, imageSize: imageSize)
         return [Notification.ZoomableScrollViewKeys.zoomBox: zBox]

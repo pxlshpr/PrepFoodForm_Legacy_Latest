@@ -28,7 +28,7 @@ extension LabelScannerViewModel {
     
     func zoomToColumns() async {
         guard let imageSize = image?.size,
-              let boundingBox = scanResult?.columnsBoundingBox
+              let boundingBox = scanResult?.nutrientsBoundingBox(includeAttributes: true)
         else { return }
         
         let columnZoomBox = ZBox(
