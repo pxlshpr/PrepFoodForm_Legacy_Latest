@@ -11,7 +11,7 @@ extension ScannerViewModel {
     
     func zoomToColumns() async {
         guard let imageSize = image?.size,
-              let boundingBox = scanResult?.columnsWithAttributesBoundingBox
+              let boundingBox = scanResult?.nutrientsBoundingBox(includeAttributes: true)
         else { return }
         
         let columnZoomBox = ZBox(
