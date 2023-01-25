@@ -243,7 +243,7 @@ public struct Scanner: View {
 extension Scanner {
     
     func showFocusedTextBox() {
-        viewModel.showTextBoxesFor(
+        viewModel.setTextBoxes(
             attributeText: viewModel.currentAttributeText,
             valueText: viewModel.currentValueText
         )
@@ -278,7 +278,7 @@ extension Scanner {
         guard let nutrient = viewModel.scannerNutrients.first(where: { $0.attribute == attribute} ) else {
             return
         }
-        viewModel.showTextBoxesFor(
+        viewModel.setTextBoxes(
             attributeText: nutrient.attributeText,
             valueText: nutrient.valueText
         )
@@ -312,7 +312,7 @@ extension Scanner {
         }
         
         viewModel.currentAttribute = firstAttribute
-        
+        viewModel.textBoxes = []
         showFocusedTextBox()
     }
 }

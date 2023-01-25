@@ -169,6 +169,28 @@ public struct ScannerInput: View {
         }
         viewModel.showTappableTextBoxesForCurrentAttribute()
     }
+
+    var isDeleteButton: Bool {
+        viewModel.currentNutrient?.isConfirmed == true && viewModel.state != .showingKeyboard
+    }
+    
+    func tappedPrimaryButton_actual() {
+        resignFocusOfSearchTextField()
+        if isDeleteButton {
+            actionHandler(.deleteCurrentAttribute)
+        } else {
+            actionHandler(.confirmCurrentAttribute)
+        }
+    }
+
+    func tappedPrimaryButton() {
+//        isFocused = true
+//        viewModel.state = .showingKeyboard
+//
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            tappedPrimaryButton_actual()
+//        }
+    }
     
     func tappedCellValue(for attribute: Attribute) {
         actionHandler(.moveToAttribute(attribute))
@@ -663,14 +685,16 @@ public struct ScannerInput: View {
             }
             
             return Group {
-                HStack(spacing: TopButtonsHorizontalPadding) {
-                    if viewModel.state == .showingKeyboard {
+                ZStack {
+                    HStack(spacing: TopButtonsHorizontalPadding) {
                         valueTextFieldContents
-                    } else {
-                        backButton
-                        title
-//                        Color.blue.frame(height: 38)
-                        filterButton
+                    }
+                    if viewModel.state != .showingKeyboard {
+                        HStack(spacing: TopButtonsHorizontalPadding) {
+                            backButton
+                            title
+                            filterButton
+                        }
                     }
                 }
                 .transition(.move(edge: .leading))
@@ -1036,31 +1060,13 @@ public struct ScannerInput: View {
 
     func resignFocusOfSearchTextField() {
         isFocused = false
-        viewModel.hideTappableTextBoxesForCurrentAttribute()
-//        guard let imageSize = viewModel.image?.size else { return }
-//        let delay: CGFloat
-//        if imageSize.isTaller(than: HardcodedBounds.size) {
-//            print("⚱️ image is taller delay 0.3")
-//            delay = 0.3
-//        } else {
-//            print("⚱️ image is wider delay 0")
-//            delay = 0.0
-//        }
-//
-//        //TODO: Only do this for tall images
-//        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-//            withAnimation {
-//                viewModel.showingTextField = false
-//            }
-//        }
-        
-//        NotificationCenter.default.post(
-//            name: .scannerDidDismissKeyboard,
-//            object: nil,
-//            userInfo: userInfoForAllAttributesZoom
-//        )
+        withAnimation {
+            viewModel.hideTappableTextBoxesForCurrentAttribute()
+        }
+//        viewModel.hideTappableTextBoxesForCurrentAttribute()
     }
 
+    //TODO: Remove this
     var searchLayer: some View {
         ZStack {
             VStack {
@@ -1279,10 +1285,6 @@ public struct ScannerInput: View {
             return currentNutrient.isConfirmed
         }
         
-        var isDeleteButton: Bool {
-            viewModel.currentNutrient?.isConfirmed == true && viewModel.state != .showingKeyboard
-        }
-        
         var imageName: String {
             isDeleteButton ? "trash" : "checkmark"
         }
@@ -1292,12 +1294,7 @@ public struct ScannerInput: View {
         }
         
         return Button {
-            resignFocusOfSearchTextField()
-            if isDeleteButton {
-                actionHandler(.deleteCurrentAttribute)
-            } else {
-                actionHandler(.confirmCurrentAttribute)
-            }
+            tappedPrimaryButton()
         } label: {
             Image(systemName: imageName)
                 .font(.system(size: 22, weight: .semibold, design: .default))

@@ -168,9 +168,58 @@ extension ScannerViewModel {
     /// Shows and highlights text boxes based on the attribute.
     /// - Attribute's text box and value is displayed in accent color with no border
     /// - All other text boxes with compatible values are displayed with secondary color and a border
-    func showTextBoxesFor(
+    func setTextBoxes_new(
         attributeText: RecognizedText?,
-        valueText: RecognizedText?
+        valueText: RecognizedText?,
+        includeTappableTexts: Bool = false
+    ) {
+        var textBoxes: [TextBox] = []
+//        var texts: [RecognizedText] = []
+        if let attributeText {
+            if let attributeIndex = self.textBoxes.firstIndex(where: { $0.type == .attribute }) {
+                withAnimation {
+                    self.textBoxes[attributeIndex].boundingBox = attributeText.boundingBox
+                }
+            } else {
+                
+                textBoxes.append(TextBox(
+                    type: .attribute,
+                    boundingBox: attributeText.boundingBox,
+                    color: .accentColor,
+                    tapHandler: nil
+                ))
+//                texts.append(attributeText)
+            }
+        }
+        if let valueText, valueText.boundingBox != attributeText?.boundingBox {
+            if let valueIndex = self.textBoxes.firstIndex(where: { $0.type == .value }) {
+                withAnimation {
+                    self.textBoxes[valueIndex].boundingBox = valueText.boundingBox
+                }
+            } else {
+                textBoxes.append(TextBox(
+                    type: .value,
+                    boundingBox: valueText.boundingBox,
+                    color: .accentColor,
+                    tapHandler: nil
+                ))
+//                texts.append(valueText)
+            }
+        }
+
+        withAnimation {
+            self.textBoxes.append(contentsOf: textBoxes)
+        }
+        
+        if includeTappableTexts {
+            showTappableTextBoxesForCurrentAttribute()
+        }
+    }
+    
+    func setTextBoxes(
+        attributeText: RecognizedText?,
+        valueText: RecognizedText?,
+        includeTappableTexts: Bool = false
     ) {
         var textBoxes: [TextBox] = []
         var texts: [RecognizedText] = []
@@ -191,21 +240,17 @@ extension ScannerViewModel {
             texts.append(valueText)
         }
 
-        //TODO: Don't reset it, move them with animations
-        //TODO: Hide/show tappable ones with opacity
-        //TODO: Dynamic corner radius and line widths based on smallest image size
-        self.textBoxes = textBoxes
+        withAnimation {
+            self.textBoxes = textBoxes
+        }
         
-//        zoom(to: texts)
-//        Task { [weak self] in
-//            await self?.zoomToColumns()
-//        }
-        
-//        zoom(to: self.nutrients.texts)
+        if includeTappableTexts {
+            showTappableTextBoxesForCurrentAttribute()
+        }
     }
     
     func showTappableTextBoxesForCurrentAttribute() {
-        guard let currentAttribute, let scanResult else { return }
+        guard currentAttribute != nil, let scanResult else { return }
         let texts = scanResult.textsWithFoodLabelValues.filter { text in
             !self.textBoxes.contains(where: { $0.boundingBox == text.boundingBox })
         }
@@ -218,7 +263,9 @@ extension ScannerViewModel {
                 tapHandler: { self.tappedText(text) }
             )
         }
-        self.textBoxes.append(contentsOf: textBoxes)
+        withAnimation {
+            self.textBoxes.append(contentsOf: textBoxes)
+        }
     }
     
     func tappedText(_ text: RecognizedText) {
@@ -236,11 +283,11 @@ extension ScannerViewModel {
         scannerNutrients[currentNutrientIndex].valueText = text
         scannerNutrients[currentNutrientIndex].value = firstValue
         
-        showTextBoxesFor(
+        setTextBoxes(
             attributeText: currentAttributeText,
-            valueText: text
+            valueText: text,
+            includeTappableTexts: true
         )
-        showTappableTextBoxesForCurrentAttribute()
     }
     
     var currentNutrientIndex: Int? {

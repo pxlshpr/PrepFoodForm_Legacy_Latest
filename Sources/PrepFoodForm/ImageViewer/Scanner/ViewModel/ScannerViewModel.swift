@@ -933,11 +933,11 @@ extension ScannerViewModel {
         withAnimation {
             currentNutrient?.valueText = nil
             //TODO: Rewrite this once we change how we're showing the texts
-            showTextBoxesFor(
+            setTextBoxes(
                 attributeText: currentAttributeText,
-                valueText: nil
+                valueText: nil,
+                includeTappableTexts: true
             )
-            showTappableTextBoxesForCurrentAttribute()
         }
     }
 
