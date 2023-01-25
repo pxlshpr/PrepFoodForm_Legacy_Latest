@@ -321,26 +321,26 @@ extension Macro {
 
 import VisionSugar
 
-let defaultUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
-let defaulText = RecognizedText(id: defaultUUID, rectString: "", boundingBoxString: nil, candidates: [])
+//let defaultUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+//let defaultText = RecognizedText(id: defaultUUID, rectString: "", boundingBoxString: nil, candidates: [])
 
 extension ScanResult {
     static var mockServing: ScanResult {
         
         let serving = ScanResult.Serving(
             amountText: DoubleText(double: 1,
-                                   text: defaulText, attributeText: defaulText),
+                                   text: defaultText, attributeText: defaultText),
             unitText: nil,
             unitNameText: StringText(string: "pack",
-                                     text: defaulText, attributeText: defaulText),
+                                     text: defaultText, attributeText: defaultText),
             equivalentSize: Serving.EquivalentSize(
                 amountText: DoubleText(
                     double: 3,
-                    text: defaulText, attributeText: defaulText),
+                    text: defaultText, attributeText: defaultText),
                 unitText: nil,
                 unitNameText: StringText(
                     string: "pieces",
-                    text: defaulText, attributeText: defaulText)
+                    text: defaultText, attributeText: defaultText)
             ),
             perContainer: nil
         )
