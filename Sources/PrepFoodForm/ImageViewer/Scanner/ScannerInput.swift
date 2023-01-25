@@ -35,6 +35,10 @@ public struct ScannerInput: View {
     @State var hideBackground: Bool = false
     @State var showingNutrientsPicker = false
     
+    @FocusState var isFocused: Bool
+    @FocusState var nutrientSearchIsFocused: Bool
+    @State var nutrientSearchString: String = ""
+
     let attributesListAnimation: Animation = Bounce
 
     @ObservedObject var viewModel: ScannerViewModel
@@ -731,9 +735,6 @@ public struct ScannerInput: View {
         .frame(maxWidth: UIScreen.main.bounds.width)
     }
     
-    @FocusState var nutrientSearchIsFocused: Bool
-    @State var nutrientSearchString: String = ""
-    
     var supplementaryContentLayer: some View {
         @ViewBuilder
         var attributeLayer: some View {
@@ -969,7 +970,6 @@ public struct ScannerInput: View {
         colorScheme == .light ? Color(hex: colorHexKeyboardLight) : Color(hex: colorHexKeyboardDark)
     }
     
-    
     var expandedTextFieldColor: Color {
         colorScheme == .light ? Color(hex: colorHexSearchTextFieldLight) : Color(hex: colorHexSearchTextFieldDark)
     }
@@ -1135,8 +1135,6 @@ public struct ScannerInput: View {
 //            }
 //        }
     }
-    
-    @FocusState var isFocused: Bool
     
     var title: some View {
         Text("Select nutrients")
