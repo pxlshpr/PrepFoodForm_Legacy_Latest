@@ -7,7 +7,6 @@ import SwiftSugar
 import Shimmer
 import VisionSugar
 
-
 public struct Scanner: View {
     
     @Binding var selectedImage: UIImage?
