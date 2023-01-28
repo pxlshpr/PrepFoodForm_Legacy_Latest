@@ -169,7 +169,7 @@ struct AttributeForm: View {
                     RoundedRectangle(cornerRadius: 7, style: .continuous)
     //                    .fill(Color(.tertiarySystemFill))
                         .fill(Color.accentColor.opacity(
-                            colorScheme == .dark ? 0.1 : 0.1
+                            colorScheme == .dark ? 0.1 : 0.15
                         ))
                 )
 //                unitText(viewModel.unit.description)
