@@ -34,7 +34,8 @@ extension FoodForm.SourcesForm {
         form
             .navigationTitle("Sources")
             .navigationBarTitleDisplayMode(.large)
-            .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
+        //MARK: ☣️
+//            .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
             .alert(addLinkTitle, isPresented: $showingAddLinkAlert, actions: { addLinkActions }, message: { addLinkMessage })
             .photosPicker(
                 isPresented: $showingPhotosPicker,
@@ -136,20 +137,21 @@ extension FoodForm.SourcesForm {
         }
     }
     
-    var textPicker: some View {
-        TextPicker(
-            imageViewModels: sources.imageViewModels,
-            mode: .imageViewer(
-                initialImageIndex: sources.presentingImageIndex,
-                deleteHandler: { deletedImageIndex in
-                    removeImage(at: deletedImageIndex)
-                },
-                columnSelectionHandler: { selectedColumn, scanResult in
-                    sources.autoFillHandler?(selectedColumn, scanResult)
-                }
-            )
-        )
-    }
+    //MARK: ☣️
+//    var textPicker: some View {
+//        TextPicker(
+//            imageViewModels: sources.imageViewModels,
+//            mode: .imageViewer(
+//                initialImageIndex: sources.presentingImageIndex,
+//                deleteHandler: { deletedImageIndex in
+//                    removeImage(at: deletedImageIndex)
+//                },
+//                columnSelectionHandler: { selectedColumn, scanResult in
+//                    sources.autoFillHandler?(selectedColumn, scanResult)
+//                }
+//            )
+//        )
+//    }
     
     var imagesCarousel: some View {
         SourceImagesCarousel(imageViewModels: $sources.imageViewModels) { index in

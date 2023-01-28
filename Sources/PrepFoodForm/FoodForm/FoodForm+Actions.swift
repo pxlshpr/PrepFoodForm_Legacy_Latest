@@ -9,7 +9,8 @@ extension FoodForm {
 
     func appeared() {
         sources.didScanAllPickedImages = didScanAllPickedImages
-        sources.autoFillHandler = autoFillColumn
+        //MARK: ☣️
+//        sources.autoFillHandler = autoFillColumn
         
 //        sources.autoFillHandler = { selectedColumn, scanResult in
 //            extract(column: selectedColumn,
@@ -102,12 +103,13 @@ extension FoodForm {
     }
     
     func extract(column: Int, from results: [ScanResult], shouldOverwrite: Bool) {
-        Task {
-            let fieldValues = await sources.extractFieldsFrom(results, at: column)
-            withAnimation {
-                handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
-            }
-        }
+        //MARK: ☣️
+//        Task {
+//            let fieldValues = await sources.extractFieldsFrom(results, at: column)
+//            withAnimation {
+//                handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
+//            }
+//        }
     }
     
 //    func handleSourcesAction(_ action: SourcesAction) {

@@ -41,26 +41,27 @@ extension FoodForm {
         }
     }
     
-    @ViewBuilder
-    var textPicker: some View {
-        if let columnSelectionInfo = sources.columnSelectionInfo {
-            TextPicker(
-                imageViewModels: sources.imageViewModels(for: columnSelectionInfo),
-                mode: .columnSelection(
-                    column1: columnSelectionInfo.column1,
-                    column2: columnSelectionInfo.column2,
-                    selectedColumn: columnSelectionInfo.bestColumn,
-                    requireConfirmation: false,
-                    dismissHandler: didDismissColumnPicker,
-                    columnSelectionHandler: { selectedColumn, _ in
-                        extract(column: selectedColumn,
-                                from: columnSelectionInfo.candidates,
-                                shouldOverwrite: false
-                        )
-                    })
-            )
-        }
-    }
+    //MARK: ☣️
+//    @ViewBuilder
+//    var textPicker: some View {
+//        if let columnSelectionInfo = sources.columnSelectionInfo {
+//            TextPicker(
+//                imageViewModels: sources.imageViewModels(for: columnSelectionInfo),
+//                mode: .columnSelection(
+//                    column1: columnSelectionInfo.column1,
+//                    column2: columnSelectionInfo.column2,
+//                    selectedColumn: columnSelectionInfo.bestColumn,
+//                    requireConfirmation: false,
+//                    dismissHandler: didDismissColumnPicker,
+//                    columnSelectionHandler: { selectedColumn, _ in
+//                        extract(column: selectedColumn,
+//                                from: columnSelectionInfo.candidates,
+//                                shouldOverwrite: false
+//                        )
+//                    })
+//            )
+//        }
+//    }
 
     var mfpSearch: some View {
         MFPSearch { food in

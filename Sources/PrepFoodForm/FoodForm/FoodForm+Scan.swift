@@ -17,15 +17,16 @@ extension FoodForm {
     }
     
     func extractFieldsOrShowColumnSelectionInfo() {
-        Task {
-            guard let fieldValues = await sources.extractFieldsOrSetColumnSelectionInfo() else {
-                /// Either `sources.columnSelectionInfo` is set, causing us to present the `TextPicker`—or there were no results
-                return
-            }
-            withAnimation {
-                handleExtractedFieldValues(fieldValues, shouldOverwrite: false)
-            }
-        }
+        //MARK: ☣️
+//        Task {
+//            guard let fieldValues = await sources.extractFieldsOrSetColumnSelectionInfo() else {
+//                /// Either `sources.columnSelectionInfo` is set, causing us to present the `TextPicker`—or there were no results
+//                return
+//            }
+//            withAnimation {
+//                handleExtractedFieldValues(fieldValues, shouldOverwrite: false)
+//            }
+//        }
     }
     
     func handleExtractedFieldValues(_ fieldValues: [FieldValue], shouldOverwrite: Bool) {

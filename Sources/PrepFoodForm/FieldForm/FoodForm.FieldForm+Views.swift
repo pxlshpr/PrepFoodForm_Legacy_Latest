@@ -5,9 +5,8 @@ extension FoodForm.FieldForm {
     var body: some View {
         content
             .navigationTitle(titleString ?? fieldValue.description)
-            .fullScreenCover(isPresented: $showingTextPicker) {
-                textPicker
-            }
+        //MARK: ☣️
+//            .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
             .onAppear {
                 isFocused = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -145,35 +144,37 @@ extension FoodForm.FieldForm {
     }
     
     //MARK: - Text Picker
-    var textPicker: some View {
-        TextPicker(
-            imageViewModels: sources.imageViewModels,
-            mode: textPickerMode
-        )
-        .onDisappear {
-            guard field.isCropping else {
-                return
-            }
-            field.cropFilledImage()
-            doNotRegisterUserInput = false
-        }
-    }
+    //MARK: ☣️
+//    var textPicker: some View {
+//        TextPicker(
+//            imageViewModels: sources.imageViewModels,
+//            mode: textPickerMode
+//        )
+//        .onDisappear {
+//            guard field.isCropping else {
+//                return
+//            }
+//            field.cropFilledImage()
+//            doNotRegisterUserInput = false
+//        }
+//    }
     
-    var textPickerMode: TextPickerMode {
-        if isForDecimalValue {
-            return .singleSelection(
-                filter: .textsWithFoodLabelValues,
-                selectedImageText: fieldValue.fill.imageText) { imageText in
-                    didSelectImageTexts([imageText])
-                }
-        } else {
-            return .multiSelection(
-                filter: .textsWithoutFoodLabelValues,
-                selectedImageTexts: fieldValue.fill.imageTexts) { imageTexts in
-                    didSelectImageTexts(imageTexts)
-                }
-        }
-    }
+    //MARK: ☣️
+//    var textPickerMode: TextPickerMode {
+//        if isForDecimalValue {
+//            return .singleSelection(
+//                filter: .textsWithFoodLabelValues,
+//                selectedImageText: fieldValue.fill.imageText) { imageText in
+//                    didSelectImageTexts([imageText])
+//                }
+//        } else {
+//            return .multiSelection(
+//                filter: .textsWithoutFoodLabelValues,
+//                selectedImageTexts: fieldValue.fill.imageTexts) { imageTexts in
+//                    didSelectImageTexts(imageTexts)
+//                }
+//        }
+//    }
     
     //MARK: - Buttons
     

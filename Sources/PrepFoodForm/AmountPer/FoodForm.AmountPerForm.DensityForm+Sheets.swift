@@ -23,22 +23,23 @@ extension FoodForm.AmountPerForm.DensityForm {
         .environmentObject(fields)
     }
     
-    var textPicker: some View {
-        TextPicker(
-            imageViewModels: FoodForm.Sources.shared.imageViewModels,
-            mode: .singleSelection(
-                filter: .textsWithDensities,
-                selectedImageText: field.fill.imageText,
-                handler: { imageText in
-                    didSelectImageTexts([imageText])
-                })
-        )
-        .onDisappear {
-            guard field.isCropping else {
-                return
-            }
-            field.cropFilledImage()
-            doNotRegisterUserInput = false
-        }
-    }
+    //MARK: ☣️
+//    var textPicker: some View {
+//        TextPicker(
+//            imageViewModels: FoodForm.Sources.shared.imageViewModels,
+//            mode: .singleSelection(
+//                filter: .textsWithDensities,
+//                selectedImageText: field.fill.imageText,
+//                handler: { imageText in
+//                    didSelectImageTexts([imageText])
+//                })
+//        )
+//        .onDisappear {
+//            guard field.isCropping else {
+//                return
+//            }
+//            field.cropFilledImage()
+//            doNotRegisterUserInput = false
+//        }
+//    }
 }
