@@ -12,7 +12,7 @@ import SwiftHaptics
 /// [x] Consider having no icon for user input fields
 /// [x] Now plug in for macros and micros
 /// [x] Pre-select textfield if we have initial value / Consider doing this in Extractor as well
-/// [ ] Have clear button in AttributeForm too / Also rename NutrientForm to AttributeForm
+/// [x] Have clear button in AttributeForm too / Also rename NutrientForm to AttributeForm
 /// [ ] Now plug the extractor in / first do its save stuff
 /// [ ] Now take unit picker to extractor
 /// [ ] Now add the clear button extractor
@@ -167,12 +167,10 @@ struct AttributeForm: View {
                 .frame(height: 40)
                 .background(
                     RoundedRectangle(cornerRadius: 7, style: .continuous)
-    //                    .fill(Color(.tertiarySystemFill))
                         .fill(Color.accentColor.opacity(
                             colorScheme == .dark ? 0.1 : 0.15
                         ))
                 )
-//                unitText(viewModel.unit.description)
                 .animation(.none, value: viewModel.unit)
             }
             .contentShape(Rectangle())
@@ -195,29 +193,11 @@ struct AttributeForm: View {
             } else if let nutrientType = viewModel.attribute.nutrientType {
                 if nutrientType.supportedFoodLabelUnits.count > 1 {
                     unitPicker(for: nutrientType)
-//                    Picker("", selection: $viewModel.unit) {
-//                        ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) { unit in
-//                            unitText(unit.description)
-//                                .tag(unit)
-//                        }
-//                    }
-//                    .pickerStyle(.menu)
                 } else {
                     unitText(nutrientType.supportedFoodLabelUnits.first?.description ?? "g")
-//                    Text(nutrientType.supportedFoodLabelUnits.first?.description ?? "g")
-//                        .foregroundColor(.secondary)
                 }
             } else {
                 unitText("g")
-//                Text("g")
-//                    .fontWeight(.semibold)
-//                    .foregroundColor(.secondary)
-//                    .padding(.horizontal, 15)
-//                    .frame(height: 40)
-//                    .background(
-//                        RoundedRectangle(cornerRadius: 7, style: .continuous)
-//                            .fill(Color(.tertiarySystemFill))
-//                    )
             }
         }
     }
