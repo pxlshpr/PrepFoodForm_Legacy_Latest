@@ -60,18 +60,169 @@ extension FoodForm.NutrientsList {
         if let attribute = viewModel.attributeBeingEdited {
             NutrientForm(
                 attribute: attribute,
+                initialValue: fields.value(for: attribute),
                 handleNewValue: { newValue in
-                    
+                    handleNewValue(newValue, for: attribute)
                 }
             )
         }
+    }
+    
+    func handleNewValue(_ value: FoodLabelValue?, for attribute: Attribute) {
+        func handleNewEnergyValue(_ value: FoodLabelValue) {
+            fields.energy.value.energyValue.string = value.amount.cleanAmount
+            if let unit = value.unit, unit.isEnergy {
+                fields.energy.value.energyValue.unit = unit.energyUnit
+            } else {
+                fields.energy.value.energyValue.unit = .kcal
+            }
+            fields.energy.registerUserInput()
+        }
+        
+        func handleNewMacroValue(_ value: FoodLabelValue, for macro: Macro) {
+            
+            let field = fields.field(for: macro)
+            field.value.macroValue.string = value.amount.cleanAmount
+            field.registerUserInput()
+
+//            switch macro {
+//            case .carb:
+//                fields.carb.value.macroValue.string = value.amount.cleanAmount
+//                fields.carb.registerUserInput()
+//            case .fat:
+//                fields.fat.value.macroValue.string = value.amount.cleanAmount
+//                fields.fat.registerUserInput()
+//            case .protein:
+//                fields.protein.value.macroValue.string = value.amount.cleanAmount
+//                fields.protein.registerUserInput()
+//            }
+        }
+        
+        func handleNewMicroValue(_ value: FoodLabelValue?, for nutrientType: NutrientType) {
+            guard let field = fields.field(for: nutrientType) else { return }
+            if let value {
+                field.value.microValue.string = value.amount.cleanAmount
+                if let unit = value.unit?.nutrientUnit(
+                    for: field.value.microValue.nutrientType)
+//                    , supportedUnits.contains(unit)
+                {
+                    field.value.microValue.unit = unit
+                } else {
+                    field.value.microValue.unit = nutrientType.defaultUnit
+                }
+                field.registerUserInput()
+            } else {
+                field.value.microValue.double = nil
+                field.registerUserInput()
+            }
+        }
+        
+        if attribute == .energy {
+            guard let value else { return }
+            handleNewEnergyValue(value)
+        } else if let macro = attribute.macro {
+            guard let value else { return }
+            handleNewMacroValue(value, for: macro)
+        } else if let nutrientType = attribute.nutrientType {
+            handleNewMicroValue(value, for: nutrientType)
+        }
+        fields.updateFormState()
+    }
+}
+
+extension Field {
+    var foodLabelValue: FoodLabelValue? {
+        switch value {
+        case .energy(let energyValue):
+            guard let amount = energyValue.double else { return nil }
+            let unit = energyValue.unit.foodLabelUnit ?? .kcal
+            return FoodLabelValue(amount: amount , unit: unit)
+        case .macro(let macroValue):
+            guard let amount = macroValue.double else { return nil }
+            return FoodLabelValue(amount: amount, unit: .g)
+        case .micro(let microValue):
+            guard let amount = microValue.double else { return nil }
+            let unit = microValue.unit.foodLabelUnit ?? .g
+            return FoodLabelValue(amount: amount, unit: unit)
+        default:
+            return nil
+        }
+    }
+}
+
+extension FoodForm.Fields {
+    func value(for attribute: Attribute) -> FoodLabelValue? {
+        field(for: attribute)?.foodLabelValue
+    }
+    
+    func field(for attribute: Attribute) -> Field? {
+        if attribute == .energy {
+            return energy
+        } else if let macro = attribute.macro {
+            return field(for: macro)
+        } else if let nutrientType = attribute.nutrientType {
+            return field(for: nutrientType)
+        }
+        return nil
+    }
+    
+    func field(for macro: Macro) -> Field {
+        switch macro {
+        case .carb:
+            return carb
+        case .fat:
+            return fat
+        case .protein:
+            return protein
+        }
+    }
+    
+    func fieldsArray(for nutrientType: NutrientType) -> [Field]? {
+        switch nutrientType.group {
+        case .fats:
+            return microsFats
+        case .fibers:
+            return microsFibers
+        case .sugars:
+            return microsSugars
+        case .minerals:
+            return microsMinerals
+        case .vitamins:
+            return microsVitamins
+        case .misc:
+            return microsMisc
+
+        default:
+            return nil
+        }
+    }
+    func field(for nutrientType: NutrientType) -> Field? {
+        guard let array = fieldsArray(for: nutrientType) else { return nil }
+        return array.first(where: { $0.nutrientType == nutrientType } )
+//        switch nutrientType.group {
+//        case .fats:
+//            return microsFats.first(where: { $0.nutrientType == nutrientType })
+//        case .fibers:
+//            return microsFibers.first(where: { $0.nutrientType == nutrientType })
+//        case .sugars:
+//            return microsSugars.first(where: { $0.nutrientType == nutrientType })
+//        case .minerals:
+//            return microsMinerals.first(where: { $0.nutrientType == nutrientType })
+//        case .vitamins:
+//            return microsVitamins.first(where: { $0.nutrientType == nutrientType })
+//        case .misc:
+//            return microsMisc.first(where: { $0.nutrientType == nutrientType })
+//
+//        default:
+//            return nil
+//        }
     }
 }
 
 class NutrientFormViewModel: ObservableObject {
     
     let attribute: Attribute
-    let handleNewValue: (FoodLabelValue) -> ()
+    let handleNewValue: (FoodLabelValue?) -> ()
     let initialValue: FoodLabelValue?
     
     @Published var unit: FoodLabelUnit
@@ -81,13 +232,17 @@ class NutrientFormViewModel: ObservableObject {
     init(
         attribute: Attribute,
         initialValue: FoodLabelValue?,
-        handleNewValue: @escaping (FoodLabelValue) -> Void
+        handleNewValue: @escaping (FoodLabelValue?) -> Void
     ) {
         self.attribute = attribute
         self.handleNewValue = handleNewValue
         self.initialValue = initialValue
         
-        self.unit = attribute.defaultUnit ?? .g
+        if let initialValue {
+            internalTextfieldDouble = initialValue.amount
+            internalTextfieldString = initialValue.amount.cleanWithoutRounding
+        }
+        self.unit = initialValue?.unit ?? attribute.defaultUnit ?? .g
     }
 
     var textFieldAmountString: String {
@@ -109,10 +264,25 @@ class NutrientFormViewModel: ObservableObject {
     var isRequired: Bool {
         attribute == .energy || attribute.macro != nil
     }
+    
+    var value: FoodLabelValue? {
+        guard let internalTextfieldDouble else { return nil }
+        return FoodLabelValue(amount: internalTextfieldDouble, unit: unit)
+    }
+    
+    var shouldDisableDone: Bool {
+        if initialValue == value {
+            return true
+        }
+        if isRequired && internalTextfieldDouble == nil {
+            return true
+        }
+        return false
+    }
 }
 
 /// ** Next tasks **
-/// [ ] Support unit picker for micros too—consider feeding this with an attribute and it choosing the title and unit picker—making it reusable so we may use it again on the Extractor without much changes
+/// [x] Support unit picker for micros too—consider feeding this with an attribute and it choosing the title and unit picker—making it reusable so we may use it again on the Extractor without much changes
 /// [ ] Support isDirty checking and only allowing tapping "Done" if its a different value from the initial
 /// [ ] Now plug this into energy by feeding it in from the `Fields` object and writing back to it once tapped done
 /// [ ] Make sure when saving it—we always register it as userInput as we'll only be going from AutoFilled / Selected - userInput
@@ -138,7 +308,7 @@ struct NutrientForm: View {
     init(
         attribute: Attribute,
         initialValue: FoodLabelValue? = nil,
-        handleNewValue: @escaping (FoodLabelValue) -> ()
+        handleNewValue: @escaping (FoodLabelValue?) -> ()
     ) {
         _viewModel = StateObject(wrappedValue: .init(
             attribute: attribute,
@@ -187,12 +357,13 @@ struct NutrientForm: View {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 Haptics.successFeedback()
-                viewModel.handleNewValue(.init(amount: 1))
+                viewModel.handleNewValue(viewModel.value)
                 dismiss()
             } label: {
                 Text("Done")
                     .bold()
             }
+            .disabled(viewModel.shouldDisableDone)
         }
     }
     
