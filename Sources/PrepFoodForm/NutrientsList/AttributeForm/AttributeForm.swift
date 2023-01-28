@@ -22,6 +22,7 @@ import SwiftHaptics
 struct AttributeForm: View {
     
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @FocusState var isFocused: Bool
     
     @State var hasFocusedOnAppear: Bool = false
@@ -50,6 +51,7 @@ struct AttributeForm: View {
             Form {
                 HStack {
                     textField
+                    clearButton
                     unitPicker
                 }
             }
@@ -123,33 +125,119 @@ struct AttributeForm: View {
             }
     }
     
-    @ViewBuilder
     var unitPicker: some View {
-        if viewModel.attribute == .energy {
-            Picker("", selection: $viewModel.unit) {
-                ForEach(
-                    [FoodLabelUnit.kcal, FoodLabelUnit.kj],
-                    id: \.self
-                ) { unit in
-                    Text(unit.description).tag(unit)
+        
+        func unitText(_ string: String) -> some View {
+            Text(string)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 15)
+                .frame(height: 40)
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(Color(.tertiarySystemFill))
+                )
+        }
+        
+        func unitPicker(for nutrientType: NutrientType) -> some View {
+            let binding = Binding<FoodLabelUnit>(
+                get: { viewModel.unit },
+                set: { newUnit in
+                    withAnimation {
+                        Haptics.feedback(style: .soft)
+                        viewModel.unit = newUnit
+                    }
                 }
+            )
+            return Menu {
+                Picker(selection: binding, label: EmptyView()) {
+                    ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) {
+                        Text($0.description).tag($0)
+                    }
+                }
+            } label: {
+                HStack(spacing: 2) {
+                    Text(viewModel.unit.description)
+                        .fontWeight(.semibold)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .imageScale(.small)
+                }
+                .foregroundColor(.accentColor)
+                .padding(.horizontal, 15)
+                .frame(height: 40)
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+    //                    .fill(Color(.tertiarySystemFill))
+                        .fill(Color.accentColor.opacity(
+                            colorScheme == .dark ? 0.1 : 0.1
+                        ))
+                )
+//                unitText(viewModel.unit.description)
+                .animation(.none, value: viewModel.unit)
             }
-            .pickerStyle(.segmented)
-        } else if let nutrientType = viewModel.attribute.nutrientType {
-            if nutrientType.supportedFoodLabelUnits.count > 1 {
+            .contentShape(Rectangle())
+            .simultaneousGesture(TapGesture().onEnded {
+                Haptics.feedback(style: .soft)
+            })
+        }
+        
+        return Group {
+            if viewModel.attribute == .energy {
                 Picker("", selection: $viewModel.unit) {
-                    ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) { unit in
+                    ForEach(
+                        [FoodLabelUnit.kcal, FoodLabelUnit.kj],
+                        id: \.self
+                    ) { unit in
                         Text(unit.description).tag(unit)
                     }
                 }
-                .pickerStyle(.menu)
+                .pickerStyle(.segmented)
+            } else if let nutrientType = viewModel.attribute.nutrientType {
+                if nutrientType.supportedFoodLabelUnits.count > 1 {
+                    unitPicker(for: nutrientType)
+//                    Picker("", selection: $viewModel.unit) {
+//                        ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) { unit in
+//                            unitText(unit.description)
+//                                .tag(unit)
+//                        }
+//                    }
+//                    .pickerStyle(.menu)
+                } else {
+                    unitText(nutrientType.supportedFoodLabelUnits.first?.description ?? "g")
+//                    Text(nutrientType.supportedFoodLabelUnits.first?.description ?? "g")
+//                        .foregroundColor(.secondary)
+                }
             } else {
-                Text(nutrientType.supportedFoodLabelUnits.first?.description ?? "g")
-                    .foregroundColor(.secondary)
+                unitText("g")
+//                Text("g")
+//                    .fontWeight(.semibold)
+//                    .foregroundColor(.secondary)
+//                    .padding(.horizontal, 15)
+//                    .frame(height: 40)
+//                    .background(
+//                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+//                            .fill(Color(.tertiarySystemFill))
+//                    )
             }
-        } else {
-            Text("g")
-                .foregroundColor(.secondary)
         }
+    }
+    
+    @ViewBuilder
+    var clearButton: some View {
+        Button {
+            viewModel.tappedClearButton()
+        } label: {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 20))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(
+                    Color(.tertiaryLabel),
+                    Color(.tertiarySystemFill)
+                )
+
+        }
+        .opacity(viewModel.shouldShowClearButton ? 1 : 0)
+        .buttonStyle(.borderless)
+        .padding(.trailing, 5)
     }
 }

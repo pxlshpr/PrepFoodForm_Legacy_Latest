@@ -62,4 +62,12 @@ class AttributeFormViewModel: ObservableObject {
         }
         return false
     }
+    
+    var shouldShowClearButton: Bool {
+        !textFieldAmountString.isEmpty
+    }
+    
+    func tappedClearButton() {
+        textFieldAmountString = ""
+    }
 }
