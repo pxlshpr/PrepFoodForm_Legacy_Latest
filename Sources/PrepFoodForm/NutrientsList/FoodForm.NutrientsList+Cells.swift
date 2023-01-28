@@ -7,10 +7,12 @@ extension FoodForm.NutrientsList {
     //MARK: - Energy
     
     var energyCell: some View {
-        NavigationLink {
-            FoodForm.EnergyForm(existingField: fields.energy)
-                .environmentObject(fields)
-                .environmentObject(sources)
+//        NavigationLink {
+//            FoodForm.EnergyForm(existingField: fields.energy)
+//                .environmentObject(fields)
+//                .environmentObject(sources)
+        Button {
+            showingEnergyForm = true
         } label: {
             Cell(field: fields.energy, showImage: $showingImages)
         }
