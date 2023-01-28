@@ -1,7 +1,7 @@
 import SwiftUI
 import EmojiPicker
 import SwiftHaptics
-import FoodLabelCamera
+//import FoodLabelCamera
 import FoodLabelScanner
 import MFPSearch
 import Camera
@@ -31,9 +31,9 @@ extension FoodForm {
         }
     }
     
-    var foodLabelCamera: some View {
-        FoodLabelCamera(foodLabelScanHandler: didReceiveScanFromFoodLabelCamera)
-    }
+//    var foodLabelCamera: some View {
+//        FoodLabelCamera(foodLabelScanHandler: didReceiveScanFromFoodLabelCamera)
+//    }
 
     var barcodeScanner: some View {
         BarcodeScanner { barcodes, image in

@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.30"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.43"),
+//        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.43"),
         .package(url: "https://github.com/pxlshpr/FoodLabelExtractor", from: "0.0.1"),
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.120"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.62"),
@@ -31,7 +31,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.86"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.41"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.323"),
-        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.67"),
+//        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.67"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.77"),
 
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
@@ -47,7 +47,7 @@ let package = Package(
             dependencies: [
                 .product(name: "EmojiPicker", package: "emojipicker"),
                 .product(name: "FoodLabel", package: "foodlabel"),
-                .product(name: "FoodLabelCamera", package: "foodlabelcamera"),
+//                .product(name: "FoodLabelCamera", package: "foodlabelcamera"),
                 .product(name: "FoodLabelExtractor", package: "foodlabelextractor"),
                 .product(name: "FoodLabelScanner", package: "foodlabelscanner"),
                 .product(name: "MFPScraper", package: "mfpscraper"),
@@ -61,7 +61,7 @@ let package = Package(
                 .product(name: "SwiftSugar", package: "swiftsugar"),
                 .product(name: "SwiftUISugar", package: "swiftuisugar"),
                 .product(name: "VisionSugar", package: "visionsugar"),
-                .product(name: "ZoomableScrollView", package: "zoomablescrollview"),
+//                .product(name: "ZoomableScrollView", package: "zoomablescrollview"),
 
                 .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
                 .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),

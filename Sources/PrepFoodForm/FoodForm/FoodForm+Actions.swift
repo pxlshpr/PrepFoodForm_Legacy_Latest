@@ -155,10 +155,8 @@ extension FoodForm {
             dismiss()
         case .background, .startWithEmptyFood:
             break
-        case .takePhotos:
-            showingCamera = true
-        case .scanAFoodLabel:
-            presentLabelScanner(forCamera: true)
+        case .camera:
+            showExtractorViewWithCamera()
         case .choosePhotos:
             showingPhotosPicker = true
         case .prefill:

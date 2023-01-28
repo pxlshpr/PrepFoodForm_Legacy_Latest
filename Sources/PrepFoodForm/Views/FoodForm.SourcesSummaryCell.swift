@@ -4,7 +4,7 @@ import PhotosUI
 import SwiftHaptics
 import SwiftUISugar
 import Camera
-import FoodLabelCamera
+//import FoodLabelCamera
 
 extension FoodForm {
     struct SourcesSummaryCell: View {
@@ -38,7 +38,7 @@ extension FoodForm.SourcesSummaryCell {
             maxSelectionCount: 1,
             matching: .images
         )
-        .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
+//        .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
         .sheet(isPresented: $showingCamera) { camera }
     }
     
@@ -189,12 +189,12 @@ extension FoodForm.SourcesSummaryCell {
             sources.addImageViewModel(ImageViewModel(image))
         }
     }
-    var foodLabelCamera: some View {
-        FoodLabelCamera { scanResult, image in
-            sources.add(image, with: scanResult)
-            NotificationCenter.default.post(name: .didScanFoodLabel, object: nil)
-        }
-    }
+//    var foodLabelCamera: some View {
+//        FoodLabelCamera { scanResult, image in
+//            sources.add(image, with: scanResult)
+//            NotificationCenter.default.post(name: .didScanFoodLabel, object: nil)
+//        }
+//    }
 }
 
 extension Notification.Name {

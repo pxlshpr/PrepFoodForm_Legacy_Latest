@@ -5,8 +5,7 @@ extension FoodForm {
     enum WizardButton {
         case background
         case startWithEmptyFood
-        case takePhotos
-        case scanAFoodLabel
+        case camera
         case choosePhotos
         case prefill
         case prefillInfo
@@ -83,7 +82,7 @@ extension FoodForm.Wizard {
                         .padding(.horizontal, 20)
                     HStack {
                         Button {
-                            tapHandler(.scanAFoodLabel)
+                            tapHandler(.camera)
                         } label: {
                             VStack(spacing: 5) {
                                 Image(systemName: "camera")
@@ -205,7 +204,6 @@ extension FoodForm.Wizard {
         }
         
         return Section(header: header) {
-            foodLabelCameraButton
             cameraButton
             photosPickerButton
         }
@@ -213,20 +211,9 @@ extension FoodForm.Wizard {
     
     var cameraButton: some View {
         Button {
-            tapHandler(.takePhotos)
+            tapHandler(.camera)
         } label: {
             Label("Take Photos", systemImage: "camera")
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .buttonStyle(.borderless)
-    }
-
-    var foodLabelCameraButton: some View {
-        Button {
-            tapHandler(.scanAFoodLabel)
-        } label: {
-            Label("Scan a Food Label", systemImage: "text.viewfinder")
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }

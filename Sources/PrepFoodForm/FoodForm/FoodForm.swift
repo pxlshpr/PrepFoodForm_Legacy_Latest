@@ -5,6 +5,7 @@ import PhotosUI
 import MFPScraper
 import PrepDataTypes
 import SwiftHaptics
+import FoodLabelExtractor
 
 public struct FoodForm: View {
     
@@ -15,7 +16,8 @@ public struct FoodForm: View {
     /// ViewModels
     @ObservedObject var fields: Fields
     @ObservedObject var sources: Sources
-    
+    @ObservedObject var extractor: Extractor
+
     //MARK: ☣️
 //    @ObservedObject var scanner: LabelScannerViewModel
 //    @ObservedObject var interactiveScanner: ScannerViewModel
@@ -30,6 +32,8 @@ public struct FoodForm: View {
     @State var showingTextPicker = false
     @State var showingBarcodeScanner = false
 
+    @State var showingExtractorView: Bool = false
+    
     @State var showingLabelScanner: Bool
     @State var animateLabelScannerUp: Bool
 
@@ -61,6 +65,7 @@ public struct FoodForm: View {
         mockScanImage: UIImage,
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
+        extractor: Extractor,
         //MARK: ☣️
 //        scanner: LabelScannerViewModel,
 //        interactiveScanner: ScannerViewModel,
@@ -70,6 +75,7 @@ public struct FoodForm: View {
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.extractor = extractor
         //MARK: ☣️
 //        self.scanner = scanner
 //        self.interactiveScanner = interactiveScanner
@@ -86,6 +92,7 @@ public struct FoodForm: View {
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
+        extractor: Extractor,
         //MARK: ☣️
 //        scanner: LabelScannerViewModel,
 //        interactiveScanner: ScannerViewModel,
@@ -96,6 +103,7 @@ public struct FoodForm: View {
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.extractor = extractor
         //MARK: ☣️
 //        self.scanner = scanner
 //        self.interactiveScanner = interactiveScanner
@@ -112,6 +120,7 @@ public struct FoodForm: View {
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
+        extractor: Extractor,
         scanResult: ScanResult,
         //MARK: ☣️
 //        scanner: LabelScannerViewModel,
@@ -123,6 +132,7 @@ public struct FoodForm: View {
         Sources.shared = sources
         self.fields = fields
         self.sources = sources
+        self.extractor = extractor
         //MARK: ☣️
 //        self.scanner = scanner
 //        self.interactiveScanner = interactiveScanner
@@ -145,7 +155,7 @@ public struct FoodForm: View {
     var content: some View {
         ZStack {
             navigationView
-            scannerLayer
+            extractorViewLayer
                 .zIndex(2)
         }
     }
@@ -162,7 +172,7 @@ public struct FoodForm: View {
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
-                .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
+//                .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
                 .sheet(isPresented: $showingCamera) { camera }
                 .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
                 .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
@@ -188,53 +198,25 @@ public struct FoodForm: View {
         }
     }
 
-    func selectedPhotosChanged(to items: [PhotosPickerItem]) {
-        guard let item = items.first else { return }
-        presentLabelScanner(forCamera: false)
-        let _ = ImageViewModel(photosPickerItem: item) { image in
-                self.selectedPhoto = image
+    @ViewBuilder
+    var extractorViewLayer: some View {
+        if showingExtractorView {
+            ExtractorView(extractor: extractor)
         }
-        sources.selectedPhotos = []
-    }
-    
-    func presentLabelScanner(forCamera: Bool) {
-        
-        //MARK: ☣️
-//        scanner.reset()
-//        scanner.isCamera = forCamera
-//        scanner.imageHandler = imageHandler
-//        scanner.scanResultHandler = scanResultHandler
-//        scanner.dismissHandler = dismissHandler
-//
-//        interactiveScanner.reset()
-//        interactiveScanner.isCamera = forCamera
-//        interactiveScanner.imageHandler = imageHandler
-//        interactiveScanner.scanResultHandler = scanResultHandler
-//        interactiveScanner.dismissHandler = dismissHandler
-//
-//
-//        showingLabelScanner = true
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-//            withAnimation {
-//                animateLabelScannerUp = true
-//            }
-//        }
     }
 
-    //MARK: ☣️
-//    var labelScanner: some View {
-//        LabelScanner(
-//            scanner: scanner,
-//            image: $selectedPhoto
-//        )
-//    }
-//
-//    var labelInteractiveScanner: some View {
-//        Scanner(
-//            scanner: interactiveScanner,
-//            image: $selectedPhoto
-//        )
-//    }
+    func selectedPhotosChanged(to items: [PhotosPickerItem]) {
+//        guard let item = items.first else { return }
+//        presentLabelScanner(forCamera: false)
+//        let _ = ImageViewModel(photosPickerItem: item) { image in
+//                self.selectedPhoto = image
+//        }
+//        sources.selectedPhotos = []
+
+        guard let item = items.first else { return }
+        showExtractor(with: item)
+        sources.selectedPhotos = []
+    }
     
     var formContent: some View {
         ZStack {
@@ -245,24 +227,6 @@ public struct FoodForm: View {
                     .transition(.move(edge: .bottom))
             }
         }
-    }
-    
-    @State var labelScannerHasAppeared = false
-    
-    @ViewBuilder
-    var scannerLayer: some View {
-//        if showingLabelScanner {
-//            labelScanner
-        //MARK: ☣️
-//            labelInteractiveScanner
-        Color.clear /// replace this with `Extractor`
-                .offset(y: animateLabelScannerUp ? 0 : UIScreen.main.bounds.height)
-                .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    labelScannerHasAppeared = true
-                }}
-//                .animation(labelScannerHasAppeared ? .default : .none, value: animatingScannerCollapse)
-//                .animation(labelScannerHasAppeared ? .default : .none, value: showingLabelScanner)
-//        }
     }
     
     func dismissHandler() {
