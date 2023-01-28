@@ -90,7 +90,7 @@ extension FoodForm.NutrientsList.Cell {
     
     @ViewBuilder
     var fillTypeIcon: some View {
-        if fields.hasNonUserInputFills, !isEmpty {
+        if fields.hasNonUserInputFills, !isEmpty, field.fill != .userInput {
             Image(systemName: field.fill.iconSystemImage)
                 .foregroundColor(Color(.secondaryLabel))
         }

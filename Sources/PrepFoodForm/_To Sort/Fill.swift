@@ -25,7 +25,7 @@ extension Fill {
         static let scanned = "text.viewfinder"
         static let prefill = "link"
         static let userInput = "keyboard"
-        static let selection = "hand.tap"
+        static let selection = "text.viewfinder" /// "hand.tap"
         static let barcode = "barcode.viewfinder"
     }
     
