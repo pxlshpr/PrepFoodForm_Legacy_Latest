@@ -239,14 +239,20 @@ struct NutrientForm: View {
             }
             .pickerStyle(.segmented)
         } else if let nutrientType = viewModel.attribute.nutrientType {
-            Picker("", selection: $viewModel.unit) {
-                ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) { unit in
-                    Text(unit.description).tag(unit)
+            if nutrientType.supportedFoodLabelUnits.count > 1 {
+                Picker("", selection: $viewModel.unit) {
+                    ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) { unit in
+                        Text(unit.description).tag(unit)
+                    }
                 }
+                .pickerStyle(.menu)
+            } else {
+                Text(nutrientType.supportedFoodLabelUnits.first?.description ?? "g")
+                    .foregroundColor(.secondary)
             }
-            .pickerStyle(.menu)
         } else {
             Text("g")
+                .foregroundColor(.secondary)
         }
     }
 }
