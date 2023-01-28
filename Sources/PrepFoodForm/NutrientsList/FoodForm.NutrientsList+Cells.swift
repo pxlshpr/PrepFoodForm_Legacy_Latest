@@ -12,7 +12,8 @@ extension FoodForm.NutrientsList {
 //                .environmentObject(fields)
 //                .environmentObject(sources)
         Button {
-            showingEnergyForm = true
+            viewModel.attributeBeingEdited = .energy
+            showingAttributeForm = true
         } label: {
             Cell(field: fields.energy, showImage: $showingImages)
         }
@@ -30,13 +31,13 @@ extension FoodForm.NutrientsList {
     }
 
     func macronutrientCell(for field: Field) -> some View {
-        NavigationLink {
-            MacroForm(existingField: field)
-                .environmentObject(fields)
-                .environmentObject(sources)
-//                .onDisappear {
-//                    fields.updateCanBeSaved()
-//                }
+//        NavigationLink {
+//            MacroForm(existingField: field)
+//                .environmentObject(fields)
+//                .environmentObject(sources)
+        Button {
+            viewModel.attributeBeingEdited = field.value.macroValue.macro.attribute
+            showingAttributeForm = true
         } label: {
             Cell(field: field, showImage: $showingImages)
         }
@@ -74,10 +75,13 @@ extension FoodForm.NutrientsList {
     }
     
     func micronutrientCell(for field: Field) -> some View {
-        NavigationLink {
-            MicroForm(existingField: field)
-                .environmentObject(fields)
-                .environmentObject(sources)
+//        NavigationLink {
+//            MicroForm(existingField: field)
+//                .environmentObject(fields)
+//                .environmentObject(sources)
+        Button {
+            viewModel.attributeBeingEdited = field.value.microValue.nutrientType.attribute
+            showingAttributeForm = true
         } label: {
             Cell(field: field, showImage: $showingImages)
         }
