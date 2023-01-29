@@ -174,7 +174,8 @@ public struct FoodForm: View {
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
 //                .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
                 .sheet(isPresented: $showingCamera) { camera }
-                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
+                .fullScreenCover(isPresented: $showingBarcodeScanner) { barcodeScanner }
+//                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
                 .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
                 .alert(addBarcodeTitle,
                        isPresented: $showingAddBarcodeAlert,
@@ -258,12 +259,12 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var formLayer: some View {
-        FormStyledScrollView(showsIndicators: true) {
+        FormStyledScrollView(showsIndicators: false) {
             detailsSection
             servingSection
             foodLabelSection
-            barcodesSection
             sourcesSection
+            barcodesSection
             prefillSection
             Spacer().frame(height: 38)
         }

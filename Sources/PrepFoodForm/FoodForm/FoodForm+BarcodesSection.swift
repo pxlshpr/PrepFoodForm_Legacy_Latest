@@ -36,7 +36,7 @@ extension FoodForm {
         
         var footer: some View {
             VStack(alignment: .leading, spacing: 5) {
-                Text("This will allow you to scan and quickly find this food again later.")
+                Text("This will allow you to scan and log this food.")
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
             }
@@ -74,31 +74,46 @@ extension FoodForm {
         var addBarcodeSection: some View {
             FormStyledSection(header: header, footer: footer, verticalPadding: 0) {
                 HStack {
-                    Menu {
-                        Button {
-                            Haptics.feedback(style: .soft)
-                            showingBarcodeScanner = true
-                        } label: {
-                            Label("Scan a Barcode", systemImage: "barcode.viewfinder")
-                        }
-                        
-                        Button {
-                            Haptics.feedback(style: .soft)
-                            showingAddBarcodeAlert = true
-                        } label: {
-                            Label("Enter Manually", systemImage: "123.rectangle")
-                        }
-                        
-                    } label: {
-                        Text("Add a Barcode")
-                            .frame(height: 50)
-                    }
-                    .contentShape(Rectangle())
-                    .simultaneousGesture(TapGesture().onEnded {
+                    foodFormButton("Scan", image: "barcode.viewfinder", isSecondary: true) {
                         Haptics.feedback(style: .soft)
-                    })
-                    Spacer()
+                        showingBarcodeScanner = true
+                    }
+                    foodFormButton("Enter", image: "keyboard", isSecondary: true) {
+                        Haptics.feedback(style: .soft)
+                        showingAddBarcodeAlert = true
+                    }
+                    foodFormButton("", image: "") {
+                    }
+                    .disabled(true)
+                    .opacity(0)
                 }
+                .padding(.vertical, 15)
+//                HStack {
+//                    Menu {
+//                        Button {
+//                            Haptics.feedback(style: .soft)
+//                            showingBarcodeScanner = true
+//                        } label: {
+//                            Label("Scan a Barcode", systemImage: "barcode.viewfinder")
+//                        }
+//
+//                        Button {
+//                            Haptics.feedback(style: .soft)
+//                            showingAddBarcodeAlert = true
+//                        } label: {
+//                            Label("Enter Manually", systemImage: "123.rectangle")
+//                        }
+//
+//                    } label: {
+//                        Text("Add a Barcode")
+//                            .frame(height: 50)
+//                    }
+//                    .contentShape(Rectangle())
+//                    .simultaneousGesture(TapGesture().onEnded {
+//                        Haptics.feedback(style: .soft)
+//                    })
+//                    Spacer()
+//                }
             }
         }
         

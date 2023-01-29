@@ -74,7 +74,7 @@ extension FoodForm.Wizard {
             FormBackground()
             VStack {
                 VStack(spacing: 7) {
-                    Text("Scan Food Label")
+                    Text("Scan a Food Label")
                         .foregroundColor(Color(.secondaryLabel))
                         .font(.footnote)
                         .textCase(.uppercase)
@@ -95,7 +95,8 @@ extension FoodForm.Wizard {
                             .frame(height: 80)
                             .background(
                                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .foregroundColor(Color.accentColor)
+                                    .foregroundStyle(Color.accentColor.gradient)
+//                                    .foregroundColor(Color.accentColor)
                             )
                         }
                         Button {
@@ -112,7 +113,8 @@ extension FoodForm.Wizard {
                             .frame(height: 80)
                             .background(
                                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .foregroundColor(Color.accentColor)
+                                    .foregroundStyle(Color.accentColor.gradient)
+//                                    .foregroundColor(Color.accentColor)
                             )
                         }
                     }
@@ -123,7 +125,7 @@ extension FoodForm.Wizard {
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
 
-                FormStyledSection(header: Text("Manually Enter"), footer: learnMoreFooter) {
+                FormStyledSection(header: Text("Manually Enter")) {
                     Button {
                         tapHandler(.startWithEmptyFood)
                     } label: {
@@ -131,18 +133,18 @@ extension FoodForm.Wizard {
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    Button {
-                        tapHandler(.prefill)
-                    } label: {
-                        Label("Prefill from MyFitnessPal", systemImage: "rectangle.and.pencil.and.ellipsis")
-                            .foregroundColor(.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+//                    Button {
+//                        tapHandler(.prefill)
+//                    } label: {
+//                        Label("Prefill from MyFitnessPal", systemImage: "rectangle.and.pencil.and.ellipsis")
+//                            .foregroundColor(.primary)
+//                            .frame(maxWidth: .infinity, alignment: .leading)
+//                    }
                 }
             }
         }
         .cornerRadius(20)
-        .frame(height: 320)
+        .frame(height: 250)
         .frame(maxWidth: 350)
         .padding(.horizontal, 30)
         .shadow(color: colorScheme == .dark ? .black : .gray.opacity(0.6), radius: 30, x: 0, y: 0)

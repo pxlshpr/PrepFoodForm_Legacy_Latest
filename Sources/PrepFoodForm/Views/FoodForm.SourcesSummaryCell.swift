@@ -53,41 +53,21 @@ extension FoodForm.SourcesSummaryCell {
     }
     
     var addSourceButtons: some View {
-        func button(_ string: String, image: String, action: @escaping () -> ()) -> some View {
-            Button {
-                action()
-            } label: {
-                VStack(spacing: 5) {
-                    Image(systemName: image)
-                        .imageScale(.large)
-                        .fontWeight(.medium)
-                    Text(string)
-                        .fontWeight(.medium)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 80)
-                .background(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .foregroundColor(Color.accentColor)
-                )
-            }
-        }
-
-        return HStack {
-            button("Camera", image: "camera") {
+        HStack {
+            foodFormButton("Camera", image: "camera") {
                 Haptics.feedback(style: .soft)
                 showingCamera = true
             }
-            button("Photo", image: "photo.on.rectangle") {
+            foodFormButton("Photo", image: "photo.on.rectangle") {
                 Haptics.feedback(style: .soft)
                 showingPhotosPicker = true
             }
-            button("Link", image: "link") {
+            foodFormButton("Link", image: "link") {
                 Haptics.feedback(style: .soft)
                 showingAddLinkAlert = true
             }
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 15)
     }
     
     var content: some View {
@@ -163,7 +143,7 @@ extension FoodForm.SourcesSummaryCell {
             
         } label: {
             VStack(alignment: .leading, spacing: 5) {
-                Text("Add a source if you would like this food to be verified and generate subscription tokens.")
+                Text("A valid source is required for submission as a public food.")
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
                 Label("Learn more", systemImage: "info.circle")
@@ -279,3 +259,38 @@ extension FoodForm.SourcesSummaryCell {
     }
 
 }
+
+func foodFormButton(_ string: String, image: String, isSecondary: Bool = false, action: @escaping () -> ()) -> some View {
+    
+    @ViewBuilder
+    var background: some View {
+        if isSecondary {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .foregroundColor(Color(.tertiarySystemFill))
+        } else {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .foregroundStyle(Color.accentColor.gradient)
+        }
+    }
+    
+    var textColor: Color {
+        isSecondary ? .accentColor : .white
+    }
+    return Button {
+        action()
+    } label: {
+        VStack(spacing: 5) {
+            Image(systemName: image)
+                .imageScale(.large)
+                .fontWeight(.medium)
+            Text(string)
+                .fontWeight(.medium)
+        }
+        .foregroundColor(textColor)
+        .frame(maxWidth: .infinity)
+        .frame(height: 80)
+        .background(background)
+    }
+}
+
+
