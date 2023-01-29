@@ -7,7 +7,9 @@ extension FoodForm {
     
     func processExtractorOutput(_ output: ExtractorOutput) {
         let fieldValues = output.fieldValues
-        fields.handleExtractedFieldsValues(fieldValues, from: output)
+        withAnimation {
+            fields.handleExtractedFieldsValues(fieldValues, from: output)
+        }
     }
     
 }
@@ -118,7 +120,6 @@ extension FoodForm.Fields {
         }
 
         updateFormState()
-
         FoodForm.Sources.shared.markAllImageViewModelsAsProcessed()
     }
     

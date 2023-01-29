@@ -30,7 +30,6 @@ extension FoodForm.Fields {
         }
         
         updateFormState()
-
         FoodForm.Sources.shared.markAllImageViewModelsAsProcessed()
     }
     
