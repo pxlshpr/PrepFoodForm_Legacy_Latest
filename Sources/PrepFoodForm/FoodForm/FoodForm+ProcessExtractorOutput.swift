@@ -11,6 +11,7 @@ extension FoodForm {
         withAnimation {
             fields.handleExtractedFieldsValues(fieldValues, from: output)
         }
+        sources.add(output.image, with: output.scanResult)
         Haptics.successFeedback()
     }
     
