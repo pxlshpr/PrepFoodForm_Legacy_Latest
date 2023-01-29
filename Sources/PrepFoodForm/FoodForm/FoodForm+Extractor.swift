@@ -13,12 +13,9 @@ extension FoodForm {
         showingExtractorView = false
     }
 
-    func extractorDidDismiss(_ outputTuple: (ScanResult, [ExtractedNutrient])?) {
-        if let outputTuple {
-            processExtractorOutput(
-                scanResult: outputTuple.0,
-                extractedNutrients: outputTuple.1
-            )
+    func extractorDidDismiss(_ output: ExtractorOutput?) {
+        if let output {
+            processExtractorOutput(output)
         }
         removeExtractorView()
     }
