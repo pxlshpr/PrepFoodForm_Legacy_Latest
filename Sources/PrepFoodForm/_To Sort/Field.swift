@@ -1,6 +1,7 @@
 import SwiftUI
 import FoodLabelScanner
 import SwiftSugar
+import FoodLabelExtractor
 
 class Field: ObservableObject, Identifiable {
     
@@ -10,10 +11,26 @@ class Field: ObservableObject, Identifiable {
     @Published var image: UIImage? = nil
     @Published var isCropping: Bool = false
 
-    init(fieldValue: FieldValue) {
+    init(fieldValue: FieldValue, image: UIImage? = nil) {
         self.value = fieldValue
+        self.image = image
     }
-    
+
+    init(fieldValue: FieldValue, from output: ExtractorOutput) {
+        self.value = fieldValue
+        if let text = fieldValue.fill.text, let image = output.croppedImages[text] {
+            self.image = image
+        }
+    }
+
+    /// **Latest** Deprecate the rest
+    func fill(_ fieldValue: FieldValue, from output: ExtractorOutput) {
+        self.value = fieldValue
+        if let text = fieldValue.fill.text, let image = output.croppedImages[text] {
+            self.image = image
+        }
+    }
+
     func fill(with fieldValue: FieldValue) {
         self.value = fieldValue
         resetAndCropImage()

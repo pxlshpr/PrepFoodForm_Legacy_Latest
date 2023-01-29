@@ -9,7 +9,10 @@ extension ScanResult {
         guard headerType(for: column) != .perServing else {
             guard let valueText = amountValueText(for: column) else { return nil }
             return FieldValue.amount(FieldValue.DoubleValue(
-                double: 1, string: "1", unit: .serving, fill: scannedFill(
+                double: 1,
+                string: "1",
+                unit: .serving,
+                fill: scannedFill(
                     for: valueText,
                     value: FoodLabelValue(amount: 1, unit: nil)
                 ))

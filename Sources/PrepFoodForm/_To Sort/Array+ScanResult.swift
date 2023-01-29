@@ -58,25 +58,6 @@ extension Array where Element == ScanResult {
         return fieldValues.compactMap { $0 }
     }
     
-    func bestFieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
-        switch fieldValue {
-        case .amount:
-            return bestAmountFieldValue(at: column)
-        case .serving:
-            return bestServingFieldValue(at: column)
-        case .density:
-            return bestDensityFieldValue
-        case .energy:
-            return bestEnergyFieldValue(at: column)
-        case .macro(let macroValue):
-            return bestMacroFieldValue(macroValue.macro, at: column)
-        case .micro(let microValue):
-            return bestMicroFieldValue(microValue.nutrientType, at: column)
-        default:
-            return nil
-        }
-    }
-    
     func bestAmountFieldValue(at column: Int) -> FieldValue? {
         filter { $0.amountFieldValue(for: column) != nil }
             .bestScanResult?
