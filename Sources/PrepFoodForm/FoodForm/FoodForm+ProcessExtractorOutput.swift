@@ -2,6 +2,7 @@ import SwiftUI
 import PhotosUI
 import FoodLabelExtractor
 import FoodLabelScanner
+import SwiftHaptics
 
 extension FoodForm {
     
@@ -10,6 +11,7 @@ extension FoodForm {
         withAnimation {
             fields.handleExtractedFieldsValues(fieldValues, from: output)
         }
+        Haptics.successFeedback()
     }
     
 }
