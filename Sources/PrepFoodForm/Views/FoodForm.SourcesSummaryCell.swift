@@ -44,11 +44,50 @@ extension FoodForm.SourcesSummaryCell {
     
     var emptyContent: some View {
         FormStyledSection(header: header, footer: emptyFooter, verticalPadding: 0) {
-            HStack {
-                addSourceMenu
-                Spacer()
+            addSourceButtons
+//            HStack {
+//                addSourceMenu
+//                Spacer()
+//            }
+        }
+    }
+    
+    var addSourceButtons: some View {
+        func button(_ string: String, image: String, action: @escaping () -> ()) -> some View {
+            Button {
+                action()
+            } label: {
+                VStack(spacing: 5) {
+                    Image(systemName: image)
+                        .imageScale(.large)
+                        .fontWeight(.medium)
+                    Text(string)
+                        .fontWeight(.medium)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 80)
+                .background(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .foregroundColor(Color.accentColor)
+                )
             }
         }
+
+        return HStack {
+            button("Camera", image: "camera") {
+                Haptics.feedback(style: .soft)
+                showingCamera = true
+            }
+            button("Photo", image: "photo.on.rectangle") {
+                Haptics.feedback(style: .soft)
+                showingPhotosPicker = true
+            }
+            button("Link", image: "link") {
+                Haptics.feedback(style: .soft)
+                showingAddLinkAlert = true
+            }
+        }
+        .padding(.vertical, 10)
     }
     
     var content: some View {
