@@ -17,6 +17,8 @@ extension FoodForm {
         @State var showingAddLinkAlert = false
         @State var linkIsInvalid = false
         @State var link: String = ""
+        
+        @State var linkInfoBeingPresented: LinkInfo? = nil
     }
 }
 
@@ -40,6 +42,22 @@ extension FoodForm.SourcesSummaryCell {
         )
 //        .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
         .sheet(isPresented: $showingCamera) { camera }
+        .sheet(item: $linkInfoBeingPresented) { webView(for: $0) }
+    }
+    
+    func webView(for linkInfo: LinkInfo) -> some View {
+        NavigationStack {
+            WebView(urlString: linkInfo.urlString, title: linkInfo.displayTitle)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            self.linkInfoBeingPresented = nil
+                        } label: {
+                            closeButtonLabel
+                        }
+                    }
+                }
+        }
     }
     
     var emptyContent: some View {
@@ -66,6 +84,22 @@ extension FoodForm.SourcesSummaryCell {
         .padding(.vertical, 15)
     }
     
+    func removeImageViewModel(_ imageViewModel: ImageViewModel) {
+        guard let index = sources.imageViewModels.firstIndex(where: { $0.id == imageViewModel.id }) else {
+            return
+        }
+        
+        Haptics.feedback(style: .rigid)
+        withAnimation {
+            sources.removeImage(at: index)
+        }
+        FoodForm.Fields.shared.resetFillsForFieldsUsingImage(with: imageViewModel.id)
+    }
+    
+    var buttonWidth: CGFloat {
+        (UIScreen.main.bounds.width - (2 * 35.0) - (8.0 * 2.0)) / 3.0
+    }
+    
     var filledContent: some View {
         FormStyledSection(header: header, footer: filledFooter, horizontalPadding: 0, verticalPadding: 0) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -75,7 +109,7 @@ extension FoodForm.SourcesSummaryCell {
                         if let image = imageViewModel.image {
                             Menu {
                                 Button(role: .destructive) {
-                                    
+                                    removeImageViewModel(imageViewModel)
                                 } label: {
                                     Label("Remove", systemImage: "minus.circle")
                                 }
@@ -83,22 +117,54 @@ extension FoodForm.SourcesSummaryCell {
                                 Image(uiImage: image)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
-                                    .frame(width: 100, height: 80)
+                                    .frame(width: buttonWidth, height: 80)
                                     .clipShape(
                                         RoundedRectangle(
                                             cornerRadius: 20,
                                             style: .continuous
                                         )
                                     )
-                                    .transition(.move(edge: .leading))
                             }
+                            .contentShape(Rectangle())
+                            .simultaneousGesture(TapGesture().onEnded {
+                                Haptics.feedback(style: .soft)
+                            })
+                            .transition(
+                                .asymmetric(
+                                    insertion: .move(edge: .leading),
+                                    removal: .scale
+                                )
+                            )
                         }
                     }
                     
                     /// Link
                     if let linkInfo = sources.linkInfo {
-                        LinkCell(linkInfo)
-                            .transition(.move(edge: .leading))
+                        Menu {
+                            Button {
+                                Haptics.feedback(style: .soft)
+                                linkInfoBeingPresented = linkInfo
+                            } label: {
+                                Label("View", systemImage: "safari")
+                            }
+                            Divider()
+                            Button(role: .destructive) {
+                                Haptics.successFeedback()
+                                withAnimation {
+                                    sources.removeLink()
+                                }
+                            } label: {
+                                Label("Remove", systemImage: "minus.circle")
+                            }
+                        } label: {
+                            LinkCell(linkInfo)
+                                .frame(width: buttonWidth)
+                        }
+                        .contentShape(Rectangle())
+                        .simultaneousGesture(TapGesture().onEnded {
+                            Haptics.feedback(style: .soft)
+                        })
+                        .transition(.move(edge: .leading))
                     }
                     
                     if sources.isEmpty {
@@ -116,7 +182,7 @@ extension FoodForm.SourcesSummaryCell {
                                 showingAddLinkAlert = true
                             }
                         }
-                        .frame(width: (UIScreen.main.bounds.width - (2 * 35.0) - (8.0 * 2.0)) / 3.0 )
+                        .frame(width: buttonWidth)
                         .transition(.asymmetric(
                             insertion: .move(edge: .trailing),
                             removal: .scale)
@@ -126,10 +192,42 @@ extension FoodForm.SourcesSummaryCell {
                     
                     /// Add Menu
                     if !sources.isEmpty {
-                        foodFormButton("Add", image: "plus", isSecondary: true) {
+                        
+                        Menu {
                             
+                            Section("Scan a Food Label") {
+                                Button {
+                                    Haptics.feedback(style: .soft)
+                                    showingCamera = true
+                                } label: {
+                                    Label("Camera", systemImage: "camera")
+                                }
+
+                                Button {
+                                    Haptics.feedback(style: .soft)
+                                    showingPhotosPicker = true
+                                } label: {
+                                    Label("Choose Photo", systemImage: "photo.on.rectangle")
+                                }
+                            }
+                            
+                            Divider()
+
+                            Button {
+                                Haptics.feedback(style: .soft)
+                                showingAddLinkAlert = true
+                            } label: {
+                                Label("Add a Link", systemImage: "link")
+                            }
+                            
+                        } label: {
+                            foodFormButton("Add", image: "plus", isSecondary: true)
+                                .frame(width: buttonWidth)
                         }
-                        .frame(width: 100)
+                        .contentShape(Rectangle())
+                        .simultaneousGesture(TapGesture().onEnded {
+                            Haptics.feedback(style: .soft)
+                        })
                         .transition(.move(edge: .trailing))
                     }
                 }
@@ -206,7 +304,8 @@ extension FoodForm.SourcesSummaryCell {
             
         } label: {
             VStack(alignment: .leading, spacing: 5) {
-                Text("A valid source is required for submission as a public food.")
+//                Text("A valid source is required for submission as a public food.")
+                Text("A source is required to be eligible for the public database and accrue subscription tokens.")
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
                 Label("Learn more", systemImage: "info.circle")
@@ -216,10 +315,15 @@ extension FoodForm.SourcesSummaryCell {
         }
     }
     
+    @ViewBuilder
     var filledFooter: some View {
-        Text("This food can now be submitted for verification.")
-            .foregroundColor(Color(.secondaryLabel))
-            .multilineTextAlignment(.leading)
+        if sources.isEmpty {
+            emptyFooter
+        } else {
+            Text("This food can now be submitted for verification.")
+                .foregroundColor(Color(.secondaryLabel))
+                .multilineTextAlignment(.leading)
+        }
     }
     
     var addSourceMenu: some View {
@@ -323,7 +427,12 @@ extension FoodForm.SourcesSummaryCell {
 
 }
 
-func foodFormButton(_ string: String, image: String, isSecondary: Bool = false, action: @escaping () -> ()) -> some View {
+func foodFormButton(
+    _ string: String,
+    image: String,
+    isSecondary: Bool = false,
+    action: (() -> ())? = nil
+) -> some View {
     
     @ViewBuilder
     var background: some View {
@@ -339,9 +448,8 @@ func foodFormButton(_ string: String, image: String, isSecondary: Bool = false, 
     var textColor: Color {
         isSecondary ? .accentColor : .white
     }
-    return Button {
-        action()
-    } label: {
+    
+    var label: some View {
         VStack(spacing: 5) {
             Image(systemName: image)
                 .imageScale(.large)
@@ -353,6 +461,22 @@ func foodFormButton(_ string: String, image: String, isSecondary: Bool = false, 
         .frame(maxWidth: .infinity)
         .frame(height: 80)
         .background(background)
+    }
+    
+    var button: some View {
+        Button {
+            action?()
+        } label: {
+            label
+        }
+    }
+    
+    return Group {
+        if let action {
+            button
+        } else {
+            label
+        }
     }
 }
 

@@ -42,14 +42,16 @@ struct LinkCell: View {
                 }
             }
             .frame(width: 20, height: 20)
-            Text(title)
+            Text(linkInfo.displayTitle)
+                .foregroundColor(.primary)
                 .fontWeight(.medium)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 10)
         .foregroundStyle(.primary)
         .frame(maxWidth: .infinity)
-        .frame(width: 150, height: 80)
+//        .frame(width: 150)
+        .frame(height: 80)
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .foregroundStyle(Color(.systemFill).gradient)
@@ -57,14 +59,6 @@ struct LinkCell: View {
 
     }
     
-    var title: String {
-        return linkInfo.title
-        ?? linkInfo
-            .urlString
-            .replacingFirstOccurrence(of: "https://", with: "")
-            .replacingFirstOccurrence(of: "http://", with: "")
-            .replacingFirstOccurrence(of: "www.", with: "")
-    }
     var haveTitle: Bool {
         customTitle != nil || linkInfo.title != nil
     }
@@ -78,14 +72,14 @@ struct LinkCell: View {
                             Image(systemName: "link")
                                 .frame(width: LabelImageWidth)
                                 .foregroundColor(imageColor)
-                            Text(title)
+                            Text(linkInfo.displayTitle)
                                 .multilineTextAlignment(.leading)
                                 .foregroundColor(titleColor)
                             
                         }
 //                        Label(title, systemImage: "link")
                     } else {
-                        Text(title)
+                        Text(linkInfo.displayTitle)
                             .multilineTextAlignment(.leading)
                             .foregroundColor(titleColor)
                     }

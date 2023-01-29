@@ -1,5 +1,11 @@
 import SwiftUI
 
+extension LinkInfo: Identifiable {
+    var id: String {
+        url.absoluteString
+    }
+}
+
 class LinkInfo: ObservableObject {
     let url: URL
     @Published var title: String?
@@ -60,6 +66,15 @@ class LinkInfo: ObservableObject {
             }
         }
     }
+    
+    var displayTitle: String {
+        return title
+        ?? urlString
+            .replacingFirstOccurrence(of: "https://", with: "")
+            .replacingFirstOccurrence(of: "http://", with: "")
+            .replacingFirstOccurrence(of: "www.", with: "")
+    }
+
 }
 
 struct FavIcon {
