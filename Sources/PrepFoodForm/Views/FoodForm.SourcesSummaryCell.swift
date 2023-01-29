@@ -24,11 +24,11 @@ extension FoodForm.SourcesSummaryCell {
         
     var body: some View {
         Group {
-            if sources.isEmpty {
-                emptyContent
-            } else {
-                content
-            }
+//            if sources.isEmpty {
+//                emptyContent
+//            } else {
+                filledContent
+//            }
         }
         .alert(addLinkTitle, isPresented: $showingAddLinkAlert, actions: { addLinkActions }, message: { addLinkMessage })
         .photosPicker(
@@ -45,10 +45,6 @@ extension FoodForm.SourcesSummaryCell {
     var emptyContent: some View {
         FormStyledSection(header: header, footer: emptyFooter, verticalPadding: 0) {
             addSourceButtons
-//            HStack {
-//                addSourceMenu
-//                Spacer()
-//            }
         }
     }
     
@@ -70,12 +66,79 @@ extension FoodForm.SourcesSummaryCell {
         .padding(.vertical, 15)
     }
     
-    var content: some View {
+    var filledContent: some View {
         FormStyledSection(header: header, footer: filledFooter, horizontalPadding: 0, verticalPadding: 0) {
-            navigationLink
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8.0) {
+                    /// Images
+                    ForEach(sources.imageViewModels, id: \.self.hashValue) { imageViewModel in
+                        if let image = imageViewModel.image {
+                            Menu {
+                                Button(role: .destructive) {
+                                    
+                                } label: {
+                                    Label("Remove", systemImage: "minus.circle")
+                                }
+                            } label: {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 100, height: 80)
+                                    .clipShape(
+                                        RoundedRectangle(
+                                            cornerRadius: 20,
+                                            style: .continuous
+                                        )
+                                    )
+                                    .transition(.move(edge: .leading))
+                            }
+                        }
+                    }
+                    
+                    /// Link
+                    if let linkInfo = sources.linkInfo {
+                        LinkCell(linkInfo)
+                            .transition(.move(edge: .leading))
+                    }
+                    
+                    if sources.isEmpty {
+                        Group {
+                            foodFormButton("Camera", image: "camera") {
+                                Haptics.feedback(style: .soft)
+                                showingCamera = true
+                            }
+                            foodFormButton("Photo", image: "photo.on.rectangle") {
+                                Haptics.feedback(style: .soft)
+                                showingPhotosPicker = true
+                            }
+                            foodFormButton("Link", image: "link") {
+                                Haptics.feedback(style: .soft)
+                                showingAddLinkAlert = true
+                            }
+                        }
+                        .frame(width: (UIScreen.main.bounds.width - (2 * 35.0) - (8.0 * 2.0)) / 3.0 )
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing),
+                            removal: .scale)
+                        )
+                    }
+
+                    
+                    /// Add Menu
+                    if !sources.isEmpty {
+                        foodFormButton("Add", image: "plus", isSecondary: true) {
+                            
+                        }
+                        .frame(width: 100)
+                        .transition(.move(edge: .trailing))
+                    }
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 15)
+            }
         }
     }
-    
+        
     var navigationLink: some View {
         NavigationLink {
             FoodForm.SourcesForm(sources: sources)

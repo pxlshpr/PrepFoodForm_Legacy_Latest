@@ -17,6 +17,6 @@ extension String {
         let openGraphPattern = #"og:title\"[^\"]*\"([^\"]*)"#
         let htmlTitlePattern = #"<title>(.*)<\/title>"#
         
-        return self.secondCapturedGroup(using: openGraphPattern) ?? self.secondCapturedGroup(using: htmlTitlePattern)
+        return self.secondCapturedGroup(using: htmlTitlePattern) ?? self.secondCapturedGroup(using: openGraphPattern)
     }
 }

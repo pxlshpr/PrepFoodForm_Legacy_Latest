@@ -39,7 +39,8 @@ class LinkInfo: ObservableObject {
     }
     
     func getFavicon() {
-        let urlString = "https://www.google.com/s2/favicons?sz=32&domain=\(urlString)"
+        let urlString = "https://www.google.com/s2/favicons?sz=64&domain=\(urlString)"
+//        let urlString = "https://www.google.com/s2/favicons?sz=32&domain=\(urlString)"
         guard let url = URL(string: urlString) else {
             return
         }
