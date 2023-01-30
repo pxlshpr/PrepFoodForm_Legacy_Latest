@@ -15,6 +15,10 @@ public struct ServingsAndSizesCell: View {
     }
     
     var nutrientsPerContents: some View {
+        var servingAmountString: String? {
+            fields.serving.value.double?.cleanAmount
+        }
+        
 //        VStack(alignment: .leading) {
 //            Text("Nutrients Per")
 //                .font(.headline)
@@ -31,36 +35,38 @@ public struct ServingsAndSizesCell: View {
 //                }
 //            }
 //        }
-        VStack(alignment: .leading, spacing: 3) {
+        return VStack(alignment: .leading, spacing: 3) {
             Text("Nutrients Per")
                 .font(.system(.headline, design: .rounded, weight: .bold))
                 .foregroundColor(Color(.secondaryLabel))
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("1")
+                    Text(fields.amount.value.double?.cleanAmount ?? "")
                         .font(.system(.headline, design: .rounded, weight: .semibold))
                         .foregroundColor(.primary)
-                    Text("serving")
+                    Text(fields.amount.value.unitString)
                         .font(.system(.body, design: .rounded, weight: .medium))
                         .foregroundColor(.primary)
                 }
-                HStack(alignment: .firstTextBaseline, spacing: 5) {
-                    Text("of")
-                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                        .foregroundColor(Color(.secondaryLabel))
-                        .padding(.vertical, 3)
-                        .padding(.horizontal, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .foregroundColor(Color(.tertiarySystemFill))
-                        )
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text("0.25")
-                            .font(.system(.headline, design: .rounded, weight: .semibold))
-                            .foregroundColor(.secondary)
-                        Text("cup")
-                            .font(.system(.body, design: .rounded, weight: .medium))
-                            .foregroundColor(Color(.tertiaryLabel))
+                if let servingAmountString {
+                    HStack(alignment: .firstTextBaseline, spacing: 5) {
+                        Text("of")
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            .foregroundColor(Color(.secondaryLabel))
+                            .padding(.vertical, 3)
+                            .padding(.horizontal, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .foregroundColor(Color(.quaternarySystemFill))
+                            )
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text(servingAmountString)
+                                .font(.system(.headline, design: .rounded, weight: .semibold))
+                                .foregroundColor(.secondary)
+                            Text(fields.serving.value.unitString)
+                                .font(.system(.body, design: .rounded, weight: .medium))
+                                .foregroundColor(Color(.tertiaryLabel))
+                        }
                     }
                 }
             }
@@ -112,10 +118,10 @@ public struct ServingsAndSizesCell: View {
                         .foregroundColor(Color(.tertiaryLabel))
                     HStack(alignment: .firstTextBaseline, spacing: 5) {
                         HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text("0.25")
+                            Text(leftAmount)
                                 .font(.system(.subheadline, design: .rounded, weight: .semibold))
                                 .foregroundColor(.secondary)
-                            Text("cup")
+                            Text(leftUnit)
                                 .font(.system(.footnote, design: .rounded, weight: .medium))
                                 .foregroundColor(Color(.tertiaryLabel))
                         }
@@ -127,13 +133,13 @@ public struct ServingsAndSizesCell: View {
                                 .padding(.horizontal, 6)
                                 .background(
                                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .foregroundColor(Color(.tertiarySystemFill))
+                                        .foregroundColor(Color(.quaternarySystemFill))
                                 )
                             HStack(alignment: .firstTextBaseline, spacing: 2) {
-                                Text("30")
+                                Text(rightAmount)
                                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
                                     .foregroundColor(.secondary)
-                                Text("g")
+                                Text(rightUnit)
                                     .font(.system(.footnote, design: .rounded, weight: .medium))
                                     .foregroundColor(Color(.tertiaryLabel))
                             }
@@ -163,49 +169,29 @@ public struct ServingsAndSizesCell: View {
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundColor(Color(.tertiaryLabel))
                 VStack(alignment: .leading, spacing: 0) {
-                    HStack(alignment: .firstTextBaseline, spacing: 5) {
-                        Text("Balls")
-                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .foregroundColor(.secondary)
-                        HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text("3")
+                    ForEach(fields.allSizeFields, id: \.self) { sizeField in
+                        HStack(alignment: .firstTextBaseline, spacing: 5) {
+                            Text(sizeField.sizeNameString.capitalized)
                                 .font(.system(.subheadline, design: .rounded, weight: .semibold))
                                 .foregroundColor(.secondary)
-                            Text("g")
-                                .font(.system(.footnote, design: .rounded, weight: .medium))
-                                .foregroundColor(Color(.tertiaryLabel))
+                            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                                Text(sizeField.sizeAmountString)
+                                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                                Text(sizeField.sizeAmountUnitString)
+                                    .font(.system(.footnote, design: .rounded, weight: .medium))
+                                    .foregroundColor(Color(.tertiaryLabel))
+                            }
+                            .padding(.vertical, 3)
+                            .padding(.horizontal, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .foregroundColor(Color(.tertiarySystemFill))
+                            )
                         }
-                        .padding(.vertical, 3)
-                        .padding(.horizontal, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .foregroundColor(Color(.tertiarySystemFill))
-                        )
-                    }
-                    HStack(alignment: .firstTextBaseline, spacing: 5) {
-                        Text("Container")
-                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .foregroundColor(.secondary)
-                        HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text("11")
-                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                .foregroundColor(.secondary)
-                            Text("balls")
-                                .font(.system(.footnote, design: .rounded, weight: .medium))
-                                .foregroundColor(Color(.tertiaryLabel))
-                        }
-                        .padding(.vertical, 3)
-                        .padding(.horizontal, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .foregroundColor(Color(.tertiarySystemFill))
-                        )
-                    }                }
+                    }                    
+                }
             }
         }
-    }
-    
-    var servingDescription: String? {
-        fields.serving.value.isEmpty ? nil : fields.serving.doubleValueDescription
     }
 }
