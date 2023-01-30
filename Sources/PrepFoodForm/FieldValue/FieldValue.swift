@@ -499,8 +499,17 @@ extension FieldValue: CustomStringConvertible {
         case .barcode:
             return "Barcode"
         
-        case .amount:
-            return "Amount Per"
+        case .amount(let doubleValue):
+            switch doubleValue.unit {
+            case .weight:
+                return "Weight"
+            case .volume:
+                return "Volume"
+            case .serving:
+                return "Servings"
+            case .size(let size, let volumeUnit):
+                return size.namePrefixed(with: volumeUnit)
+            }
         case .serving:
             return "Serving Size"
         case .density:
@@ -562,6 +571,17 @@ extension FieldValue {
             return "circle.circle.fill"
         case .micro:
             return "circle.circle"
+//        case .amount(let doubleValue):
+//            switch doubleValue.unit {
+//            case .weight:
+//                return "scalemass"
+//            case .volume:
+//                return "drop"
+//            case .serving:
+//                return "fork.knife"
+//            case .size:
+//                return "rectangle.3.group"
+//            }
         default:
             return ""
         }
@@ -575,6 +595,8 @@ extension FieldValue {
             return macroValue.double?.cleanAmount ?? "Required"
         case .micro(let microValue):
             return microValue.double?.cleanAmount ?? "Optional"
+        case .amount(let doubleValue):
+            return doubleValue.double?.cleanAmount ?? "Optional"
         default:
             return ""
         }
@@ -780,6 +802,8 @@ extension FieldValue {
             return macroValue.unitDescription
         case .micro(let microValue):
             return microValue.unitDescription
+        case .amount(let doubleValue):
+            return doubleValue.unitDescription
         default:
             return ""
         }
@@ -796,6 +820,9 @@ extension FieldValue {
             return macroValue.textColor(for: colorScheme)
         case .micro(let microValue):
             return microValue.textColor(for: colorScheme)
+        case .amount:
+            return .Color(.tertiaryLabel)
+
         default:
             return .gray
         }

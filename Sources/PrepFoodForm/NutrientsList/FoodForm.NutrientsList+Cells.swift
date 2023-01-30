@@ -15,7 +15,7 @@ extension FoodForm.NutrientsList {
             viewModel.attributeBeingEdited = .energy
             showingAttributeForm = true
         } label: {
-            Cell(field: fields.energy, showImage: $showingImages)
+            FieldCell(field: fields.energy, showImage: $showingImages)
         }
     }
 
@@ -39,7 +39,7 @@ extension FoodForm.NutrientsList {
             viewModel.attributeBeingEdited = field.value.macroValue.macro.attribute
             showingAttributeForm = true
         } label: {
-            Cell(field: field, showImage: $showingImages)
+            FieldCell(field: field, showImage: $showingImages)
         }
     }
     
@@ -83,7 +83,7 @@ extension FoodForm.NutrientsList {
             viewModel.attributeBeingEdited = field.value.microValue.nutrientType.attribute
             showingAttributeForm = true
         } label: {
-            Cell(field: field, showImage: $showingImages)
+            FieldCell(field: field, showImage: $showingImages)
         }
     }
     

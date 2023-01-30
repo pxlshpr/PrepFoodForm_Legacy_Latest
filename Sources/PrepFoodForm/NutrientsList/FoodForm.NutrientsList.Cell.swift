@@ -3,16 +3,11 @@ import PrepDataTypes
 import ActivityIndicatorView
 import SwiftUISugar
 
-extension FoodForm.NutrientsList {
-    struct Cell: View {
-        @Environment(\.colorScheme) var colorScheme
-        @EnvironmentObject var fields: FoodForm.Fields
-        @ObservedObject var field: Field
-        @Binding var showImage: Bool
-    }
-}
-
-extension FoodForm.NutrientsList.Cell {
+struct FieldCell: View {
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var fields: FoodForm.Fields
+    @ObservedObject var field: Field
+    @Binding var showImage: Bool
     
     var body: some View {
         ZStack {
@@ -26,6 +21,7 @@ extension FoodForm.NutrientsList.Cell {
         .padding(.top, 13)
         .background(FormCellBackground())
         .cornerRadius(10)
+        .frame(height: 100)
         .padding(.bottom, 10)
     }
     
@@ -44,8 +40,10 @@ extension FoodForm.NutrientsList.Cell {
         HStack {
             Spacer().frame(width: 2)
             HStack(spacing: 4) {
-                Image(systemName: field.value.iconImageName)
-                    .font(.system(size: 14))
+                if !field.value.iconImageName.isEmpty {
+                    Image(systemName: field.value.iconImageName)
+                        .font(.system(size: 14))
+                }
                 Text(field.value.description)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
@@ -86,6 +84,8 @@ extension FoodForm.NutrientsList.Cell {
             }
             Spacer()
         }
+        .frame(height: 34)
+//        .background(.green)
     }
     
     @ViewBuilder
