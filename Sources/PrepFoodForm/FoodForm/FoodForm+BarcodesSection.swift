@@ -25,6 +25,35 @@ extension FoodForm {
         }
     }
     
+    func showAddBarcodeAlert() {
+//        if presentedSheet != nil {
+//            presentedSheet = nil
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                Haptics.selectionFeedback()
+//                presentedSheet = sheet
+//            }
+//        } else if presentedFullScreenSheet != nil {
+//            presentedFullScreenSheet = nil
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                Haptics.selectionFeedback()
+//                presentedSheet = sheet
+//            }
+//        } else {
+//            Haptics.selectionFeedback()
+//            presentedSheet = sheet
+//        }
+        Haptics.feedback(style: .soft)
+        if showingAddBarcodeAlert {
+            /// Mitigates glitch where the alert fails to present if we're already presenting a `Menu`, but still sets this flag
+            showingAddBarcodeAlert = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                showingAddBarcodeAlert = true
+            }
+        } else {
+            showingAddBarcodeAlert = true
+        }
+    }
+    
     var addBarcodeMessage: some View {
         Text("Please enter the barcode number for this food.")
     }
@@ -78,16 +107,27 @@ extension FoodForm {
         var buttonWidth: CGFloat {
             (UIScreen.main.bounds.width - (2 * 35.0) - (8.0 * 2.0)) / 3.0
         }
+        
+        func removeBarcode(_ barcodeValue: FieldValue) {
+            withAnimation {
+                sources.removeBarcodePayload(barcodeValue.string)
+                fields.barcodes.removeAll(where: {
+                    $0.barcodeValue == barcodeValue.barcodeValue
+                })
+            }
+        }
 
         var addBarcodeSection: some View {
             FormStyledSection(header: header, footer: footer, horizontalPadding: 0, verticalPadding: 0) {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8.0) {
-                        ForEach(barcodeValues, id: \.self) {
-                            if let image = $0.barcodeThumbnail(width: buttonWidth, height: 80) {
+                        ForEach(barcodeValues, id: \.self) { barcodeValue in
+                            if let image = barcodeValue.barcodeThumbnail(width: buttonWidth, height: 80) {
                                 Menu {
+                                    Text(barcodeValue.string)
+                                    Divider()
                                     Button(role: .destructive) {
-                                        //TODO: Write this
+                                        removeBarcode(barcodeValue)
                                     } label: {
                                         Label("Remove", systemImage: "minus.circle")
                                     }
@@ -96,7 +136,7 @@ extension FoodForm {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(maxWidth: buttonWidth)
-                                        .shadow(radius: 3, x: 0, y: 3)
+//                                        .shadow(radius: 3, x: 0, y: 3)
                                 }
                                 .contentShape(Rectangle())
                                 .simultaneousGesture(TapGesture().onEnded {
@@ -118,8 +158,7 @@ extension FoodForm {
                                     showingBarcodeScanner = true
                                 }
                                 foodFormButton("Enter", image: "keyboard", isSecondary: true) {
-                                    Haptics.feedback(style: .soft)
-                                    showingAddBarcodeAlert = true
+                                    showAddBarcodeAlert()
                                 }
                             }
                             .frame(width: buttonWidth)
@@ -142,8 +181,7 @@ extension FoodForm {
                                 }
 
                                 Button {
-                                    Haptics.feedback(style: .soft)
-                                    showingAddBarcodeAlert = true
+                                    showAddBarcodeAlert()
                                 } label: {
                                     Label("Enter", systemImage: "keyboard")
                                 }
@@ -174,8 +212,7 @@ extension FoodForm {
                         showingBarcodeScanner = true
                     }
                     foodFormButton("Enter", image: "keyboard", isSecondary: true) {
-                        Haptics.feedback(style: .soft)
-                        showingAddBarcodeAlert = true
+                        showAddBarcodeAlert()
                     }
                     foodFormButton("", image: "") {
                     }

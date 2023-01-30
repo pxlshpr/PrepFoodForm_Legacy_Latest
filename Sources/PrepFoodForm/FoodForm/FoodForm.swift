@@ -162,6 +162,19 @@ public struct FoodForm: View {
         }
     }
     
+    let keyboardDidShow = NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)
+    let keyboardDidHide = NotificationCenter.default.publisher(for: UITextField.textDidEndEditingNotification)
+    func keyboardDidShow(_ notification: Notification) {
+        withAnimation {
+            shouldShowBottomButtons = false
+        }
+    }
+    func keyboardDidHide(_ notification: Notification) {
+        withAnimation {
+            shouldShowBottomButtons = true
+        }
+    }
+
     var navigationView: some View {
         NavigationView {
             formContent
@@ -172,9 +185,12 @@ public struct FoodForm: View {
                 .onChange(of: sources.selectedPhotos, perform: selectedPhotosChanged)
 //                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .onChange(of: showingWizard, perform: showingWizardChanged)
-                .onChange(of: showingAddLinkAlert, perform: showingAddLinkAlertChanged)
-                .onChange(of: showingAddBarcodeAlert, perform: showingAddBarcodeAlertChanged)
+//                .onChange(of: showingAddLinkAlert, perform: showingAddLinkAlertChanged)
+//                .onChange(of: showingAddBarcodeAlert, perform: showingAddBarcodeAlertChanged)
+                .onReceive(keyboardDidShow, perform: keyboardDidShow)
+                .onReceive(keyboardDidHide, perform: keyboardDidHide)
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
+            
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
                 .fullScreenCover(isPresented: $showingBarcodeScanner) { barcodeScanner }
