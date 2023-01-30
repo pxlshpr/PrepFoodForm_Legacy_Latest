@@ -1,10 +1,24 @@
 import SwiftUI
 import SwiftUISugar
+import FoodLabelScanner
+import PrepDataTypes
+import SwiftHaptics
+
+extension NutrientsPerForm {
+    class ViewModel: ObservableObject {
+    }
+}
 
 struct NutrientsPerForm: View {
 
     @EnvironmentObject var fields: FoodForm.Fields
     @EnvironmentObject var sources: FoodForm.Sources
+    
+    @StateObject var viewModel = ViewModel()
+
+    @State var showingAmountForm = false
+    @State var showingServingForm = false
+    
     @State var showingImages: Bool = true
 
     var body: some View {
@@ -12,6 +26,8 @@ struct NutrientsPerForm: View {
 //        .toolbar { navigationTrailingContent }
         .navigationTitle("Servings and Sizes")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(isPresented: $showingAmountForm) { amountForm }
+        .sheet(isPresented: $showingServingForm) { servingForm }
     }
     
     var scrollView: some View {
@@ -109,6 +125,8 @@ struct NutrientsPerForm: View {
         
         return Group {
             Button {
+                Haptics.feedback(style: .soft)
+                showingAmountForm = true
             } label: {
                 FieldCell(field: fields.amount, showImage: $showingImages)
             }
@@ -138,6 +156,8 @@ struct NutrientsPerForm: View {
 
         return Group {
             Button {
+                Haptics.feedback(style: .soft)
+                showingServingForm = true
             } label: {
                 FieldCell(field: fields.serving, showImage: $showingImages)
             }
@@ -177,3 +197,23 @@ struct NutrientsPerForm: View {
     }
 }
 
+extension NutrientsPerForm {
+    var amountForm: some View {
+        ServingForm(
+            isServingSize: false,
+            initialField: fields.amount,
+            handleNewValue: { tuple in
+            }
+        )
+    }
+    
+    var servingForm: some View {
+        ServingForm(
+            isServingSize: true,
+            initialField: fields.serving,
+            handleNewValue: { tuple in
+            }
+        )
+    }
+
+}

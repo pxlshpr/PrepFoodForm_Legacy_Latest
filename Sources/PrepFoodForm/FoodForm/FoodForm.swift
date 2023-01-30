@@ -321,7 +321,8 @@ public struct FoodForm: View {
 //        if fields.canBeSaved {
             //TODO: Programmatically get this inset (67516AA6)
             Spacer()
-                .frame(height: 137)
+//                .frame(height: 137)
+                .frame(height: 157)
 //        }
     }
     
