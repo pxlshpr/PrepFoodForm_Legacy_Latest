@@ -141,6 +141,7 @@ struct NutrientsPerForm: View {
                 showingAmountForm = true
             } label: {
                 FieldCell(field: fields.amount, showImage: $showingImages)
+                    .environmentObject(fields)
             }
             footerCell(footerString)
         }
@@ -172,6 +173,7 @@ struct NutrientsPerForm: View {
                 showingServingForm = true
             } label: {
                 FieldCell(field: fields.serving, showImage: $showingImages)
+                    .environmentObject(fields)
             }
             footerCell(footerString)
         }
@@ -195,6 +197,7 @@ struct NutrientsPerForm: View {
             Button {
             } label: {
                 FieldCell(field: fields.density, showImage: $showingImages)
+                    .environmentObject(fields)
             }
             footerCell(footerString)
         }
@@ -205,6 +208,7 @@ struct NutrientsPerForm: View {
             
         } label: {
             FieldCell(field: sizeField, showImage: $showingImages)
+                .environmentObject(fields)
         }
     }
 }

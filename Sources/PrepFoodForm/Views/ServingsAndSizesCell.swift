@@ -168,7 +168,7 @@ public struct ServingsAndSizesCell: View {
                 Text("Sizes")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundColor(Color(.tertiaryLabel))
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 3) {
                     ForEach(fields.allSizeFields, id: \.self) { sizeField in
                         HStack(alignment: .firstTextBaseline, spacing: 5) {
                             Text(sizeField.sizeNameString.capitalized)
@@ -176,20 +176,20 @@ public struct ServingsAndSizesCell: View {
                                 .foregroundColor(.secondary)
                             HStack(alignment: .firstTextBaseline, spacing: 2) {
                                 Text(sizeField.sizeAmountString)
-                                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                    .font(.system(.caption, design: .rounded, weight: .semibold))
                                     .foregroundColor(.secondary)
                                 Text(sizeField.sizeAmountUnitString)
-                                    .font(.system(.footnote, design: .rounded, weight: .medium))
+                                    .font(.system(.caption2, design: .rounded, weight: .medium))
                                     .foregroundColor(Color(.tertiaryLabel))
                             }
-                            .padding(.vertical, 3)
-                            .padding(.horizontal, 6)
+                            .padding(.vertical, 1)
+                            .padding(.horizontal, 5)
                             .background(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                RoundedRectangle(cornerRadius: 4, style: .continuous)
                                     .foregroundColor(Color(.tertiarySystemFill))
                             )
                         }
-                    }                    
+                    }
                 }
             }
         }

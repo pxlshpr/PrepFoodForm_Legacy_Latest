@@ -2,6 +2,7 @@ import SwiftUI
 import PrepDataTypes
 import FoodLabelScanner
 import SwiftHaptics
+import PrepViews
 
 struct ServingForm: View {
     
@@ -114,6 +115,24 @@ struct ServingForm: View {
     }
     
     var unitPicker: some View {
+        UnitPickerGridTiered(
+            pickedUnit: viewModel.unit,
+            includeServing: !viewModel.isServingSize,
+            includeWeights: true,
+            includeVolumes: true,
+            sizes: fields.allSizes,
+//            servingDescription: "",
+            allowAddSize: false,
+            didPickUnit: { newUnit in
+                withAnimation {
+                    Haptics.feedback(style: .soft)
+                    viewModel.unit = newUnit
+                }
+            }
+        )
+    }
+    
+    var unitPicker_legacy: some View {
         UnitPicker_Legacy(
             pickedUnit: viewModel.unit,
             includeServing: !viewModel.isServingSize,

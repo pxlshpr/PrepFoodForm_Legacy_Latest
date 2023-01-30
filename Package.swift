@@ -26,7 +26,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.20"),
         .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.244"),
         .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.22"),
-        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.130"),
+        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.131"),
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.86"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.41"),
