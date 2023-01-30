@@ -112,7 +112,7 @@ struct NutrientsPerForm: View {
             } label: {
                 FieldCell(field: fields.amount, showImage: $showingImages)
             }
-            footerCell(footerString)
+//            footerCell(footerString)
         }
     }
 
@@ -128,7 +128,9 @@ struct NutrientsPerForm: View {
             case .volume:
                 return "This is the volume of 1 serving."
             case .size(let size, _):
-                return "This is how many \(size.prefixedName) is 1 serving."
+                return "This is the size of 1 serving."
+//                return "This is how many \(size.prefixedName) 1 serving has."
+//                return "This is how many \(size.prefixedName) is 1 serving."
             case .serving:
                 return "Unsupported"
             }
@@ -139,7 +141,7 @@ struct NutrientsPerForm: View {
             } label: {
                 FieldCell(field: fields.serving, showImage: $showingImages)
             }
-            footerCell(footerString)
+//            footerCell(footerString)
         }
     }
 
