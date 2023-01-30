@@ -26,22 +26,6 @@ extension FoodForm {
     }
     
     func showAddBarcodeAlert() {
-//        if presentedSheet != nil {
-//            presentedSheet = nil
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                Haptics.selectionFeedback()
-//                presentedSheet = sheet
-//            }
-//        } else if presentedFullScreenSheet != nil {
-//            presentedFullScreenSheet = nil
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                Haptics.selectionFeedback()
-//                presentedSheet = sheet
-//            }
-//        } else {
-//            Haptics.selectionFeedback()
-//            presentedSheet = sheet
-//        }
         Haptics.feedback(style: .soft)
         if showingAddBarcodeAlert {
             /// Mitigates glitch where the alert fails to present if we're already presenting a `Menu`, but still sets this flag
@@ -194,7 +178,10 @@ extension FoodForm {
                             .simultaneousGesture(TapGesture().onEnded {
                                 Haptics.feedback(style: .soft)
                             })
-                            .transition(.move(edge: .trailing))
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .trailing),
+                                removal: .scale
+                            ))
                         }
 
                     }

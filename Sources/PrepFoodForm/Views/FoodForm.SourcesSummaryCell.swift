@@ -62,6 +62,20 @@ extension FoodForm.SourcesSummaryCell {
         }
     }
     
+    
+    func showAddLinkAlert() {
+        Haptics.feedback(style: .soft)
+        if showingAddLinkAlert {
+            /// Mitigates glitch where the alert fails to present if we're already presenting a `Menu`, but still sets this flag
+            showingAddLinkAlert = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                showingAddLinkAlert = true
+            }
+        } else {
+            showingAddLinkAlert = true
+        }
+    }
+    
     var addSourceButtons: some View {
         HStack {
             foodFormButton("Camera", image: "camera") {
@@ -73,8 +87,7 @@ extension FoodForm.SourcesSummaryCell {
                 showingPhotosPicker = true
             }
             foodFormButton("Link", image: "link") {
-                Haptics.feedback(style: .soft)
-                showingAddLinkAlert = true
+                showAddLinkAlert()
             }
         }
         .padding(.vertical, 15)
@@ -175,8 +188,7 @@ extension FoodForm.SourcesSummaryCell {
                                 showingPhotosPicker = true
                             }
                             foodFormButton("Link", image: "link") {
-                                Haptics.feedback(style: .soft)
-                                showingAddLinkAlert = true
+                                showAddLinkAlert()
                             }
                         }
                         .frame(width: buttonWidth)
@@ -211,8 +223,7 @@ extension FoodForm.SourcesSummaryCell {
                             Divider()
 
                             Button {
-                                Haptics.feedback(style: .soft)
-                                showingAddLinkAlert = true
+                                showAddLinkAlert()
                             } label: {
                                 Label("Add a Link", systemImage: "link")
                             }
@@ -327,8 +338,7 @@ extension FoodForm.SourcesSummaryCell {
         Menu {
             
             Button {
-                Haptics.feedback(style: .soft)
-                showingAddLinkAlert = true
+                showAddLinkAlert()
             } label: {
                 Label("Add a Link", systemImage: "link")
             }
