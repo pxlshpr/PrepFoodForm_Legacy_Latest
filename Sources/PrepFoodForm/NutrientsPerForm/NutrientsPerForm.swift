@@ -43,10 +43,11 @@ struct NutrientsPerForm: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 amountCell
-                if fields.shouldShowServing {
+                if shouldShowServing {
                     servingCell
+                        .transition(.move(edge: .trailing))
                 }
-                if fields.shouldShowDensity {
+                if shouldShowDensity {
                     densityCell
                 }
                 sizesGroup
@@ -236,6 +237,8 @@ extension NutrientsPerForm {
             fields.amount.value.doubleValue.double = double
             fields.amount.value.doubleValue.unit = unit
             fields.amount.registerUserInput()
+            
+            fields.updateShouldShowDensity()
             shouldShowServing = fields.shouldShowServing
             shouldShowDensity = fields.shouldShowDensity
         }
@@ -246,6 +249,8 @@ extension NutrientsPerForm {
             fields.serving.value.double = double
             fields.serving.value.doubleValue.unit = unit
             fields.serving.registerUserInput()
+            
+            fields.updateShouldShowDensity()
             shouldShowServing = fields.shouldShowServing
             shouldShowDensity = fields.shouldShowDensity
         }
