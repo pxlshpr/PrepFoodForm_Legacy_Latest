@@ -48,7 +48,7 @@ struct FieldCell: View {
                     Image(systemName: field.value.iconImageName)
                         .font(.system(size: 14))
                 }
-                Text(field.value.description)
+                Text(field.value.description.capitalized)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
             .frame(maxHeight: .infinity, alignment: .top)
@@ -224,6 +224,8 @@ struct FieldCell: View {
         switch field.value {
         case .density(let densityValue):
             return !densityValue.isValid
+        case .size(let sizeValue):
+            return false
         default:
             return field.value.double == nil
         }

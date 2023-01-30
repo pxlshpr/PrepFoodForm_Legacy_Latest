@@ -20,7 +20,7 @@ struct NutrientsPerForm: View {
                 amountCell
                 servingCell
                 densityCell
-//                sizesGroup
+                sizesGroup
             }
             .padding(.horizontal, 20)
             .safeAreaInset(edge: .bottom) {
@@ -35,6 +35,30 @@ struct NutrientsPerForm: View {
         )
     }
     
+    var sizesGroup: some View {
+        Group {
+            titleCell("Sizes")
+            ForEach(fields.allSizeFields, id: \.self) {
+                sizeCell(for: $0)
+            }
+        }
+    }
+    
+    func titleCell(_ title: String) -> some View {
+        Group {
+            Spacer().frame(height: 15)
+            HStack {
+                Spacer().frame(width: 3)
+                Text(title)
+                    .font(.title2)
+                    .bold()
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            Spacer().frame(height: 7)
+        }
+    }
+
     var amountCell: some View {
         Button {
         } label: {
@@ -56,5 +80,12 @@ struct NutrientsPerForm: View {
         }
     }
 
+    func sizeCell(for sizeField: Field) -> some View {
+        Button {
+            
+        } label: {
+            FieldCell(field: sizeField, showImage: $showingImages)
+        }
+    }
 }
 

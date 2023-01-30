@@ -801,6 +801,8 @@ extension FieldValue {
             } else {
                 return "Optional"
             }
+        case .size(let sizeValue):
+            return sizeValue.size.amountString
         default:
             return ""
         }
@@ -816,6 +818,8 @@ extension FieldValue {
             return microValue.unitDescription
         case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.unitDescription
+        case .size(let sizeValue):
+            return sizeValue.size.unit.description
         default:
             return ""
         }
