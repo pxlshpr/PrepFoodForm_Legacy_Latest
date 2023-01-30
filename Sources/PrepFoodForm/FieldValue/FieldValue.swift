@@ -823,7 +823,7 @@ extension FieldValue {
         case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.unitDescription
         case .size(let sizeValue):
-            return sizeValue.size.unit.description
+            return sizeValue.size.unit.shortDescription
         default:
             return ""
         }
@@ -841,7 +841,8 @@ extension FieldValue {
         case .micro(let microValue):
             return microValue.textColor(for: colorScheme)
         case .amount, .serving:
-            return .accentColor
+            return Color(.tertiaryLabel)
+//            return .accentColor
         case .density:
             return Color(.tertiaryLabel)
 
