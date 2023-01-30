@@ -29,7 +29,11 @@ extension FoodForm {
     }
     
     var sourcesSection: some View {
-        SourcesSummaryCell(sources: sources)
+        SourcesSummaryCell(
+            sources: sources,
+            showingAddLinkAlert: $showingAddLinkAlert,
+            didTapCamera: showExtractorViewWithCamera
+        )
     }
     
     var foodLabelSection: some View {

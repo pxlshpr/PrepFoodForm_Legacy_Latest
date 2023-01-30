@@ -25,16 +25,6 @@ extension FoodForm {
             .presentationDragIndicator(.hidden)
     }
     
-    var camera: some View {
-        Camera { image in
-            sources.addImageViewModel(ImageViewModel(image))
-        }
-    }
-    
-//    var foodLabelCamera: some View {
-//        FoodLabelCamera(foodLabelScanHandler: didReceiveScanFromFoodLabelCamera)
-//    }
-
     var barcodeScanner: some View {
         BarcodeScanner { barcodes, image in
             handleScannedBarcodes(barcodes, on: image)

@@ -9,15 +9,13 @@ import Camera
 extension FoodForm {
     struct SourcesSummaryCell: View {
         @ObservedObject var sources: FoodForm.Sources
+        @Binding var showingAddLinkAlert: Bool
+        let didTapCamera: () -> ()
         
         @State var showingPhotosPicker = false
-        @State var showingCamera = false
         @State var showingFoodLabelCamera = false
-        
-        @State var showingAddLinkAlert = false
         @State var linkIsInvalid = false
         @State var link: String = ""
-        
         @State var linkInfoBeingPresented: LinkInfo? = nil
     }
 }
@@ -40,8 +38,6 @@ extension FoodForm.SourcesSummaryCell {
             maxSelectionCount: 1,
             matching: .images
         )
-//        .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
-        .sheet(isPresented: $showingCamera) { camera }
         .sheet(item: $linkInfoBeingPresented) { webView(for: $0) }
     }
     
@@ -70,7 +66,7 @@ extension FoodForm.SourcesSummaryCell {
         HStack {
             foodFormButton("Camera", image: "camera") {
                 Haptics.feedback(style: .soft)
-                showingCamera = true
+                didTapCamera()
             }
             foodFormButton("Photo", image: "photo.on.rectangle") {
                 Haptics.feedback(style: .soft)
@@ -171,7 +167,7 @@ extension FoodForm.SourcesSummaryCell {
                         Group {
                             foodFormButton("Camera", image: "camera") {
                                 Haptics.feedback(style: .soft)
-                                showingCamera = true
+                                didTapCamera()
                             }
                             foodFormButton("Photo", image: "photo.on.rectangle") {
                                 Haptics.feedback(style: .soft)
@@ -198,7 +194,7 @@ extension FoodForm.SourcesSummaryCell {
                             Section("Scan a Food Label") {
                                 Button {
                                     Haptics.feedback(style: .soft)
-                                    showingCamera = true
+                                    didTapCamera()
                                 } label: {
                                     Label("Camera", systemImage: "camera")
                                 }
@@ -347,7 +343,7 @@ extension FoodForm.SourcesSummaryCell {
             
             Button {
                 Haptics.feedback(style: .soft)
-                showingCamera = true
+                didTapCamera()
             } label: {
                 Label("Take Photo\(sources.pluralS)", systemImage: "camera")
             }

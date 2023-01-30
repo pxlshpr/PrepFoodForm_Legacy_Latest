@@ -24,13 +24,14 @@ public struct FoodForm: View {
 
     /// Sheets
     @State var showingEmojiPicker = false
-    @State var showingCamera = false
     @State var showingFoodLabelCamera = false
     @State var showingPhotosPicker = false
     @State var showingPrefill = false
     @State var showingPrefillInfo = false
     @State var showingTextPicker = false
     @State var showingBarcodeScanner = false
+
+    @State var showingAddLinkAlert = false
 
     @State var showingExtractorView: Bool = false
     
@@ -172,8 +173,6 @@ public struct FoodForm: View {
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
-//                .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
-                .sheet(isPresented: $showingCamera) { camera }
                 .fullScreenCover(isPresented: $showingBarcodeScanner) { barcodeScanner }
 //                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
                 .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
@@ -219,11 +218,23 @@ public struct FoodForm: View {
         sources.selectedPhotos = []
     }
     
+    var shouldShowBottomButtons: Bool {
+        if showingWizard {
+            return false
+        }
+        
+        if showingAddLinkAlert {
+            return false
+        }
+        
+        return true
+    }
+    
     var formContent: some View {
         ZStack {
             formLayer
             wizardLayer
-            if !showingWizard {
+            if shouldShowBottomButtons {
                 buttonsLayer
                     .transition(.move(edge: .bottom))
             }
