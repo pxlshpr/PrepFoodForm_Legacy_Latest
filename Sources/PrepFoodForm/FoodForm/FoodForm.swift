@@ -32,6 +32,7 @@ public struct FoodForm: View {
     @State var showingBarcodeScanner = false
 
     @State var showingAddLinkAlert = false
+    @State var shouldShowBottomButtons = false
 
     @State var showingExtractorView: Bool = false
     
@@ -170,6 +171,9 @@ public struct FoodForm: View {
                 .onAppear(perform: appeared)
                 .onChange(of: sources.selectedPhotos, perform: selectedPhotosChanged)
 //                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
+                .onChange(of: showingWizard, perform: showingWizardChanged)
+                .onChange(of: showingAddLinkAlert, perform: showingAddLinkAlertChanged)
+                .onChange(of: showingAddBarcodeAlert, perform: showingAddBarcodeAlertChanged)
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
@@ -197,7 +201,25 @@ public struct FoodForm: View {
 //                }
         }
     }
-
+    
+    func showingWizardChanged(_ showingWizard: Bool) {
+        withAnimation {
+            shouldShowBottomButtons = !showingWizard
+        }
+    }
+    
+    func showingAddLinkAlertChanged(_ showingAddLinkAlert: Bool) {
+        withAnimation {
+            shouldShowBottomButtons = !showingAddLinkAlert
+        }
+    }
+    
+    func showingAddBarcodeAlertChanged(_ showingAddBarcodeAlert: Bool) {
+        withAnimation {
+            shouldShowBottomButtons = !showingAddBarcodeAlert
+        }
+    }
+ 
     @ViewBuilder
     var extractorViewLayer: some View {
         if showingExtractorView {
@@ -216,18 +238,6 @@ public struct FoodForm: View {
         guard let item = items.first else { return }
         showExtractor(with: item)
         sources.selectedPhotos = []
-    }
-    
-    var shouldShowBottomButtons: Bool {
-        if showingWizard {
-            return false
-        }
-        
-        if showingAddLinkAlert {
-            return false
-        }
-        
-        return true
     }
     
     var formContent: some View {
