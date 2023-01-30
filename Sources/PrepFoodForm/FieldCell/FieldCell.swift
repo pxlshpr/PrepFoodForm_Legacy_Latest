@@ -224,7 +224,7 @@ struct FieldCell: View {
         switch field.value {
         case .density(let densityValue):
             return !densityValue.isValid
-        case .size(let sizeValue):
+        case .size:
             return false
         default:
             return field.value.double == nil
