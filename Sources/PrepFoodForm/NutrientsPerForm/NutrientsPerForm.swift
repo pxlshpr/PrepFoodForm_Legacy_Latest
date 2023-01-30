@@ -41,7 +41,7 @@ struct NutrientsPerForm: View {
     
     var sizesGroup: some View {
         var footerString: String {
-            "Sizes give you additional named units to log this food in, such as – biscuit, bottle, container, etc."
+            "Sizes give you additional portions to log this food in – like biscuit, bottle, container, etc."
         }
         
         return Group {
