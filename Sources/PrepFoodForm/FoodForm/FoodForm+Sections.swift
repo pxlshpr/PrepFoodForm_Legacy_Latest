@@ -74,7 +74,7 @@ extension FoodForm {
     }
     
     var servingSection: some View {
-        FormStyledSection(header: Text("Nutrients Per")) {
+        FormStyledSection(header: Text("Servings and Sizes")) {
             NavigationLink {
 //                AmountPerForm()
                 NutrientsPerForm()

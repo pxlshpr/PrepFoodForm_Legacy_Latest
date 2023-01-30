@@ -10,7 +10,7 @@ struct NutrientsPerForm: View {
     var body: some View {
         scrollView
 //        .toolbar { navigationTrailingContent }
-        .navigationTitle("Nutrients Per")
+        .navigationTitle("Servings and Sizes")
         .navigationBarTitleDisplayMode(.large)
     }
     
