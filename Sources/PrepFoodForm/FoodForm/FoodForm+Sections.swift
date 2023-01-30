@@ -77,8 +77,7 @@ extension FoodForm {
         FormStyledSection(header: Text("Servings and Sizes")) {
             NavigationLink {
 //                AmountPerForm()
-                NutrientsPerForm()
-                    .environmentObject(fields)
+                NutrientsPerForm(fields: fields)
                     .environmentObject(sources)
             } label: {
                 if fields.hasAmount {

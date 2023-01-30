@@ -11,16 +11,25 @@ extension NutrientsPerForm {
 
 struct NutrientsPerForm: View {
 
-    @EnvironmentObject var fields: FoodForm.Fields
     @EnvironmentObject var sources: FoodForm.Sources
-    
+    @ObservedObject var fields: FoodForm.Fields
+
     @StateObject var viewModel = ViewModel()
+
+    @State var shouldShowServing: Bool
+    @State var shouldShowDensity: Bool
 
     @State var showingAmountForm = false
     @State var showingServingForm = false
     
     @State var showingImages: Bool = true
-
+    
+    init(fields: FoodForm.Fields) {
+        self.fields = fields
+        self.shouldShowServing = fields.shouldShowServing
+        self.shouldShowDensity = fields.shouldShowDensity
+    }
+    
     var body: some View {
         scrollView
 //        .toolbar { navigationTrailingContent }
@@ -207,6 +216,7 @@ extension NutrientsPerForm {
                 handleNewAmount(tuple.0, unit: tuple.1)
             }
         )
+        .environmentObject(fields)
     }
     
     var servingForm: some View {
@@ -218,13 +228,16 @@ extension NutrientsPerForm {
                 handleNewServing(tuple.0, unit: tuple.1)
             }
         )
+        .environmentObject(fields)
     }
 
     func handleNewAmount(_ double: Double, unit: FormUnit) {
         withAnimation {
-            fields.amount.value.double = double
+            fields.amount.value.doubleValue.double = double
             fields.amount.value.doubleValue.unit = unit
             fields.amount.registerUserInput()
+            shouldShowServing = fields.shouldShowServing
+            shouldShowDensity = fields.shouldShowDensity
         }
     }
     
@@ -233,6 +246,8 @@ extension NutrientsPerForm {
             fields.serving.value.double = double
             fields.serving.value.doubleValue.unit = unit
             fields.serving.registerUserInput()
+            shouldShowServing = fields.shouldShowServing
+            shouldShowDensity = fields.shouldShowDensity
         }
     }
 
