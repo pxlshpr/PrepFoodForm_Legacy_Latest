@@ -41,7 +41,7 @@ struct NutrientsPerForm: View {
     
     var sizesGroup: some View {
         var footerString: String {
-            "Sizes give you additional portions to log this food in – like biscuit, bottle, container, etc."
+            "Sizes give you additional portions to log this food in; like biscuit, bottle, container, etc."
         }
         
         return Group {
@@ -119,7 +119,7 @@ struct NutrientsPerForm: View {
     var servingCell: some View {
         var footerString: String {
             if fields.serving.value.isEmpty {
-                return "This is size of 1 serving."
+                return "This is the size of 1 serving."
             }
             
             switch fields.serving.value.doubleValue.unit {

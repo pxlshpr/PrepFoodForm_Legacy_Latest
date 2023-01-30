@@ -768,8 +768,8 @@ extension FieldValue {
             return "circle.circle"
         case .density:
             return "arrow.triangle.swap"
-        case .size:
-            return "rectangle.3.group"
+//        case .size:
+//            return "rectangle.3.group"
 //        case .amount(let doubleValue):
 //            switch doubleValue.unit {
 //            case .weight:
