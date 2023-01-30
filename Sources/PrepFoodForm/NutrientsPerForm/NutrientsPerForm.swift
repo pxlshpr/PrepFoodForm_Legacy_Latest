@@ -203,6 +203,8 @@ extension NutrientsPerForm {
             isServingSize: false,
             initialField: fields.amount,
             handleNewValue: { tuple in
+                guard let tuple else { return }
+                handleNewAmount(tuple.0, unit: tuple.1)
             }
         )
     }
@@ -212,8 +214,26 @@ extension NutrientsPerForm {
             isServingSize: true,
             initialField: fields.serving,
             handleNewValue: { tuple in
+                guard let tuple else { return }
+                handleNewServing(tuple.0, unit: tuple.1)
             }
         )
+    }
+
+    func handleNewAmount(_ double: Double, unit: FormUnit) {
+        withAnimation {
+            fields.amount.value.double = double
+            fields.amount.value.doubleValue.unit = unit
+            fields.amount.registerUserInput()
+        }
+    }
+    
+    func handleNewServing(_ double: Double, unit: FormUnit) {
+        withAnimation {
+            fields.serving.value.double = double
+            fields.serving.value.doubleValue.unit = unit
+            fields.serving.registerUserInput()
+        }
     }
 
 }

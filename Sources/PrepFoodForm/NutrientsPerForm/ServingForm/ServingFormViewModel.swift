@@ -49,6 +49,11 @@ class ServingFormViewModel: ObservableObject {
         !isServingSize
     }
     
+    var returnTuple: (Double, FormUnit)? {
+        guard let internalTextfieldDouble else { return nil }
+        return (internalTextfieldDouble, unit)
+    }
+
     var shouldDisableDone: Bool {
         if initialField?.value.double == internalTextfieldDouble
             && initialField?.value.doubleValue.unit == unit

@@ -66,13 +66,12 @@ struct ServingForm: View {
             }
         }
     }
-
+    
     var trailingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 Haptics.successFeedback()
-                //TODO: Do this
-//                viewModel.handleNewValue(viewModel.value)
+                viewModel.handleNewValue(viewModel.returnTuple)
                 dismiss()
             } label: {
                 Text("Done")
@@ -117,6 +116,7 @@ struct ServingForm: View {
     var unitPicker: some View {
         UnitPicker_Legacy(
             pickedUnit: viewModel.unit,
+            includeServing: !viewModel.isServingSize,
             allowAddSize: false
         ) { newUnit in
             withAnimation {
