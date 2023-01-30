@@ -18,8 +18,12 @@ struct NutrientsPerForm: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 amountCell
-                servingCell
-                densityCell
+                if fields.shouldShowServing {
+                    servingCell
+                }
+                if fields.shouldShowDensity {
+                    densityCell
+                }
                 sizesGroup
             }
             .padding(.horizontal, 20)
@@ -36,12 +40,35 @@ struct NutrientsPerForm: View {
     }
     
     var sizesGroup: some View {
-        Group {
+        var footerString: String {
+            "Sizes give you additional named units to log this food in, such as – biscuit, bottle, container, etc."
+        }
+        
+        return Group {
             titleCell("Sizes")
             ForEach(fields.allSizeFields, id: \.self) {
                 sizeCell(for: $0)
             }
+            addSizeButton
+            footerCell(footerString)
         }
+    }
+    
+    var addSizeButton: some View {
+        Button {
+        } label: {
+            Text("Add a size")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.accentColor)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 13)
+                .padding(.top, 13)
+                .background(FormCellBackground())
+                .cornerRadius(10)
+                .padding(.bottom, 10)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
     }
     
     func titleCell(_ title: String) -> some View {
@@ -69,9 +96,10 @@ struct NutrientsPerForm: View {
                     .foregroundColor(.secondary)
                 Spacer()
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 17)
+            .offset(y: -3)
             Spacer()
-                .frame(height: 20)
+                .frame(height: 12)
         }
     }
     var amountCell: some View {
@@ -90,11 +118,15 @@ struct NutrientsPerForm: View {
 
     var servingCell: some View {
         var footerString: String {
+            if fields.serving.value.isEmpty {
+                return "This is size of 1 serving."
+            }
+            
             switch fields.serving.value.doubleValue.unit {
             case .weight:
-                return "This is the weight of 1 serving. Enter this to log this food using its weight in addition to servings."
+                return "This is the weight of 1 serving."
             case .volume:
-                return "This is the volume of 1 serving. Enter this to log this food using its volume in addition to servings."
+                return "This is the volume of 1 serving."
             case .size(let size, _):
                 return "This is how many \(size.prefixedName) is 1 serving."
             case .serving:
@@ -107,7 +139,7 @@ struct NutrientsPerForm: View {
             } label: {
                 FieldCell(field: fields.serving, showImage: $showingImages)
             }
-//            footerCell(footerString)
+            footerCell(footerString)
         }
     }
 
