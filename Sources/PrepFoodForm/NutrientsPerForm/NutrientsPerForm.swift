@@ -104,7 +104,7 @@ struct NutrientsPerForm: View {
     }
     var amountCell: some View {
         var footerString: String {
-            "This is how much of this food the nutrition facts are for."
+            "This is how Emuch of this food the nutrition facts are for."
         }
         
         return Group {
@@ -147,10 +147,15 @@ struct NutrientsPerForm: View {
 
     var densityCell: some View {
         var footerString: String {
+            var prefix: String {
+                return fields.density.isValid
+                ? "You can"
+                : "Enter this to"
+            }
             if fields.isWeightBased {
-                return "Enter this to also log this food using volume units, like cups."
+                return "\(prefix) also log this food using volume units, like cups."
             } else {
-                return "Enter this to also log this food using using its weight."
+                return "\(prefix) also log this food using using its weight."
             }
         }
         
