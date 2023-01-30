@@ -45,10 +45,12 @@ struct NutrientsPerForm: View {
                 amountCell
                 if shouldShowServing {
                     servingCell
-                        .transition(.move(edge: .trailing))
+//                        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .trailing)))
+                        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .scale))
                 }
                 if shouldShowDensity {
                     densityCell
+                        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .scale))
                 }
                 sizesGroup
             }
@@ -246,7 +248,7 @@ extension NutrientsPerForm {
     
     func handleNewServing(_ double: Double, unit: FormUnit) {
         withAnimation {
-            fields.serving.value.double = double
+            fields.serving.value.doubleValue.double = double
             fields.serving.value.doubleValue.unit = unit
             fields.serving.registerUserInput()
             
