@@ -45,6 +45,11 @@ extension FoodForm {
         )
     }
     
+    var servingsAndSizesCell: some View {
+        ServingsAndSizesCell()
+            .environmentObject(fields)
+    }
+    
     var foodAmountPerView: some View {
         
         let amountDescription = Binding<String>(

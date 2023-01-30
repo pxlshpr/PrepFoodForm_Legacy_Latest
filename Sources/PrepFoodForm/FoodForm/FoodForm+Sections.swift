@@ -82,7 +82,8 @@ extension FoodForm {
                     .environmentObject(sources)
             } label: {
                 if fields.hasAmount {
-                    foodAmountPerView
+                    servingsAndSizesCell
+//                    foodAmountPerView
                 } else {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))
