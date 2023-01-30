@@ -215,8 +215,7 @@ extension NutrientsPerForm {
             isServingSize: false,
             initialField: fields.amount,
             handleNewValue: { tuple in
-                guard let tuple else { return }
-                handleNewAmount(tuple.0, unit: tuple.1)
+                handleNewAmount(tuple?.0, unit: tuple?.1)
             }
         )
         .environmentObject(fields)
@@ -227,31 +226,38 @@ extension NutrientsPerForm {
             isServingSize: true,
             initialField: fields.serving,
             handleNewValue: { tuple in
-                guard let tuple else { return }
-                handleNewServing(tuple.0, unit: tuple.1)
+                handleNewServing(tuple?.0, unit: tuple?.1)
             }
         )
         .environmentObject(fields)
     }
 
-    func handleNewAmount(_ double: Double, unit: FormUnit) {
+    func handleNewAmount(_ double: Double?, unit: FormUnit?) {
         withAnimation {
-            fields.amount.value.doubleValue.double = double
-            fields.amount.value.doubleValue.unit = unit
-            fields.amount.registerUserInput()
+            if let double, let unit {
+                fields.amount.value.doubleValue.double = double
+                fields.amount.value.doubleValue.unit = unit
+            } else {
+                fields.amount.value.doubleValue.double = nil
+            }
             
+            fields.amount.registerUserInput()
             fields.updateShouldShowDensity()
             shouldShowServing = fields.shouldShowServing
             shouldShowDensity = fields.shouldShowDensity
         }
     }
     
-    func handleNewServing(_ double: Double, unit: FormUnit) {
+    func handleNewServing(_ double: Double?, unit: FormUnit?) {
         withAnimation {
-            fields.serving.value.doubleValue.double = double
-            fields.serving.value.doubleValue.unit = unit
-            fields.serving.registerUserInput()
+            if let double, let unit {
+                fields.serving.value.doubleValue.double = double
+                fields.serving.value.doubleValue.unit = unit
+            } else {
+                fields.serving.value.doubleValue.double = nil
+            }
             
+            fields.serving.registerUserInput()
             fields.updateShouldShowDensity()
             shouldShowServing = fields.shouldShowServing
             shouldShowDensity = fields.shouldShowDensity
