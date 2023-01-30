@@ -70,8 +70,103 @@ extension FoodForm {
                 )
             )
         }
+
+        var barcodeValues: [FieldValue] {
+            fields.barcodes.map { $0.value }
+        }
         
+        var buttonWidth: CGFloat {
+            (UIScreen.main.bounds.width - (2 * 35.0) - (8.0 * 2.0)) / 3.0
+        }
+
         var addBarcodeSection: some View {
+            FormStyledSection(header: header, footer: footer, horizontalPadding: 0, verticalPadding: 0) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8.0) {
+                        ForEach(barcodeValues, id: \.self) {
+                            if let image = $0.barcodeThumbnail(width: buttonWidth, height: 80) {
+                                Menu {
+                                    Button(role: .destructive) {
+                                        //TODO: Write this
+                                    } label: {
+                                        Label("Remove", systemImage: "minus.circle")
+                                    }
+                                } label: {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxWidth: buttonWidth)
+                                        .shadow(radius: 3, x: 0, y: 3)
+                                }
+                                .contentShape(Rectangle())
+                                .simultaneousGesture(TapGesture().onEnded {
+                                    Haptics.feedback(style: .soft)
+                                })
+                                .transition(
+                                    .asymmetric(
+                                        insertion: .move(edge: .leading),
+                                        removal: .scale
+                                    )
+                                )
+                            }
+                        }
+                        
+                        if barcodeValues.isEmpty {
+                            Group {
+                                foodFormButton("Scan", image: "barcode.viewfinder", isSecondary: true) {
+                                    Haptics.feedback(style: .soft)
+                                    showingBarcodeScanner = true
+                                }
+                                foodFormButton("Enter", image: "keyboard", isSecondary: true) {
+                                    Haptics.feedback(style: .soft)
+                                    showingAddBarcodeAlert = true
+                                }
+                            }
+                            .frame(width: buttonWidth)
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .trailing),
+                                removal: .scale)
+                            )
+                        }
+                        
+                        /// Add Menu
+                        if !barcodeValues.isEmpty {
+                            
+                            Menu {
+                                
+                                Button {
+                                    Haptics.feedback(style: .soft)
+                                    showingBarcodeScanner = true
+                                } label: {
+                                    Label("Scan", systemImage: "barcode.viewfinder")
+                                }
+
+                                Button {
+                                    Haptics.feedback(style: .soft)
+                                    showingAddBarcodeAlert = true
+                                } label: {
+                                    Label("Enter", systemImage: "keyboard")
+                                }
+                                                                
+                            } label: {
+                                foodFormButton("Add", image: "plus", isSecondary: true)
+                                    .frame(width: buttonWidth)
+                            }
+                            .contentShape(Rectangle())
+                            .simultaneousGesture(TapGesture().onEnded {
+                                Haptics.feedback(style: .soft)
+                            })
+                            .transition(.move(edge: .trailing))
+                        }
+
+                    }
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 15)
+                }
+            }
+        }
+        
+        var addBarcodeSection_legacy: some View {
             FormStyledSection(header: header, footer: footer, verticalPadding: 0) {
                 HStack {
                     foodFormButton("Scan", image: "barcode.viewfinder", isSecondary: true) {
@@ -118,22 +213,23 @@ extension FoodForm {
         }
         
         return Group {
-            if !fields.barcodes.isEmpty {
-                FormStyledSection(
-                    header: header,
-                    footer: footer,
-                    horizontalPadding: 0,
-                    verticalPadding: 0)
-                {
-                    NavigationLink {
-                        barcodesForm
-                    } label: {
-                        barcodesView
-                    }
-                }
-            } else {
+            
+//            if !fields.barcodes.isEmpty {
+//                FormStyledSection(
+//                    header: header,
+//                    footer: footer,
+//                    horizontalPadding: 0,
+//                    verticalPadding: 0)
+//                {
+//                    NavigationLink {
+//                        barcodesForm
+//                    } label: {
+//                        barcodesView
+//                    }
+//                }
+//            } else {
                 addBarcodeSection
-            }
+//            }
         }
     }
 }

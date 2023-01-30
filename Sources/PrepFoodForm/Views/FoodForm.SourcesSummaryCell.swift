@@ -120,6 +120,7 @@ extension FoodForm.SourcesSummaryCell {
                                             style: .continuous
                                         )
                                     )
+                                    .shadow(radius: 3, x: 0, y: 3)
                             }
                             .contentShape(Rectangle())
                             .simultaneousGesture(TapGesture().onEnded {

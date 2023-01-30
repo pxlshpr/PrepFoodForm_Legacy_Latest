@@ -9,7 +9,11 @@ extension FieldValue {
         let height = asSquare ? 100 : 40
         return barcodeImage(within: CGSize(width: width, height: height))
     }
-    
+
+    func barcodeThumbnail(width: CGFloat, height: CGFloat) -> UIImage? {
+        barcodeImage(within: CGSize(width: width, height: height))
+    }
+
     func barcodeImage(within size: CGSize) -> UIImage? {
         guard let barcodeValue else { return nil }
         return RSUnifiedCodeGenerator.shared.generateCode(
