@@ -56,7 +56,8 @@ struct FieldCell: View {
             Spacer()
             VStack {
                 croppedImage
-                    .frame(maxWidth: 150, alignment: .trailing)
+                    .frame(maxWidth: 200, alignment: .trailing)
+//                    .frame(maxWidth: 150, alignment: .trailing)
                     .frame(maxHeight: 40, alignment: .top)
                     .grayscale(1.0)
                 Spacer()

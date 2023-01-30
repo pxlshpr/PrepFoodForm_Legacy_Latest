@@ -501,16 +501,17 @@ extension FieldValue: CustomStringConvertible {
             return "Barcode"
         
         case .amount(let doubleValue):
-            switch doubleValue.unit {
-            case .weight:
-                return "Weight"
-            case .volume:
-                return "Volume"
-            case .serving:
-                return "Servings"
-            case .size(let size, let volumeUnit):
-                return size.namePrefixed(with: volumeUnit)
-            }
+            return "Nutrients Per"
+//            switch doubleValue.unit {
+//            case .weight:
+//                return "Weight"
+//            case .volume:
+//                return "Volume"
+//            case .serving:
+//                return "Servings"
+//            case .size(let size, let volumeUnit):
+//                return size.namePrefixed(with: volumeUnit)
+//            }
         case .serving:
             return "Serving Size"
         case .density:
@@ -769,19 +770,19 @@ extension FieldValue {
             return "arrow.triangle.swap"
         case .size:
             return "rectangle.3.group"
-        case .amount(let doubleValue):
-            switch doubleValue.unit {
-            case .weight:
-                return "scalemass"
-            case .volume:
-                return "drop"
-            case .serving:
-                return "fork.knife"
-            case .size:
-                return "rectangle.3.group"
-            }
-        case .serving:
-            return "fork.knife.circle"
+//        case .amount(let doubleValue):
+//            switch doubleValue.unit {
+//            case .weight:
+//                return "scalemass"
+//            case .volume:
+//                return "drop"
+//            case .serving:
+//                return "fork.knife"
+//            case .size:
+//                return "rectangle.3.group"
+//            }
+//        case .serving:
+//            return "fork.knife.circle"
         default:
             return ""
         }
