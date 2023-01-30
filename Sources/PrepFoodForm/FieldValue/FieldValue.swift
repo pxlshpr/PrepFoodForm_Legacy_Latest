@@ -94,6 +94,7 @@ extension FieldValue {
         }
         
         func textColor(for colorScheme: ColorScheme) -> Color {
+//            Color(.tertiaryLabel)
             .gray
         }
     }
@@ -513,7 +514,7 @@ extension FieldValue: CustomStringConvertible {
         case .serving:
             return "Serving Size"
         case .density:
-            return "Density"
+            return "Unit Conversion"
 
         case .energy:
             return "Energy"
@@ -561,45 +562,6 @@ extension FieldValue {
 
     var amountColor: Color {
         isEmpty ? Color(.quaternaryLabel) : Color(.label)
-    }
-    
-    var iconImageName: String {
-        switch self {
-        case .energy:
-            return "flame.fill"
-        case .macro:
-            return "circle.circle.fill"
-        case .micro:
-            return "circle.circle"
-//        case .amount(let doubleValue):
-//            switch doubleValue.unit {
-//            case .weight:
-//                return "scalemass"
-//            case .volume:
-//                return "drop"
-//            case .serving:
-//                return "fork.knife"
-//            case .size:
-//                return "rectangle.3.group"
-//            }
-        default:
-            return ""
-        }
-    }
-    
-    var amountString: String {
-        switch self {
-        case .energy(let energyValue):
-            return energyValue.double?.cleanAmount ?? "Required"
-        case .macro(let macroValue):
-            return macroValue.double?.cleanAmount ?? "Required"
-        case .micro(let microValue):
-            return microValue.double?.cleanAmount ?? "Optional"
-        case .amount(let doubleValue):
-            return doubleValue.double?.cleanAmount ?? "Optional"
-        default:
-            return ""
-        }
     }
     
     var foodLabelUnit: FoodLabelUnit? {
@@ -793,6 +755,56 @@ extension FieldValue {
             }
         }
     }
+    
+    
+    var iconImageName: String {
+        switch self {
+        case .energy:
+            return "flame.fill"
+        case .macro:
+            return "circle.circle.fill"
+        case .micro:
+            return "circle.circle"
+        case .density:
+            return "arrow.triangle.swap"
+//        case .amount(let doubleValue):
+//            switch doubleValue.unit {
+//            case .weight:
+//                return "scalemass"
+//            case .volume:
+//                return "drop"
+//            case .serving:
+//                return "fork.knife"
+//            case .size:
+//                return "rectangle.3.group"
+//            }
+        default:
+            return ""
+        }
+    }
+    
+    var amountString: String {
+        switch self {
+        case .energy(let energyValue):
+            return energyValue.double?.cleanAmount ?? "Required"
+        case .macro(let macroValue):
+            return macroValue.double?.cleanAmount ?? "Required"
+        case .micro(let microValue):
+            return microValue.double?.cleanAmount ?? "Optional"
+        case .amount(let doubleValue):
+            return doubleValue.double?.cleanAmount ?? "Required"
+        case .serving(let doubleValue):
+            return doubleValue.double?.cleanAmount ?? "Optional"
+        case .density(let densityValue):
+            if densityValue.isValid {
+                return densityValue.description(weightFirst: true)
+            } else {
+                return "Optional"
+            }
+        default:
+            return ""
+        }
+    }
 
     var unitString: String {
         switch self {
@@ -802,7 +814,7 @@ extension FieldValue {
             return macroValue.unitDescription
         case .micro(let microValue):
             return microValue.unitDescription
-        case .amount(let doubleValue):
+        case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.unitDescription
         default:
             return ""
@@ -811,7 +823,7 @@ extension FieldValue {
 
     func labelColor(for colorScheme: ColorScheme) -> Color {
         guard !isEmpty else {
-            return Color(.secondaryLabel)
+            return Color(.tertiaryLabel)
         }
         switch self {
         case .energy(let energyValue):
@@ -820,8 +832,8 @@ extension FieldValue {
             return macroValue.textColor(for: colorScheme)
         case .micro(let microValue):
             return microValue.textColor(for: colorScheme)
-        case .amount:
-            return .Color(.tertiaryLabel)
+        case .amount, .serving, .density:
+            return Color(.tertiaryLabel)
 
         default:
             return .gray

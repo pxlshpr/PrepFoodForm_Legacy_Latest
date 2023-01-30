@@ -18,8 +18,8 @@ struct NutrientsPerForm: View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 amountCell
-//                servingCell
-//                densityCell
+                servingCell
+                densityCell
 //                sizesGroup
             }
             .padding(.horizontal, 20)
@@ -33,15 +33,26 @@ struct NutrientsPerForm: View {
             FormBackground()
                 .edgesIgnoringSafeArea(.all)
         )
-//        .background(Color(.systemGroupedBackground))
     }
     
     var amountCell: some View {
         Button {
-//            viewModel.attributeBeingEdited = .energy
-//            showingAttributeForm = true
         } label: {
             FieldCell(field: fields.amount, showImage: $showingImages)
+        }
+    }
+
+    var servingCell: some View {
+        Button {
+        } label: {
+            FieldCell(field: fields.serving, showImage: $showingImages)
+        }
+    }
+
+    var densityCell: some View {
+        Button {
+        } label: {
+            FieldCell(field: fields.density, showImage: $showingImages)
         }
     }
 

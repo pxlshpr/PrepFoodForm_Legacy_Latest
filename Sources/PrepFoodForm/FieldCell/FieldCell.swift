@@ -12,9 +12,9 @@ struct FieldCell: View {
     var body: some View {
         ZStack {
             content
-            if showImage {
-                imageLayer
-            }
+//            if showImage {
+//                imageLayer
+//            }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 13)
@@ -26,9 +26,13 @@ struct FieldCell: View {
     }
     
     var content: some View {
-        HStack {
+        ZStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 20) {
                 topRow
+                Spacer()
+            }
+            VStack(alignment: .leading, spacing: 20) {
+                Spacer()
                 bottomRow
             }
         }
@@ -47,11 +51,21 @@ struct FieldCell: View {
                 Text(field.value.description)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
+            .frame(maxHeight: .infinity, alignment: .top)
+            .layoutPriority(1)
             Spacer()
-            fillTypeIcon
-            disclosureArrow
+            VStack {
+                croppedImage
+                    .frame(maxWidth: 150, alignment: .trailing)
+                    .frame(maxHeight: 40, alignment: .top)
+                    .grayscale(1.0)
+                Spacer()
+            }
+//            fillTypeIcon
+//            disclosureArrow
         }
         .foregroundColor(field.value.labelColor(for: colorScheme))
+//        .background(.green.opacity(0.5))
     }
     
     var amountText: Text {
@@ -77,15 +91,63 @@ struct FieldCell: View {
     
     var bottomRow: some View {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
-            amountText
-                .multilineTextAlignment(.leading)
-            if !isEmpty {
-                unitText
+            switch field.value {
+            case .density(let densityValue):
+                densityContents(densityValue)
+            default:
+                amountText
+                if !isEmpty {
+                    unitText
+                }
             }
             Spacer()
         }
         .frame(height: 34)
-//        .background(.green)
+//        .background(.yellow.opacity(0.5))
+    }
+    
+    func densityContents(_ densityValue: FieldValue.DensityValue) -> some View {
+        
+        func stack(_ doubleValue: FieldValue.DoubleValue) -> some View {
+            Group {
+                Text(doubleValue.value?.amount.cleanAmount ?? "")
+                    .foregroundColor(.primary)
+                    .font(.system(size: 28, weight: .medium, design: .rounded))
+                Text(doubleValue.value?.unit?.description ?? "")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .bold()
+                    .foregroundColor(Color(.secondaryLabel))
+            }
+        }
+        
+        var weightStack: some View {
+            stack(densityValue.weight)
+        }
+
+        var volumeStack: some View {
+            stack(densityValue.volume)
+        }
+
+        return Group {
+            if densityValue.isValid {
+                if fields.isWeightBased {
+                    weightStack
+                } else {
+                    volumeStack
+                }
+                Text("↔")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundColor(Color(.tertiaryLabel))
+                if fields.isWeightBased {
+                    volumeStack
+                } else {
+                    weightStack
+                }
+            } else {
+                amountText
+                    .multilineTextAlignment(.leading)
+            }
+        }
     }
     
     @ViewBuilder
@@ -149,6 +211,7 @@ struct FieldCell: View {
                             .shadow(radius: 3, x: 0, y: 3)
                     }
                 }
+                .frame(maxHeight: .infinity, alignment: .top)
             } else if field.fill.usesImage {
                 activityIndicator
             }
@@ -158,6 +221,11 @@ struct FieldCell: View {
     //MARK: Convenience
     
     var isEmpty: Bool {
-        field.value.double == nil
+        switch field.value {
+        case .density(let densityValue):
+            return !densityValue.isValid
+        default:
+            return field.value.double == nil
+        }
     }
 }

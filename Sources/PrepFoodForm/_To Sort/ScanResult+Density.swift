@@ -34,7 +34,7 @@ extension ScanResult {
         else {
             return nil
         }
-        return FieldValue.DensityValue(
+        var fieldValue = FieldValue.DensityValue(
             text: equivalentSize.amountText.text,
             imageId: id,
             unit1: equivalentSizeUnit,
@@ -42,6 +42,10 @@ extension ScanResult {
             unit2: servingUnit,
             amount2: servingAmount
         )
+        fieldValue?.fill = Fill.scanned(ScannedFillInfo(
+            imageText: ImageText(text: equivalentSize.amountText.text, imageId: id)
+        ))
+        return fieldValue
     }
     
     var equivalentSizeDensityValue_legacy: FieldValue.DensityValue? {
@@ -110,7 +114,7 @@ extension ScanResult {
             return nil
         }
         
-        return FieldValue.DensityValue(
+        var fieldValue = FieldValue.DensityValue(
             text: servingBasedHeaderText,
             imageId: id,
             unit1: headerEquivalentSizeUnit,
@@ -118,6 +122,10 @@ extension ScanResult {
             unit2: headerServingUnit,
             amount2: headerServingAmount
         )
+        fieldValue?.fill = Fill.scanned(ScannedFillInfo(
+            imageText: ImageText(text: servingBasedHeaderText, imageId: id)
+        ))
+        return fieldValue
     }
 }
 
