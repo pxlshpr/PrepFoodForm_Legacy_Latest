@@ -500,18 +500,8 @@ extension FieldValue: CustomStringConvertible {
         case .barcode:
             return "Barcode"
         
-        case .amount(let doubleValue):
+        case .amount:
             return "Nutrients Per"
-//            switch doubleValue.unit {
-//            case .weight:
-//                return "Weight"
-//            case .volume:
-//                return "Volume"
-//            case .serving:
-//                return "Servings"
-//            case .size(let size, let volumeUnit):
-//                return size.namePrefixed(with: volumeUnit)
-//            }
         case .serving:
             return "Serving Size"
         case .density:

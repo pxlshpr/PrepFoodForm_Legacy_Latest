@@ -104,7 +104,7 @@ struct NutrientsPerForm: View {
     }
     var amountCell: some View {
         var footerString: String {
-            "This is how Emuch of this food the nutrition facts are for."
+            "This is how much of this food the nutrition facts are for."
         }
         
         return Group {
