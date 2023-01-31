@@ -5,7 +5,7 @@ import SwiftHaptics
 import PrepViews
 import SwiftUISugar
 
-struct SizeForm: View {
+public struct SizeForm: View {
     
     @EnvironmentObject var fields: FoodForm.Fields
     
@@ -19,7 +19,10 @@ struct SizeForm: View {
 
     @StateObject var viewModel: SizeFormViewModel
     
-    init(
+    @State var showingQuantity = false
+    @State var showingAmount = false
+
+    public init(
         initialField: Field? = nil,
         handleNewSize: @escaping (FormSize) -> ()
     ) {
@@ -29,29 +32,38 @@ struct SizeForm: View {
         ))
     }
     
-    var body: some View {
+    public var body: some View {
         NavigationStack {
-            FormStyledScrollView {
-                Text("Sizes")
-                    .font(.largeTitle)
-                    .fontWeight(.black)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 20)
-                FormStyledSection {
-                    field
-                }
+            VStack {
+                fieldSection
+                toggleSection
+                Spacer()
             }
-//            Form {
-//                field
-//            }
-//            .navigationTitle("Size")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                FormBackground()
+                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
+            )
             .toolbar { leadingContent }
             .toolbar { trailingContent }
+            .navigationTitle("Size")
+            .navigationBarTitleDisplayMode(.large)
             .onChange(of: isFocused, perform: isFocusedChanged)
+            .onChange(of: viewModel.showingVolumePrefixToggle,
+                      perform: viewModel.changedShowingVolumePrefixToggle
+            )
         }
-        .presentationDetents([.height(305 + K.keyboardHeight)])
-//        .presentationDetents([.height(170 + K.keyboardHeight)])
+        .presentationDetents([.height(350)])
         .presentationDragIndicator(.hidden)
+        .sheet(isPresented: $showingAmount) { amountForm }
+    }
+    
+    var title: some View {
+        Text("Size")
+            .font(.largeTitle)
+            .fontWeight(.bold)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
     }
     
     func isFocusedChanged(_ newValue: Bool) {
@@ -83,81 +95,7 @@ struct SizeForm: View {
         }
     }
     
-    var field: some View {
-        HStack {
-            Group {
-                Spacer()
-                button(viewModel.sizeQuantityString) {
-//                    path.append(.quantity)
-                }
-                Spacer()
-                symbol("×")
-                    .layoutPriority(3)
-                Spacer()
-            }
-            HStack(spacing: 0) {
-                if viewModel.showingVolumePrefix {
-                    button(viewModel.sizeVolumePrefixString) {
-//                        showingUnitPickerForVolumePrefix = true
-                    }
-                    .layoutPriority(2)
-                    symbol(", ")
-                        .layoutPriority(3)
-                }
-                button(viewModel.sizeNameString, placeholder: "name") {
-//                    path.append(.name)
-                }
-                .layoutPriority(2)
-            }
-            Group {
-                Spacer()
-                symbol("=")
-                    .layoutPriority(3)
-                Spacer()
-                button(viewModel.sizeAmountDescription, placeholder: "amount") {
-//                    path.append(.amount)
-                }
-                .layoutPriority(1)
-                Spacer()
-            }
-        }
-        .frame(height: 50)
+    var amountForm: some View {
+        AmountForm(viewModel: viewModel)
     }
-
-    func button(_ string: String, placeholder: String = "", action: @escaping () -> ()) -> some View {
-        Button {
-            action()
-        } label: {
-            Group {
-                if string.isEmpty {
-                    HStack(spacing: 5) {
-                        Text(placeholder)
-                            .foregroundColor(Color(.tertiaryLabel))
-                    }
-                } else {
-                    Text(string)
-                }
-            }
-            .foregroundColor(.accentColor)
-            .frame(maxHeight: .infinity)
-            .frame(minWidth: 44)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.borderless)
-    }
-
-    func symbol(_ string: String) -> some View {
-        Text(string)
-            .font(.title3)
-            .foregroundColor(Color(.tertiaryLabel))
-    }
-}
-
-struct K {
-    
-    /// ** Hardcoded **
-    static let largeDeviceWidthCutoff: CGFloat = 850.0
-    static let keyboardHeight: CGFloat = UIScreen.main.bounds.height < largeDeviceWidthCutoff
-    ? 291
-    : 301
 }

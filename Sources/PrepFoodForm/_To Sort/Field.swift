@@ -3,9 +3,9 @@ import FoodLabelScanner
 import SwiftSugar
 import FoodLabelExtractor
 
-class Field: ObservableObject, Identifiable {
+public class Field: ObservableObject, Identifiable {
     
-    @Published var id = UUID()
+    @Published public var id = UUID()
     @Published var value: FieldValue
     
     @Published var image: UIImage? = nil
@@ -179,7 +179,7 @@ class Field: ObservableObject, Identifiable {
     }
 }
 extension Field: Hashable {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(value)
         hasher.combine(image)
@@ -188,7 +188,7 @@ extension Field: Hashable {
 }
 
 extension Field: Equatable {
-    static func ==(lhs: Field, rhs: Field) -> Bool {
+    public static func ==(lhs: Field, rhs: Field) -> Bool {
 //        lhs.hashValue == rhs.hashValue
         lhs.id == rhs.id
         && lhs.value == rhs.value

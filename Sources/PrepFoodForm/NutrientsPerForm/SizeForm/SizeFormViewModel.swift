@@ -8,7 +8,8 @@ class SizeFormViewModel: ObservableObject {
     let initialField: Field?
     
     @Published var showingVolumePrefix = false
-    
+    @Published var showingVolumePrefixToggle: Bool = false
+
     @Published var sizeQuantityString = "1"
     @Published var sizeVolumePrefixString = "cup"
     @Published var sizeNameString = "chopped"
@@ -84,4 +85,20 @@ class SizeFormViewModel: ObservableObject {
 //    var title: String {
 //        isServingSize ? "Serving Size" : "Nutrients Per"
 //    }
+    
+    func changedShowingVolumePrefixToggle(to newValue: Bool) {
+        withAnimation {
+            showingVolumePrefix = showingVolumePrefixToggle
+            //TODO: Rewrite this
+//            /// If we've turned it on and there's no volume prefix for the size—set it to cup
+//            if viewModel.showingVolumePrefixToggle {
+//                if field.value.size?.volumePrefixUnit == nil {
+//                    field.value.size?.volumePrefixUnit = .volume(.cup)
+//                }
+//            } else {
+//                field.value.size?.volumePrefixUnit = nil
+//            }
+        }
+    }
+
 }
