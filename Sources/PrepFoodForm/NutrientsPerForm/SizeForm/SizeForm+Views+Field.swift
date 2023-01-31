@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
 extension SizeForm {
     
@@ -26,6 +27,7 @@ extension SizeForm {
 
         var quantityButton: some View {
             button(viewModel.sizeQuantityString) {
+                Haptics.feedback(style: .soft)
                 showingQuantity = true
             }
         }
@@ -37,6 +39,7 @@ extension SizeForm {
         
         var volumePrefixButton: some View {
             button(viewModel.sizeVolumePrefixString) {
+                Haptics.feedback(style: .soft)
             }
             .layoutPriority(2)
             .transition(.scale)
@@ -50,6 +53,7 @@ extension SizeForm {
         
         var nameButton: some View {
             button(viewModel.sizeNameString, placeholder: "name") {
+                Haptics.feedback(style: .soft)
             }
             .layoutPriority(2)
         }
@@ -60,7 +64,9 @@ extension SizeForm {
         }
         
         var amountButton: some View {
-            button(viewModel.sizeAmountDescription, placeholder: "amount") {                showingAmount = true
+            button(viewModel.sizeAmountDescription, placeholder: "amount") {
+                Haptics.feedback(style: .soft)
+                showingAmount = true
             }
             .layoutPriority(1)
         }
