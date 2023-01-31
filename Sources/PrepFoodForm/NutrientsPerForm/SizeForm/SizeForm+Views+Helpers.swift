@@ -2,7 +2,22 @@ import SwiftUI
 
 extension SizeForm {
     func button(_ string: String, placeholder: String = "", action: @escaping () -> ()) -> some View {
-        Button {
+        var background: some View {
+            var color: Color {
+                string.isEmpty ? Color(.tertiarySystemFill) : .accentColor
+            }
+            
+            var opacity: CGFloat {
+                string.isEmpty
+                ? 1.0
+                : colorScheme == .dark ? 0.1 : 0.15
+            }
+            
+            return RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .fill(color.opacity(opacity))
+        }
+        
+        return Button {
             action()
         } label: {
             Group {
@@ -17,16 +32,13 @@ extension SizeForm {
             }
 //            .foregroundColor(.accentColor)
             .frame(maxHeight: .infinity)
-            .frame(minWidth: 44)
             
             .foregroundColor(.accentColor)
-            .padding(.horizontal, 5)
+            .padding(.horizontal, viewModel.showingVolumePrefix ? 8 : 12)
+            .frame(minWidth: 44)
 //            .frame(height: 40)
             .background(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(Color.accentColor.opacity(
-                        colorScheme == .dark ? 0.1 : 0.15
-                    ))
+                background
             )
 
             .contentShape(Rectangle())

@@ -118,7 +118,7 @@ public struct SizeForm: View {
     }
     
     var amountForm: some View {
-        AmountForm(viewModel: viewModel)
+        AmountForm(sizeFormViewModel: viewModel)
     }
     
     var quantityForm: some View {
@@ -126,6 +126,6 @@ public struct SizeForm: View {
     }
     
     var nameForm: some View {
-        NameForm(viewModel: viewModel)
+        NameForm(sizeFormViewModel: viewModel)
     }
 }

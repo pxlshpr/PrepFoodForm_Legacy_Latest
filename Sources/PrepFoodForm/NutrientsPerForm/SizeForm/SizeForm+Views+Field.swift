@@ -71,7 +71,7 @@ extension SizeForm {
         }
         
         var nameButton: some View {
-            button(viewModel.sizeNameString, placeholder: "name") {
+            button(viewModel.name, placeholder: "name") {
                 Haptics.feedback(style: .soft)
                 showingNameForm = true
             }
@@ -84,7 +84,7 @@ extension SizeForm {
         }
         
         var amountButton: some View {
-            button(viewModel.sizeAmountDescription, placeholder: "amount") {
+            button(viewModel.amountDescription, placeholder: "amount") {
                 Haptics.feedback(style: .soft)
                 showingAmountForm = true
             }

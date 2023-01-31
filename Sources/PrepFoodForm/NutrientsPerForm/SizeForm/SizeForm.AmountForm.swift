@@ -1,12 +1,15 @@
 import SwiftUI
 import SwiftHaptics
 import PrepViews
+import PrepDataTypes
 
 extension SizeForm {
     struct AmountForm: View {
 
         @EnvironmentObject var fields: FoodForm.Fields
-        @ObservedObject var viewModel: SizeFormViewModel
+        
+        @ObservedObject var sizeFormViewModel: SizeFormViewModel
+        @StateObject var viewModel: ViewModel
 
         @Environment(\.dismiss) var dismiss
         @Environment(\.colorScheme) var colorScheme
@@ -15,6 +18,58 @@ extension SizeForm {
         @State var showingUnitPicker = false
         @State var hasFocusedOnAppear: Bool = false
         @State var hasCompletedFocusedOnAppearAnimation: Bool = false
+        
+        init(sizeFormViewModel: SizeFormViewModel) {
+            self.sizeFormViewModel = sizeFormViewModel
+            let viewModel = ViewModel(
+                initialDouble: sizeFormViewModel.amount,
+                initialUnit: sizeFormViewModel.amountUnit
+            )
+            _viewModel = StateObject(wrappedValue: viewModel)
+        }
+        
+        class ViewModel: ObservableObject {
+            let initialDouble: Double?
+            let initialUnit: FormUnit
+            @Published var internalString: String = ""
+            @Published var internalDouble: Double? = nil
+            @Published var internalUnit: FormUnit
+
+            init(initialDouble: Double?, initialUnit: FormUnit) {
+                self.initialDouble = initialDouble
+                self.internalDouble = initialDouble
+                self.internalString = initialDouble?.cleanAmount ?? ""
+                self.initialUnit = initialUnit
+                self.internalUnit = initialUnit
+            }
+            
+            var textFieldString: String {
+                get { internalString }
+                set {
+                    guard !newValue.isEmpty else {
+                        internalDouble = nil
+                        internalString = newValue
+                        return
+                    }
+                    guard let double = Double(newValue) else {
+                        return
+                    }
+                    self.internalDouble = double
+                    self.internalString = newValue
+                }
+            }
+            
+            var shouldDisableDone: Bool {
+                if initialDouble == internalDouble && initialUnit == internalUnit {
+                    return true
+                }
+
+                if internalDouble == nil {
+                    return true
+                }
+                return false
+            }
+        }
     }
 }
 
@@ -60,30 +115,31 @@ extension SizeForm.AmountForm {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 Haptics.successFeedback()
-//                viewModel.handleNewValue(viewModel.returnTuple)
+                sizeFormViewModel.amount = viewModel.internalDouble
+                sizeFormViewModel.amountUnit = viewModel.internalUnit
                 dismiss()
             } label: {
                 Text("Done")
                     .bold()
             }
-//            .disabled(viewModel.shouldDisableDone)
+            .disabled(viewModel.shouldDisableDone)
         }
     }
     
     var textField: some View {
-//        let binding = Binding<String>(
-//            get: { viewModel.textFieldAmountString },
-//            set: { newValue in
-//                withAnimation {
-//                    viewModel.textFieldAmountString = newValue
-//                }
-//            }
-//        )
+        let binding = Binding<String>(
+            get: { viewModel.textFieldString },
+            set: { newValue in
+                withAnimation {
+                    viewModel.textFieldString = newValue
+                }
+            }
+        )
 
-        return TextField("Required", text: .constant(""))
+        return TextField("Required", text: binding)
             .focused($isFocused)
             .multilineTextAlignment(.leading)
-//            .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
+            .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
             .keyboardType(.decimalPad)
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.never)
@@ -104,9 +160,7 @@ extension SizeForm.AmountForm {
     
     var unitPicker: some View {
         UnitPickerGridTiered(
-//            pickedUnit: viewModel.unit,
-//            includeServing: !viewModel.isServingSize,
-            pickedUnit: .weight(.g),
+            pickedUnit: viewModel.internalUnit,
             includeServing: true,
             includeWeights: true,
             includeVolumes: true,
@@ -114,8 +168,8 @@ extension SizeForm.AmountForm {
             allowAddSize: false,
             didPickUnit: { newUnit in
                 withAnimation {
-//                    Haptics.feedback(style: .soft)
-//                    viewModel.unit = newUnit
+                    Haptics.feedback(style: .rigid)
+                    viewModel.internalUnit = newUnit
                 }
             }
         )
@@ -127,8 +181,7 @@ extension SizeForm.AmountForm {
             showingUnitPicker = true
         } label: {
             HStack(spacing: 2) {
-                Text("g")
-//                Text(viewModel.unit.shortDescription)
+                Text(viewModel.internalUnit.shortDescription)
                     .fontWeight(.semibold)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
@@ -142,7 +195,7 @@ extension SizeForm.AmountForm {
                         colorScheme == .dark ? 0.1 : 0.15
                     ))
             )
-//            .animation(.none, value: viewModel.unit)
+            .animation(.none, value: viewModel.internalUnit)
         }
         .contentShape(Rectangle())
     }
@@ -150,7 +203,7 @@ extension SizeForm.AmountForm {
     @ViewBuilder
     var clearButton: some View {
         Button {
-//            viewModel.tappedClearButton()
+            viewModel.textFieldString = ""
         } label: {
             Image(systemName: "xmark.circle.fill")
                 .font(.system(size: 20))
@@ -161,7 +214,7 @@ extension SizeForm.AmountForm {
                 )
 
         }
-//        .opacity(viewModel.shouldShowClearButton ? 1 : 0)
+        .opacity(!viewModel.textFieldString.isEmpty ? 1 : 0)
         .buttonStyle(.borderless)
         .padding(.trailing, 5)
     }

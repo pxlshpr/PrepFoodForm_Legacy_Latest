@@ -6,7 +6,9 @@ extension SizeForm {
     struct NameForm: View {
 
         @EnvironmentObject var fields: FoodForm.Fields
-        @ObservedObject var viewModel: SizeFormViewModel
+        
+        @ObservedObject var sizeFormViewModel: SizeFormViewModel
+        @StateObject var viewModel: ViewModel
 
         @Environment(\.dismiss) var dismiss
         @Environment(\.colorScheme) var colorScheme
@@ -14,6 +16,33 @@ extension SizeForm {
         
         @State var hasFocusedOnAppear: Bool = false
         @State var hasCompletedFocusedOnAppearAnimation: Bool = false
+        
+        init(sizeFormViewModel: SizeFormViewModel) {
+            self.sizeFormViewModel = sizeFormViewModel
+            let viewModel = ViewModel(initialString: sizeFormViewModel.name)
+            _viewModel = StateObject(wrappedValue: viewModel)
+        }
+        
+        class ViewModel: ObservableObject {
+            let initialString: String
+            @Published var internalString: String = ""
+
+            init(initialString: String) {
+                self.initialString = initialString
+                self.internalString = initialString
+            }
+            
+            var shouldDisableDone: Bool {
+                if initialString == internalString {
+                    return true
+                }
+
+                if internalString.isEmpty {
+                    return true
+                }
+                return false
+            }
+        }
     }
 }
 
@@ -43,6 +72,12 @@ extension SizeForm.NameForm {
         suggestionsBar
     }
     
+    func dismissAfterSetting(_ string: String) {
+        Haptics.feedback(style: .rigid)
+        sizeFormViewModel.name = string.lowercased()
+        dismiss()
+    }
+    
     var suggestionsBar: some View {
         var keyboardColor: Color {
             colorScheme == .light ? Color(hex: K.ColorHex.keyboardLight) : Color(hex: "313133")
@@ -54,8 +89,7 @@ extension SizeForm.NameForm {
                 HStack {
                     ForEach(SizeNameSuggestions, id: \.self) { suggestion in
                         Button {
-                            Haptics.feedback(style: .soft)
-                            dismiss()
+                            dismissAfterSetting(suggestion)
                         } label: {
                             Text(suggestion.lowercased())
                                 .foregroundColor(.secondary)
@@ -99,38 +133,29 @@ extension SizeForm.NameForm {
     var trailingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                Haptics.successFeedback()
-//                viewModel.handleNewValue(viewModel.returnTuple)
-                dismiss()
+                dismissAfterSetting(viewModel.internalString)
             } label: {
                 Text("Done")
                     .bold()
             }
-//            .disabled(viewModel.shouldDisableDone)
-//            Button {
-//                Haptics.successFeedback()
-//                dismiss()
-//            } label: {
-//                Image(systemName: "keyboard.chevron.compact.down")
-////                    .bold()
-//            }
+            .disabled(viewModel.shouldDisableDone)
         }
     }
     
     var textField: some View {
-//        let binding = Binding<String>(
-//            get: { viewModel.textFieldAmountString },
-//            set: { newValue in
-//                withAnimation {
-//                    viewModel.textFieldAmountString = newValue
-//                }
-//            }
-//        )
+        let binding = Binding<String>(
+            get: { viewModel.internalString },
+            set: { newValue in
+                withAnimation {
+                    viewModel.internalString = newValue.lowercased()
+                }
+            }
+        )
 
-        return TextField("Required", text: .constant(""))
+        return TextField("Required", text: binding)
             .focused($isFocused)
             .multilineTextAlignment(.leading)
-//            .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
+            .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
             .keyboardType(.asciiCapable)
             .autocorrectionDisabled()
             .frame(minHeight: 50)
@@ -153,7 +178,7 @@ extension SizeForm.NameForm {
     @ViewBuilder
     var clearButton: some View {
         Button {
-//            viewModel.tappedClearButton()
+            viewModel.internalString = ""
         } label: {
             Image(systemName: "xmark.circle.fill")
                 .font(.system(size: 20))
@@ -164,10 +189,10 @@ extension SizeForm.NameForm {
                 )
 
         }
-//        .opacity(viewModel.shouldShowClearButton ? 1 : 0)
+        .opacity(!viewModel.internalString.isEmpty ? 1 : 0)
         .buttonStyle(.borderless)
         .padding(.trailing, 5)
     }
 }
 
-let SizeNameSuggestions = ["Bottle", "Box", "Biscuit", "Cookie", "Container", "Pack", "Sleeve"]
+let SizeNameSuggestions = ["bottle", "box", "biscuit", "cookie", "container", "pack", "sleeve"]

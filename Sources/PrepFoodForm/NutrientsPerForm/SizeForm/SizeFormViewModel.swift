@@ -12,14 +12,8 @@ class SizeFormViewModel: ObservableObject {
 
     @Published var quantity: Double = 1
     @Published var volumePrefixUnit: VolumeUnit = .cup
-
-    //TODO: Remove these
-    @Published var sizeNameString = "chopped"
-    @Published var sizeAmountDescription = "150 g"
-    
     @Published var name: String = ""
-    @Published var internalAmountString: String = ""
-    @Published var internalAmountDouble: Double? = nil
+    @Published var amount: Double? = nil
     @Published var amountUnit: FormUnit = .weight(.g)
 
     init(
@@ -46,6 +40,11 @@ class SizeFormViewModel: ObservableObject {
 //        return (internalTextfieldDouble, unit)
 //    }
 //
+    var amountDescription: String {
+        guard let amount else { return "" }
+        return "\(amount.cleanAmount) \(amountUnit.shortDescription)"
+    }
+    
     var shouldDisableDoneForSize: Bool {
         return true
     }

@@ -19,7 +19,7 @@ extension SizeForm {
         
         init(sizeFormViewModel: SizeFormViewModel) {
             self.sizeFormViewModel = sizeFormViewModel
-            let viewModel = ViewModel(initialDouble: sizeFormViewModel.initialField?.sizeQuantity ?? 1)
+            let viewModel = ViewModel(initialDouble: sizeFormViewModel.quantity)
             _viewModel = StateObject(wrappedValue: viewModel)
         }
         
