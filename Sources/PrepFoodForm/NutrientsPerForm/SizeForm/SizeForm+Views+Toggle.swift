@@ -4,7 +4,7 @@ import SwiftUISugar
 extension SizeForm {
     
     var toggleSection: some View {
-        FormStyledSection(footer: footer) {
+        FormStyledSection {
             toggle
         }
 //        toggle
@@ -20,7 +20,7 @@ extension SizeForm {
     }
     
     var toggle: some View {
-        Toggle("Volume-prefixed name", isOn: $viewModel.showingVolumePrefixToggle)
+        Toggle("Use a volume prefix", isOn: $viewModel.showingVolumePrefixToggle)
     }
 
     var footer: some View {

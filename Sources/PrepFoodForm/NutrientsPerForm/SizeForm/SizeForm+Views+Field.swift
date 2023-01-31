@@ -5,17 +5,28 @@ import SwiftHaptics
 extension SizeForm {
     
     var fieldSection: some View {
-        field
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, K.FormStyle.Padding.horizontal)
-            .padding(0)
-            .padding(.vertical, K.FormStyle.Padding.vertical)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .foregroundColor(formCellBackgroundColor(colorScheme: colorScheme))
-            )
-            .padding(.horizontal, 20)
-            .padding(.bottom, 10)
+        @ViewBuilder
+        var footer: some View {
+            if viewModel.showingVolumePrefix {
+                Text("e.g. 2 x cup, shredded = 125 g")
+            } else {
+                Text("e.g. 5 x cookies = 58 g")
+            }
+        }
+        
+        return FormStyledSection(footer: footer) {
+            field
+        }
+//            .frame(maxWidth: .infinity)
+//            .padding(.horizontal, K.FormStyle.Padding.horizontal)
+//            .padding(0)
+//            .padding(.vertical, K.FormStyle.Padding.vertical)
+//            .background(
+//                RoundedRectangle(cornerRadius: 10)
+//                    .foregroundColor(formCellBackgroundColor(colorScheme: colorScheme))
+//            )
+//            .padding(.horizontal, 20)
+//            .padding(.bottom, 10)
     }
     
     var field: some View {
@@ -28,7 +39,7 @@ extension SizeForm {
         var quantityButton: some View {
             button(viewModel.sizeQuantityString) {
                 Haptics.feedback(style: .soft)
-                showingQuantity = true
+                showingQuantityForm = true
             }
         }
         
@@ -40,6 +51,7 @@ extension SizeForm {
         var volumePrefixButton: some View {
             button(viewModel.sizeVolumePrefixString) {
                 Haptics.feedback(style: .soft)
+                showingVolumePrefixUnitPicker = true
             }
             .layoutPriority(2)
             .transition(.scale)
@@ -54,6 +66,7 @@ extension SizeForm {
         var nameButton: some View {
             button(viewModel.sizeNameString, placeholder: "name") {
                 Haptics.feedback(style: .soft)
+                showingNameForm = true
             }
             .layoutPriority(2)
         }
@@ -66,7 +79,7 @@ extension SizeForm {
         var amountButton: some View {
             button(viewModel.sizeAmountDescription, placeholder: "amount") {
                 Haptics.feedback(style: .soft)
-                showingAmount = true
+                showingAmountForm = true
             }
             .layoutPriority(1)
         }

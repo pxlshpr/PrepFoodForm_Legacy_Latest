@@ -3,7 +3,7 @@ import SwiftHaptics
 import PrepViews
 
 extension SizeForm {
-    struct AmountForm: View {
+    struct NameForm: View {
 
         @EnvironmentObject var fields: FoodForm.Fields
         @ObservedObject var viewModel: SizeFormViewModel
@@ -12,31 +12,73 @@ extension SizeForm {
         @Environment(\.colorScheme) var colorScheme
         @FocusState var isFocused: Bool
         
-        @State var showingUnitPicker = false
         @State var hasFocusedOnAppear: Bool = false
         @State var hasCompletedFocusedOnAppearAnimation: Bool = false
     }
 }
 
-extension SizeForm.AmountForm {
+extension SizeForm.NameForm {
     
     var body: some View {
         NavigationStack {
             Form {
-                HStack {
-                    textField
-                    clearButton
-                    unitPickerButton
+                Section {
+                    HStack {
+                        textField
+                        clearButton
+                    }
                 }
             }
-            .navigationTitle("Amount")
+            .navigationTitle("Name")
             .toolbar { leadingContent }
             .toolbar { trailingContent }
             .onChange(of: isFocused, perform: isFocusedChanged)
+            .safeAreaInset(edge: .bottom) { bottomSafeAreaContent }
         }
-        .presentationDetents([.height(170)])
+        .presentationDetents([.height(170 + 50.0)])
         .presentationDragIndicator(.hidden)
-        .sheet(isPresented: $showingUnitPicker) { unitPicker }
+    }
+    
+    var bottomSafeAreaContent: some View {
+        suggestionsBar
+    }
+    
+    var suggestionsBar: some View {
+        var keyboardColor: Color {
+            colorScheme == .light ? Color(hex: K.ColorHex.keyboardLight) : Color(hex: "313133")
+        }
+
+        return ZStack {
+            keyboardColor
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(SizeNameSuggestions, id: \.self) { suggestion in
+                        Button {
+                            Haptics.feedback(style: .soft)
+                            dismiss()
+                        } label: {
+                            Text(suggestion.lowercased())
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 7)
+                                .padding(.horizontal, 10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                        .fill(colorScheme == .dark
+                                              ? Color(.secondarySystemFill)
+                                              : Color(.secondarySystemBackground)
+                                        )
+                                )
+                        }
+                    }
+                }
+                .padding(.horizontal, 10)
+            }
+            .frame(height: 45)
+            .padding(.top, 5)
+//            .background(.green)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 50)
     }
     
     func isFocusedChanged(_ newValue: Bool) {
@@ -82,7 +124,8 @@ extension SizeForm.AmountForm {
             .focused($isFocused)
             .multilineTextAlignment(.leading)
 //            .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
-            .keyboardType(.decimalPad)
+            .keyboardType(.asciiCapable)
+            .autocorrectionDisabled()
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.never)
             .introspectTextField { uiTextField in
@@ -98,51 +141,6 @@ extension SizeForm.AmountForm {
                     }
                 }
             }
-    }
-    
-    var unitPicker: some View {
-        UnitPickerGridTiered(
-//            pickedUnit: viewModel.unit,
-//            includeServing: !viewModel.isServingSize,
-            pickedUnit: .weight(.g),
-            includeServing: true,
-            includeWeights: true,
-            includeVolumes: true,
-            sizes: fields.allSizes,
-            allowAddSize: false,
-            didPickUnit: { newUnit in
-                withAnimation {
-//                    Haptics.feedback(style: .soft)
-//                    viewModel.unit = newUnit
-                }
-            }
-        )
-    }
-    
-    var unitPickerButton: some View {
-        Button {
-            Haptics.feedback(style: .soft)
-            showingUnitPicker = true
-        } label: {
-            HStack(spacing: 2) {
-                Text("g")
-//                Text(viewModel.unit.shortDescription)
-                    .fontWeight(.semibold)
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
-            }
-            .foregroundColor(.accentColor)
-            .padding(.horizontal, 15)
-            .frame(height: 40)
-            .background(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(Color.accentColor.opacity(
-                        colorScheme == .dark ? 0.1 : 0.15
-                    ))
-            )
-//            .animation(.none, value: viewModel.unit)
-        }
-        .contentShape(Rectangle())
     }
     
     @ViewBuilder
@@ -164,3 +162,5 @@ extension SizeForm.AmountForm {
         .padding(.trailing, 5)
     }
 }
+
+let SizeNameSuggestions = ["Bottle", "Box", "Biscuit", "Cookie", "Container", "Pack", "Sleeve"]

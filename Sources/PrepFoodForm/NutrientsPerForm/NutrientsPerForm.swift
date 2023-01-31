@@ -285,5 +285,6 @@ extension NutrientsPerForm {
         SizeForm(initialField: sizeField) { newSize in
             
         }
+        .environmentObject(fields)
     }
 }

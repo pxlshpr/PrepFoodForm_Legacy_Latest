@@ -19,8 +19,10 @@ public struct SizeForm: View {
 
     @StateObject var viewModel: SizeFormViewModel
     
-    @State var showingQuantity = false
-    @State var showingAmount = false
+    @State var showingQuantityForm = false
+    @State var showingAmountForm = false
+    @State var showingNameForm = false
+    @State var showingVolumePrefixUnitPicker = false
 
     public init(
         initialField: Field? = nil,
@@ -53,9 +55,31 @@ public struct SizeForm: View {
                       perform: viewModel.changedShowingVolumePrefixToggle
             )
         }
-        .presentationDetents([.height(350)])
+        .presentationDetents([.height(400)])
         .presentationDragIndicator(.hidden)
-        .sheet(isPresented: $showingAmount) { amountForm }
+        .sheet(isPresented: $showingAmountForm) { amountForm }
+        .sheet(isPresented: $showingQuantityForm) { quantityForm }
+        .sheet(isPresented: $showingNameForm) { nameForm }
+        .sheet(isPresented: $showingVolumePrefixUnitPicker) { unitPicker }
+    }
+    
+    var unitPicker: some View {
+        UnitPickerGridTiered(
+//            pickedUnit: viewModel.unit,
+//            includeServing: !viewModel.isServingSize,
+            pickedUnit: .volume(.cup),
+            includeServing: false,
+            includeWeights: false,
+            includeVolumes: true,
+            sizes: [],
+            allowAddSize: false,
+            didPickUnit: { newUnit in
+                withAnimation {
+//                    Haptics.feedback(style: .soft)
+//                    viewModel.unit = newUnit
+                }
+            }
+        )
     }
     
     var title: some View {
@@ -97,5 +121,13 @@ public struct SizeForm: View {
     
     var amountForm: some View {
         AmountForm(viewModel: viewModel)
+    }
+    
+    var quantityForm: some View {
+        QuantityForm(viewModel: viewModel)
+    }
+    
+    var nameForm: some View {
+        NameForm(viewModel: viewModel)
     }
 }
