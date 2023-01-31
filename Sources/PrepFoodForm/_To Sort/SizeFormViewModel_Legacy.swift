@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import PrepDataTypes
 
-class SizeFormViewModel: ObservableObject {
+class SizeFormViewModel_Legacy: ObservableObject {
     @Published var includeServing: Bool
     @Published var allowAddSize: Bool
     @Published var showingVolumePrefix: Bool

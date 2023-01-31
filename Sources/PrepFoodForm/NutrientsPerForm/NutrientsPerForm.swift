@@ -6,6 +6,7 @@ import SwiftHaptics
 
 extension NutrientsPerForm {
     class ViewModel: ObservableObject {
+        @Published var sizeFieldBeingEdited: Field? = nil
     }
 }
 
@@ -21,6 +22,7 @@ struct NutrientsPerForm: View {
 
     @State var showingAmountForm = false
     @State var showingServingForm = false
+    @State var showingSizeForm = false
     
     @State var showingImages: Bool = true
     
@@ -37,6 +39,7 @@ struct NutrientsPerForm: View {
         .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showingAmountForm) { amountForm }
         .sheet(isPresented: $showingServingForm) { servingForm }
+        .sheet(isPresented: $showingSizeForm) { sizeForm }
     }
     
     var scrollView: some View {
@@ -84,6 +87,8 @@ struct NutrientsPerForm: View {
     
     var addSizeButton: some View {
         Button {
+            viewModel.sizeFieldBeingEdited = nil
+            showingSizeForm = true
         } label: {
             Text("Add a size")
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -268,4 +273,17 @@ extension NutrientsPerForm {
         }
     }
 
+}
+
+extension NutrientsPerForm {
+    
+    var sizeForm: some View {
+        sizeForm(for: viewModel.sizeFieldBeingEdited)
+    }
+    
+    func sizeForm(for sizeField: Field?) -> some View {
+        SizeForm(initialField: sizeField) { newSize in
+            
+        }
+    }
 }

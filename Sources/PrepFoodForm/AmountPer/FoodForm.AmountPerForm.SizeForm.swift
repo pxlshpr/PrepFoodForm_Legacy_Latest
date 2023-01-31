@@ -24,7 +24,7 @@ extension FoodForm.AmountPerForm {
         /// This stores a copy of the data from fieldViewModel until we're ready to persist the change
         @StateObject var field: Field
         
-        @StateObject var formViewModel: SizeFormViewModel
+        @StateObject var formViewModel: SizeFormViewModel_Legacy
         @State var showingVolumePrefixToggle: Bool
 
         @State var shouldAnimateOptions = false
@@ -44,7 +44,7 @@ extension FoodForm.AmountPerForm {
              allowAddSize: Bool = true,
              didAddSizeViewModel: ((Field) -> ())? = nil
         ) {
-            let formViewModel = SizeFormViewModel(
+            let formViewModel = SizeFormViewModel_Legacy(
                 includeServing: includeServing,
                 allowAddSize: allowAddSize,
                 formState: field == nil ? .empty : .noChange

@@ -3,7 +3,7 @@ import NamePicker
 
 extension FoodForm.AmountPerForm.SizeForm {
     struct Editor: View {
-        @EnvironmentObject var formViewModel: SizeFormViewModel
+        @EnvironmentObject var formViewModel: SizeFormViewModel_Legacy
         @ObservedObject var field: Field
         
         @Binding var path: [Route]

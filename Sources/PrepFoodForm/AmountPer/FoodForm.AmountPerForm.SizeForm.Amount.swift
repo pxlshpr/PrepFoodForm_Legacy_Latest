@@ -4,7 +4,7 @@ import SwiftHaptics
 extension FoodForm.AmountPerForm.SizeForm {
     struct Amount: View {
         @EnvironmentObject var fields: FoodForm.Fields
-        @EnvironmentObject var formViewModel: SizeFormViewModel
+        @EnvironmentObject var formViewModel: SizeFormViewModel_Legacy
         @ObservedObject var field: Field
         
         @Environment(\.dismiss) var dismiss
