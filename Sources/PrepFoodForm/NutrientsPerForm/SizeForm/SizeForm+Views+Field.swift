@@ -56,7 +56,7 @@ extension SizeForm {
         }
         
         var volumePrefixButton: some View {
-            button(viewModel.sizeVolumePrefixString) {
+            button(viewModel.volumePrefixUnit.shortDescription) {
                 Haptics.feedback(style: .soft)
                 showingVolumePrefixUnitPicker = true
             }

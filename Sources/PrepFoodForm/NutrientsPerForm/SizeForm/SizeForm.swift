@@ -65,9 +65,7 @@ public struct SizeForm: View {
     
     var unitPicker: some View {
         UnitPickerGridTiered(
-//            pickedUnit: viewModel.unit,
-//            includeServing: !viewModel.isServingSize,
-            pickedUnit: .volume(.cup),
+            pickedUnit: .volume(viewModel.volumePrefixUnit),
             includeServing: false,
             includeWeights: false,
             includeVolumes: true,
@@ -75,8 +73,8 @@ public struct SizeForm: View {
             allowAddSize: false,
             didPickUnit: { newUnit in
                 withAnimation {
-//                    Haptics.feedback(style: .soft)
-//                    viewModel.unit = newUnit
+                    Haptics.feedback(style: .rigid)
+                    viewModel.volumePrefixUnit = newUnit.volumeUnit ?? .cup
                 }
             }
         )

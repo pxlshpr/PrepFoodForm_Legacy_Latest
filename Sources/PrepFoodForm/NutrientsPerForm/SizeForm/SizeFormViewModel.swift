@@ -11,13 +11,12 @@ class SizeFormViewModel: ObservableObject {
     @Published var showingVolumePrefixToggle: Bool = false
 
     @Published var quantity: Double = 1
+    @Published var volumePrefixUnit: VolumeUnit = .cup
 
     //TODO: Remove these
-    @Published var sizeVolumePrefixString = "cup"
     @Published var sizeNameString = "chopped"
     @Published var sizeAmountDescription = "150 g"
     
-    @Published var volumePrefixUnit: VolumeUnit = .cup
     @Published var name: String = ""
     @Published var internalAmountString: String = ""
     @Published var internalAmountDouble: Double? = nil
