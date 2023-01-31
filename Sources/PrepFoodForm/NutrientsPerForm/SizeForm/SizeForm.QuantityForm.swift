@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftHaptics
 import PrepViews
+import SwiftUISugar
 
 extension SizeForm {
     struct QuantityForm: View {
@@ -93,9 +94,11 @@ extension SizeForm.QuantityForm {
     
     var leadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            Button("Cancel") {
+            Button {
                 Haptics.feedback(style: .soft)
                 dismiss()
+            } label: {
+                miniFormCloseLabel
             }
         }
     }
@@ -103,7 +106,7 @@ extension SizeForm.QuantityForm {
     var trailingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                Haptics.successFeedback()
+                Haptics.feedback(style: .rigid)
                 sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
                 dismiss()
             } label: {

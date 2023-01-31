@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftHaptics
 import PrepViews
+import SwiftUISugar
 
 extension SizeForm {
     struct NameForm: View {
@@ -123,9 +124,11 @@ extension SizeForm.NameForm {
     
     var leadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            Button("Cancel") {
+            Button {
                 Haptics.feedback(style: .soft)
                 dismiss()
+            } label: {
+                miniFormCloseLabel
             }
         }
     }

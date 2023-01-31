@@ -23,30 +23,47 @@ class SizeFormViewModel: ObservableObject {
         self.handleNewSize = handleNewSize
         self.initialField = initialField
         
-//        if let initialField {
-//            internalTextfieldDouble = initialField.value.double ?? nil
-//            internalTextfieldString = initialField.value.double?.cleanWithoutRounding ?? ""
-//        }
-//        self.unit = initialField?.value.doubleValue.unit ?? (isServingSize ? .weight(.g) : .serving)
+        if let initialField, let initialSize = initialField.size {
+            self.quantity = initialSize.quantity ?? 1
+            if let volumePrefixUnit = initialSize.volumePrefixUnit?.volumeUnit {
+                self.volumePrefixUnit = volumePrefixUnit
+                showingVolumePrefix = true
+                showingVolumePrefixToggle = true
+            }
+            self.name = initialSize.name
+            self.amount = initialSize.amount
+            self.amountUnit = initialSize.unit
+        }
     }
 
-//
-//    var isRequired: Bool {
-//        !isServingSize
-//    }
-//
-//    var returnTuple: (Double, FormUnit)? {
-//        guard let internalTextfieldDouble else { return nil }
-//        return (internalTextfieldDouble, unit)
-//    }
-//
     var amountDescription: String {
         guard let amount else { return "" }
         return "\(amount.cleanAmount) \(amountUnit.shortDescription)"
     }
     
-    var shouldDisableDoneForSize: Bool {
-        return true
+    var matchesInitialField: Bool {
+        guard let initialSize = initialField?.size else { return false }
+        return initialSize.name.lowercased() == name.lowercased()
+        && initialSize.quantity == quantity
+        && initialSize.volumePrefixUnit?.volumeUnit == volumePrefixUnit
+        && initialSize.amount == amount
+        && initialSize.unit == amountUnit
+    }
+    
+    var hasMissingRequiredFields: Bool {
+        amount == nil
+        || name.isEmpty
+    }
+    
+    var shouldDisableDone: Bool {
+        if matchesInitialField {
+            return true
+        }
+        
+        if hasMissingRequiredFields {
+            return true
+        }
+        return false
     }
     
     func changedShowingVolumePrefixToggle(to newValue: Bool) {

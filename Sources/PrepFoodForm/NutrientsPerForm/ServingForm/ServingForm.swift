@@ -3,6 +3,7 @@ import PrepDataTypes
 import FoodLabelScanner
 import SwiftHaptics
 import PrepViews
+import SwiftUISugar
 
 struct ServingForm: View {
     
@@ -61,9 +62,11 @@ struct ServingForm: View {
     
     var leadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            Button("Cancel") {
+            Button {
                 Haptics.feedback(style: .soft)
                 dismiss()
+            } label: {
+                miniFormCloseLabel
             }
         }
     }
