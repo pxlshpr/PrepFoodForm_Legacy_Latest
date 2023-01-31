@@ -48,19 +48,19 @@ public struct SizeForm: View {
             )
             .toolbar { leadingContent }
             .toolbar { trailingContent }
-            .navigationTitle("Size")
+            .navigationTitle("New Size")
             .navigationBarTitleDisplayMode(.large)
             .onChange(of: isFocused, perform: isFocusedChanged)
             .onChange(of: viewModel.showingVolumePrefixToggle,
                       perform: viewModel.changedShowingVolumePrefixToggle
             )
+            .sheet(isPresented: $showingAmountForm) { amountForm }
+            .sheet(isPresented: $showingQuantityForm) { quantityForm }
+            .sheet(isPresented: $showingNameForm) { nameForm }
+            .sheet(isPresented: $showingVolumePrefixUnitPicker) { unitPicker }
         }
         .presentationDetents([.height(400)])
         .presentationDragIndicator(.hidden)
-        .sheet(isPresented: $showingAmountForm) { amountForm }
-        .sheet(isPresented: $showingQuantityForm) { quantityForm }
-        .sheet(isPresented: $showingNameForm) { nameForm }
-        .sheet(isPresented: $showingVolumePrefixUnitPicker) { unitPicker }
     }
     
     var unitPicker: some View {
@@ -115,7 +115,7 @@ public struct SizeForm: View {
                 Text("Done")
                     .bold()
             }
-            .disabled(viewModel.shouldDisableDone)
+            .disabled(viewModel.shouldDisableDoneForSize)
         }
     }
     
@@ -124,7 +124,7 @@ public struct SizeForm: View {
     }
     
     var quantityForm: some View {
-        QuantityForm(viewModel: viewModel)
+        QuantityForm(sizeFormViewModel: viewModel)
     }
     
     var nameForm: some View {

@@ -6,7 +6,9 @@ extension SizeForm {
     struct QuantityForm: View {
 
         @EnvironmentObject var fields: FoodForm.Fields
-        @ObservedObject var viewModel: SizeFormViewModel
+        
+        @ObservedObject var sizeFormViewModel: SizeFormViewModel
+        @StateObject var viewModel: ViewModel
 
         @Environment(\.dismiss) var dismiss
         @Environment(\.colorScheme) var colorScheme
@@ -14,6 +16,51 @@ extension SizeForm {
         
         @State var hasFocusedOnAppear: Bool = false
         @State var hasCompletedFocusedOnAppearAnimation: Bool = false
+        
+        init(sizeFormViewModel: SizeFormViewModel) {
+            self.sizeFormViewModel = sizeFormViewModel
+            let viewModel = ViewModel(initialDouble: sizeFormViewModel.initialField?.sizeQuantity ?? 1)
+            _viewModel = StateObject(wrappedValue: viewModel)
+        }
+        
+        class ViewModel: ObservableObject {
+            let initialDouble: Double
+            @Published var internalString: String = ""
+            @Published var internalDouble: Double? = nil
+
+            init(initialDouble: Double) {
+                self.initialDouble = initialDouble
+                self.internalDouble = initialDouble
+                self.internalString = initialDouble.cleanAmount
+            }
+            
+            var textFieldString: String {
+                get { internalString }
+                set {
+                    guard !newValue.isEmpty else {
+                        internalDouble = nil
+                        internalString = newValue
+                        return
+                    }
+                    guard let double = Double(newValue) else {
+                        return
+                    }
+                    self.internalDouble = double
+                    self.internalString = newValue
+                }
+            }
+            
+            var shouldDisableDone: Bool {
+                if initialDouble == internalDouble {
+                    return true
+                }
+
+                if internalDouble == nil {
+                    return true
+                }
+                return false
+            }
+        }
     }
 }
 
@@ -57,30 +104,30 @@ extension SizeForm.QuantityForm {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 Haptics.successFeedback()
-//                viewModel.handleNewValue(viewModel.returnTuple)
+                sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
                 dismiss()
             } label: {
                 Text("Done")
                     .bold()
             }
-//            .disabled(viewModel.shouldDisableDone)
+            .disabled(viewModel.shouldDisableDone)
         }
     }
     
     var textField: some View {
-//        let binding = Binding<String>(
-//            get: { viewModel.textFieldAmountString },
-//            set: { newValue in
-//                withAnimation {
-//                    viewModel.textFieldAmountString = newValue
-//                }
-//            }
-//        )
+        let binding = Binding<String>(
+            get: { viewModel.textFieldString },
+            set: { newValue in
+                withAnimation {
+                    viewModel.textFieldString = newValue
+                }
+            }
+        )
 
-        return TextField("Required", text: .constant(""))
+        return TextField("e.g. \'5\' if \"5 cookies (50g)\"", text: binding)
             .focused($isFocused)
             .multilineTextAlignment(.leading)
-//            .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
+            .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
             .keyboardType(.decimalPad)
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.never)
@@ -102,7 +149,7 @@ extension SizeForm.QuantityForm {
     @ViewBuilder
     var clearButton: some View {
         Button {
-//            viewModel.tappedClearButton()
+            viewModel.textFieldString = ""
         } label: {
             Image(systemName: "xmark.circle.fill")
                 .font(.system(size: 20))
@@ -113,7 +160,7 @@ extension SizeForm.QuantityForm {
                 )
 
         }
-//        .opacity(viewModel.shouldShowClearButton ? 1 : 0)
+        .opacity(!viewModel.textFieldString.isEmpty ? 1 : 0)
         .buttonStyle(.borderless)
         .padding(.trailing, 5)
     }

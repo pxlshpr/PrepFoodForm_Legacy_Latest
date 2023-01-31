@@ -107,6 +107,13 @@ extension SizeForm.NameForm {
                     .bold()
             }
 //            .disabled(viewModel.shouldDisableDone)
+//            Button {
+//                Haptics.successFeedback()
+//                dismiss()
+//            } label: {
+//                Image(systemName: "keyboard.chevron.compact.down")
+////                    .bold()
+//            }
         }
     }
     

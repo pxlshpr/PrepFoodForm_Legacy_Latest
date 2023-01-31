@@ -10,15 +10,19 @@ class SizeFormViewModel: ObservableObject {
     @Published var showingVolumePrefix = false
     @Published var showingVolumePrefixToggle: Bool = false
 
-    @Published var sizeQuantityString = "1"
+    @Published var quantity: Double = 1
+
+    //TODO: Remove these
     @Published var sizeVolumePrefixString = "cup"
     @Published var sizeNameString = "chopped"
     @Published var sizeAmountDescription = "150 g"
     
-//    @Published var unit: FormUnit
-//    @Published var internalTextfieldString: String = ""
-//    @Published var internalTextfieldDouble: Double? = nil
-    
+    @Published var volumePrefixUnit: VolumeUnit = .cup
+    @Published var name: String = ""
+    @Published var internalAmountString: String = ""
+    @Published var internalAmountDouble: Double? = nil
+    @Published var amountUnit: FormUnit = .weight(.g)
+
     init(
         initialField: Field?,
         handleNewSize: @escaping (FormSize) -> Void
@@ -32,24 +36,7 @@ class SizeFormViewModel: ObservableObject {
 //        }
 //        self.unit = initialField?.value.doubleValue.unit ?? (isServingSize ? .weight(.g) : .serving)
     }
-    
-    
 
-//    var textFieldAmountString: String {
-//        get { internalTextfieldString }
-//        set {
-//            guard !newValue.isEmpty else {
-//                internalTextfieldDouble = nil
-//                internalTextfieldString = newValue
-//                return
-//            }
-//            guard let double = Double(newValue) else {
-//                return
-//            }
-//            self.internalTextfieldDouble = double
-//            self.internalTextfieldString = newValue
-//        }
-//    }
 //
 //    var isRequired: Bool {
 //        !isServingSize
@@ -60,31 +47,9 @@ class SizeFormViewModel: ObservableObject {
 //        return (internalTextfieldDouble, unit)
 //    }
 //
-    var shouldDisableDone: Bool {
-        true
-//        if initialField?.value.double == internalTextfieldDouble
-//            && initialField?.value.doubleValue.unit == unit
-//        {
-//            return true
-//        }
-//
-//        if isRequired && internalTextfieldDouble == nil {
-//            return true
-//        }
-//        return false
+    var shouldDisableDoneForSize: Bool {
+        return true
     }
-//
-//    var shouldShowClearButton: Bool {
-//        !textFieldAmountString.isEmpty
-//    }
-//
-//    func tappedClearButton() {
-//        textFieldAmountString = ""
-//    }
-//
-//    var title: String {
-//        isServingSize ? "Serving Size" : "Nutrients Per"
-//    }
     
     func changedShowingVolumePrefixToggle(to newValue: Bool) {
         withAnimation {

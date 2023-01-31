@@ -14,19 +14,26 @@ extension SizeForm {
             }
         }
         
-        return FormStyledSection(footer: footer) {
+        return VStack(spacing: 7) {
             field
+                .frame(maxWidth: .infinity)
+//                .padding(.horizontal, K.FormStyle.Padding.horizontal)
+//                .padding(0)
+                .padding(.vertical, K.FormStyle.Padding.vertical)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(formCellBackgroundColor(colorScheme: colorScheme))
+                )
+            footer
+                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(Color(.secondaryLabel))
+                .font(.footnote)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 10)
         }
-//            .frame(maxWidth: .infinity)
-//            .padding(.horizontal, K.FormStyle.Padding.horizontal)
-//            .padding(0)
-//            .padding(.vertical, K.FormStyle.Padding.vertical)
-//            .background(
-//                RoundedRectangle(cornerRadius: 10)
-//                    .foregroundColor(formCellBackgroundColor(colorScheme: colorScheme))
-//            )
-//            .padding(.horizontal, 20)
-//            .padding(.bottom, 10)
+        .padding(.horizontal, 20)
+        .padding(.bottom, 10)
     }
     
     var field: some View {
@@ -37,7 +44,7 @@ extension SizeForm {
     var fieldContents: some View {
 
         var quantityButton: some View {
-            button(viewModel.sizeQuantityString) {
+            button(viewModel.quantity.cleanAmount) {
                 Haptics.feedback(style: .soft)
                 showingQuantityForm = true
             }
