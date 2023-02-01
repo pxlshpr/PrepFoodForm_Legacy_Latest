@@ -60,6 +60,7 @@ extension FoodForm {
             }
             
             return Button {
+                Haptics.feedback(style: .soft)
                 showingDetailsForm = true
             } label: {
                 HStack {
