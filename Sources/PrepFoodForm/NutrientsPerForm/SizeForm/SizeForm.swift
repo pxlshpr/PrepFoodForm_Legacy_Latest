@@ -43,6 +43,7 @@ public struct SizeForm: View {
                 deleteAction: deleteActionBinding
             ) {
                 fieldSection
+                Spacer().frame(height: 8)
                 toggleSection
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -55,7 +56,7 @@ public struct SizeForm: View {
             .sheet(isPresented: $showingNameForm) { nameForm }
             .sheet(isPresented: $showingVolumePrefixUnitPicker) { unitPicker }
         }
-        .presentationDetents([.height(350)])
+        .presentationDetents([.height(330)])
         .presentationDragIndicator(.hidden)
     }
     

@@ -93,7 +93,6 @@ extension SizeForm.AmountForm {
             FormStyledSection(horizontalOuterPadding: 0) {
                 HStack {
                     textField
-                    clearButton
                     unitPickerButton
                 }
             }
@@ -190,11 +189,5 @@ extension SizeForm.AmountForm {
             .animation(.none, value: viewModel.internalUnit)
         }
         .contentShape(Rectangle())
-    }
-    
-    var clearButton: some View {
-        FormTextFieldClearButton(isEmpty: viewModel.textFieldString.isEmpty) {
-            viewModel.textFieldString = ""
-        }
     }
 }

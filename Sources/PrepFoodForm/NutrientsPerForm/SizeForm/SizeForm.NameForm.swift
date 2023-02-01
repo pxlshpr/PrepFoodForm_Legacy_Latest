@@ -74,7 +74,6 @@ extension SizeForm.NameForm {
             FormStyledSection(horizontalOuterPadding: 0) {
                 HStack {
                     textField
-                    clearButton
                 }
             }
             .padding(.leading, 20)
@@ -167,12 +166,6 @@ extension SizeForm.NameForm {
                     }
                 }
             }
-    }
-    
-    var clearButton: some View {
-        FormTextFieldClearButton(isEmpty: viewModel.internalString.isEmpty) {
-            viewModel.internalString = ""
-        }
     }
 }
 

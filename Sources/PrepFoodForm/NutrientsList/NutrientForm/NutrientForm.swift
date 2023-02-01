@@ -48,7 +48,6 @@ struct NutrientForm: View {
             FormStyledSection(horizontalOuterPadding: 0) {
                 HStack {
                     textField
-//                    clearButton
                     unitPickerButton
                 }
                 .frame(maxHeight: 50)
@@ -179,12 +178,6 @@ struct NutrientForm: View {
             } else {
                 unitText("g")
             }
-        }
-    }
-    
-    var clearButton: some View {
-        FormTextFieldClearButton(isEmpty: viewModel.shouldShowClearButton) {
-            viewModel.tappedClearButton()
         }
     }
 }

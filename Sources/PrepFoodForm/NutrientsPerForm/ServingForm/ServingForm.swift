@@ -58,7 +58,6 @@ struct ServingForm: View {
             FormStyledSection(horizontalOuterPadding: 0) {
                 HStack {
                     textField
-                    clearButton
                     unitPickerButton
                 }
             }
@@ -149,12 +148,5 @@ struct ServingForm: View {
             .animation(.none, value: viewModel.unit)
         }
         .contentShape(Rectangle())
-    }
-    
-    @ViewBuilder
-    var clearButton: some View {
-        FormTextFieldClearButton(isEmpty: viewModel.textFieldAmountString.isEmpty) {
-            viewModel.tappedClearButton()
-        }
     }
 }
