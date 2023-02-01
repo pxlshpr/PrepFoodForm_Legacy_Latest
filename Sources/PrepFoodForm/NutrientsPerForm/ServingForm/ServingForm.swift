@@ -145,7 +145,7 @@ struct ServingForm: View {
                         colorScheme == .dark ? 0.1 : 0.15
                     ))
             )
-            .animation(.none, value: viewModel.unit)
+//            .animation(.none, value: viewModel.unit)
         }
         .contentShape(Rectangle())
     }

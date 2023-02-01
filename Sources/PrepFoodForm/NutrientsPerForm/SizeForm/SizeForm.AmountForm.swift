@@ -186,7 +186,7 @@ extension SizeForm.AmountForm {
                         colorScheme == .dark ? 0.1 : 0.15
                     ))
             )
-            .animation(.none, value: viewModel.internalUnit)
+//            .animation(.none, value: viewModel.internalUnit)
         }
         .contentShape(Rectangle())
     }

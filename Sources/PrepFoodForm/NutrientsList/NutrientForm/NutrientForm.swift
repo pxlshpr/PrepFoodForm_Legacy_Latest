@@ -169,8 +169,8 @@ struct NutrientForm: View {
                             colorScheme == .dark ? 0.1 : 0.15
                         ))
                 )
-                .animation(.none, value: viewModel.unit)
             }
+            .animation(.none, value: viewModel.unit)
             .contentShape(Rectangle())
             .simultaneousGesture(TapGesture().onEnded {
                 Haptics.feedback(style: .soft)
