@@ -9,6 +9,7 @@ import Shimmer
 
 extension FoodForm {
     struct SourcesSummaryCell: View {
+        @Environment(\.colorScheme) var colorScheme
         @ObservedObject var sources: FoodForm.Sources
         @Binding var showingAddLinkAlert: Bool
         let didTapCamera: () -> ()
@@ -327,7 +328,7 @@ extension FoodForm.SourcesSummaryCell {
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
                 Label("Learn more", systemImage: "info.circle")
-                    .foregroundStyle(Color(hex: "FCC200").gradient)
+                    .foregroundStyle(Color(hex: colorScheme == .light ? "634C00" : "FCC200").gradient)
 //                    .foregroundColor(.accentColor)
                     .shimmering()
             }
