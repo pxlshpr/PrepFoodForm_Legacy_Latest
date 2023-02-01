@@ -69,108 +69,41 @@ extension SizeForm.QuantityForm {
     
     var body: some View {
         NavigationStack {
-            FormStyledVStack(customVerticalSpacing: 0) {
-                topRow
+            QuickForm(title: "Quantity") {
                 textFieldSection
-                doneButtonRow
-                Spacer()
             }
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
         }
-        .presentationDetents([.height(190)])
+        .presentationDetents([.height(140)])
         .presentationDragIndicator(.hidden)
     }
     
-    var topRow: some View {
-        var title: some View {
-            Text("Quantity")
-                .font(.title2)
-                .fontWeight(.bold)
-                .frame(maxHeight: .infinity, alignment: .center)
+    var doneButton: some View {
+        FormInlineDoneButton(disabled: viewModel.shouldDisableDone) {
+            Haptics.feedback(style: .rigid)
+            sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
+            dismiss()
         }
-        
-        var closeButton: some View {
-            Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
-            }
-        }
-        
-        return HStack {
-            title
-                .padding(.top, 5)
-            Spacer()
-            closeButton
-        }
-        .frame(height: 30)
-        .padding(.leading, 20)
-        .padding(.trailing, 14)
-        .padding(.top, 12)
-        .padding(.bottom, 18)
-    }
-    
-    var doneButtonRow: some View {
-        
-        var foregroundColor: Color {
-            (colorScheme == .light && viewModel.shouldDisableDone)
-            ? .black
-            : .white
-        }
-        
-        return HStack {
-            Spacer()
-            Button {
-                Haptics.feedback(style: .rigid)
-                sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
-                dismiss()
-            } label: {
-                Image(systemName: "checkmark")
-//                Text("Done")
-                    .bold()
-                    .foregroundColor(foregroundColor)
-                    .frame(width: 38, height: 38)
-                    .background(
-                        RoundedRectangle(cornerRadius: 19)
-                            .foregroundStyle(Color.accentColor.gradient)
-                            .shadow(color: Color(.black).opacity(0.2), radius: 2, x: 0, y: 2)
-                    )
-            }
-            .disabled(viewModel.shouldDisableDone)
-            .opacity(viewModel.shouldDisableDone ? 0.2 : 1)
-        }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
     }
     
     var textFieldSection: some View {
-        FormStyledSection {
-            HStack {
-                textField
-                clearButton
+        HStack(spacing: 0) {
+            FormStyledSection(horizontalOuterPadding: 0) {
+                HStack {
+                    textField
+                    clearButton
+                }
             }
+            .padding(.leading, 20)
+            doneButton
+                .padding(.horizontal, 20)
         }
     }
     
     func isFocusedChanged(_ newValue: Bool) {
         if !isFocused {
             dismiss()
-        }
-    }
-    
-    var leadingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button {
-                Haptics.feedback(style: .rigid)
-                sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
-                dismiss()
-            } label: {
-                Text("Done")
-                    .bold()
-            }
-            .disabled(viewModel.shouldDisableDone)
         }
     }
     
@@ -206,22 +139,9 @@ extension SizeForm.QuantityForm {
             }
     }
     
-    @ViewBuilder
     var clearButton: some View {
-        Button {
+        FormTextFieldClearButton(isEmpty: viewModel.textFieldString.isEmpty) {
             viewModel.textFieldString = ""
-        } label: {
-            Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 20))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(
-                    Color(.tertiaryLabel),
-                    Color(.tertiarySystemFill)
-                )
-
         }
-        .opacity(!viewModel.textFieldString.isEmpty ? 1 : 0)
-        .buttonStyle(.borderless)
-        .padding(.trailing, 5)
     }
 }
