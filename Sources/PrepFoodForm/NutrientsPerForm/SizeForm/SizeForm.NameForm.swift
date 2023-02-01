@@ -51,26 +51,12 @@ extension SizeForm.NameForm {
     
     var body: some View {
         NavigationStack {
-
-//            GeometryReader { geometry in
             FormStyledVStack(customVerticalSpacing: 0) {
-//                VStack(spacing: 0) {
-                    topRow
-                    textFieldSection
-                    doneButtonRow
-//                    Spacer()
-//                }
-//                .frame(maxWidth: .infinity)
-                //                .frame(height: 50)
-                
-//                .background(
-//                    FormBackground()
-//                        .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
-//                )
-//                //            }
-//                .frame(height: geometry.size.height, alignment: .top)
+                topRow
+                textFieldSection
+                doneButtonRow
+                Spacer()
             }
-
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
             .safeAreaInset(edge: .bottom) { bottomSafeAreaContent }

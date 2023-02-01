@@ -73,7 +73,7 @@ extension SizeForm.QuantityForm {
                 topRow
                 textFieldSection
                 doneButtonRow
-//                Spacer()
+                Spacer()
             }
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
