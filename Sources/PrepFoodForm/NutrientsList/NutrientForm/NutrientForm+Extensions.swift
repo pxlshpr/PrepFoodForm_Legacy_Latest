@@ -32,19 +32,19 @@ extension NutrientType {
 
 
 extension FoodForm.Fields {
-    func value(for attribute: Attribute) -> FoodLabelValue? {
-        field(for: attribute)?.foodLabelValue
+    func value(for nutrient: Nutrient) -> FoodLabelValue? {
+        field(for: nutrient)?.foodLabelValue
     }
     
-    func field(for attribute: Attribute) -> Field? {
-        if attribute == .energy {
+    func field(for nutrient: Nutrient) -> Field? {
+        switch nutrient {
+        case .energy:
             return energy
-        } else if let macro = attribute.macro {
+        case .macro(let macro):
             return field(for: macro)
-        } else if let nutrientType = attribute.nutrientType {
+        case .micro(let nutrientType):
             return field(for: nutrientType)
         }
-        return nil
     }
     
     func field(for macro: Macro) -> Field {

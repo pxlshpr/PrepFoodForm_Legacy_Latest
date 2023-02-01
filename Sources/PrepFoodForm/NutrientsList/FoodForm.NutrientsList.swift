@@ -13,13 +13,13 @@ extension FoodForm {
         
         @State var showingMicronutrientsPicker = false
         @State var showingImages = true
-        @State var showingAttributeForm = false
+        @State var showingNutrientForm = false
     }
 }
 
 extension FoodForm.NutrientsList {
     class ViewModel: ObservableObject {
-        @Published var attributeBeingEdited: Attribute? = nil
+        @Published var nutrientBeingEdited: Nutrient? = nil
     }
 }
 
@@ -31,7 +31,7 @@ extension FoodForm.NutrientsList {
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingMicronutrientsPicker) { micronutrientsPicker }
-            .sheet(isPresented: $showingAttributeForm) { attributeForm }
+            .sheet(isPresented: $showingNutrientForm) { nutrientForm }
     }
     
     var scrollView: some View {
@@ -56,19 +56,19 @@ extension FoodForm.NutrientsList {
     }
     
     @ViewBuilder
-    var attributeForm: some View {
-        if let attribute = viewModel.attributeBeingEdited {
-            AttributeForm(
-                attribute: attribute,
-                initialValue: fields.value(for: attribute),
+    var nutrientForm: some View {
+        if let nutrient = viewModel.nutrientBeingEdited {
+            NutrientForm(
+                nutrient: nutrient,
+                initialValue: fields.value(for: nutrient),
                 handleNewValue: { newValue in
-                    handleNewValue(newValue, for: attribute)
+                    handleNewValue(newValue, for: nutrient)
                 }
             )
         }
     }
     
-    func handleNewValue(_ value: FoodLabelValue?, for attribute: Attribute) {
+    func handleNewValue(_ value: FoodLabelValue?, for nutrient: Nutrient) {
         func handleNewEnergyValue(_ value: FoodLabelValue) {
             fields.energy.value.energyValue.string = value.amount.cleanAmount
             if let unit = value.unit, unit.isEnergy {
@@ -105,13 +105,14 @@ extension FoodForm.NutrientsList {
             }
         }
         
-        if attribute == .energy {
+        switch nutrient {
+        case .energy:
             guard let value else { return }
             handleNewEnergyValue(value)
-        } else if let macro = attribute.macro {
+        case .macro(let macro):
             guard let value else { return }
             handleNewMacroValue(value, for: macro)
-        } else if let nutrientType = attribute.nutrientType {
+        case .micro(let nutrientType):
             handleNewMicroValue(value, for: nutrientType)
         }
         fields.updateFormState()

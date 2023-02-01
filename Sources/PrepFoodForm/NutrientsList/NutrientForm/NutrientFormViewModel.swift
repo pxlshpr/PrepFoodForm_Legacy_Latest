@@ -2,9 +2,74 @@ import SwiftUI
 import PrepDataTypes
 import FoodLabelScanner
 
-class AttributeFormViewModel: ObservableObject {
+enum Nutrient {
+    case energy
+    case macro(Macro)
+    case micro(NutrientType)
     
-    let attribute: Attribute
+    var defaultFoodLabelUnit: FoodLabelUnit {
+        switch self {
+        case .energy:
+            return .kcal
+        case .macro:
+            return .g
+        case .micro(let nutrientType):
+            return nutrientType.defaultUnit.foodLabelUnit ?? .g
+        }
+    }
+    
+    var isRequired: Bool {
+        switch self {
+        case .micro:
+            return false
+        default:
+            return true
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .energy:
+            return "Energy"
+        case .macro(let macro):
+            return macro.description
+        case .micro(let nutrientType):
+            return nutrientType.description
+        }
+    }
+    
+    var isEnergy: Bool {
+        switch self {
+        case .energy:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var nutrientType: NutrientType? {
+        switch self {
+        case .micro(let nutrientType):
+            return nutrientType
+        default:
+            return nil
+        }
+    }
+    
+    var macro: Macro? {
+        switch self {
+        case .macro(let macro):
+            return macro
+        default:
+            return nil
+        }
+    }
+}
+
+class NutrientFormViewModel: ObservableObject {
+    
+    let nutrient: Nutrient
+    
     let handleNewValue: (FoodLabelValue?) -> ()
     let initialValue: FoodLabelValue?
     
@@ -13,11 +78,12 @@ class AttributeFormViewModel: ObservableObject {
     @Published var internalTextfieldDouble: Double? = nil
     
     init(
-        attribute: Attribute,
+        nutrient: Nutrient,
         initialValue: FoodLabelValue?,
         handleNewValue: @escaping (FoodLabelValue?) -> Void
     ) {
-        self.attribute = attribute
+        self.nutrient = nutrient
+        
         self.handleNewValue = handleNewValue
         self.initialValue = initialValue
         
@@ -25,7 +91,7 @@ class AttributeFormViewModel: ObservableObject {
             internalTextfieldDouble = initialValue.amount
             internalTextfieldString = initialValue.amount.cleanWithoutRounding
         }
-        self.unit = initialValue?.unit ?? attribute.defaultUnit ?? .g
+        self.unit = initialValue?.unit ?? nutrient.defaultFoodLabelUnit
     }
 
     var textFieldAmountString: String {
@@ -45,7 +111,7 @@ class AttributeFormViewModel: ObservableObject {
     }
     
     var isRequired: Bool {
-        attribute == .energy || attribute.macro != nil
+        nutrient.isRequired
     }
     
     var value: FoodLabelValue? {

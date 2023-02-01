@@ -4,7 +4,8 @@ import FoodLabelScanner
 import SwiftHaptics
 import SwiftUISugar
 
-struct AttributeForm: View {
+
+struct NutrientForm: View {
     
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
@@ -13,15 +14,15 @@ struct AttributeForm: View {
     @State var hasFocusedOnAppear: Bool = false
     @State var hasCompletedFocusedOnAppearAnimation: Bool = false
 
-    @StateObject var viewModel: AttributeFormViewModel
+    @StateObject var viewModel: NutrientFormViewModel
     
     init(
-        attribute: Attribute,
+        nutrient: Nutrient,
         initialValue: FoodLabelValue? = nil,
         handleNewValue: @escaping (FoodLabelValue?) -> ()
     ) {
         _viewModel = StateObject(wrappedValue: .init(
-            attribute: attribute,
+            nutrient: nutrient,
             initialValue: initialValue,
             handleNewValue: handleNewValue
         ))
@@ -33,7 +34,7 @@ struct AttributeForm: View {
     
     var body: some View {
         NavigationStack {
-            QuickForm(title: viewModel.attribute.description) {
+            QuickForm(title: viewModel.nutrient.description) {
                 textFieldSection
             }
             .onChange(of: isFocused, perform: isFocusedChanged)
@@ -47,9 +48,10 @@ struct AttributeForm: View {
             FormStyledSection(horizontalOuterPadding: 0) {
                 HStack {
                     textField
-                    clearButton
+//                    clearButton
                     unitPickerButton
                 }
+                .frame(maxHeight: 50)
             }
             .padding(.leading, 20)
             doneButton
@@ -86,7 +88,7 @@ struct AttributeForm: View {
             .multilineTextAlignment(.leading)
             .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
             .keyboardType(.decimalPad)
-            .frame(minHeight: 50)
+            .frame(height: 50)
             .scrollDismissesKeyboard(.never)
             .introspectTextField { uiTextField in
                 if !hasFocusedOnAppear {
@@ -158,7 +160,7 @@ struct AttributeForm: View {
         }
         
         return Group {
-            if viewModel.attribute == .energy {
+            if viewModel.nutrient.isEnergy {
                 Picker("", selection: $viewModel.unit) {
                     ForEach(
                         [FoodLabelUnit.kcal, FoodLabelUnit.kj],
@@ -168,7 +170,7 @@ struct AttributeForm: View {
                     }
                 }
                 .pickerStyle(.segmented)
-            } else if let nutrientType = viewModel.attribute.nutrientType {
+            } else if let nutrientType = viewModel.nutrient.nutrientType {
                 if nutrientType.supportedFoodLabelUnits.count > 1 {
                     unitPicker(for: nutrientType)
                 } else {

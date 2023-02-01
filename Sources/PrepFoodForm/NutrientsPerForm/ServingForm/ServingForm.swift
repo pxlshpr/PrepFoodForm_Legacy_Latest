@@ -42,7 +42,7 @@ struct ServingForm: View {
             }
             .onChange(of: isFocused, perform: isFocusedChanged)
         }
-        .presentationDetents([.height(170)])
+        .presentationDetents([.height(140)])
         .presentationDragIndicator(.hidden)
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
     }
