@@ -227,16 +227,16 @@ extension FoodForm {
                 }
             }
         }
-        .presentationDetents([.height(300)])
+        .presentationDetents([.height(280)])
         .presentationDragIndicator(.hidden)
         .sheet(isPresented: $showingNameForm) {
-            DetailsNameForm(title: "Name", name: $fields.name)
+            DetailsNameForm(title: "Name", isRequired: true, name: $fields.name)
         }
         .sheet(isPresented: $showingDetailForm) {
-            DetailsNameForm(title: "Detail", name: $fields.detail)
+            DetailsNameForm(title: "Detail", isRequired: false, name: $fields.detail)
         }
         .sheet(isPresented: $showingBrandForm) {
-            DetailsNameForm(title: "Brand", name: $fields.brand)
+            DetailsNameForm(title: "Brand", isRequired: false, name: $fields.brand)
         }
     }
 }

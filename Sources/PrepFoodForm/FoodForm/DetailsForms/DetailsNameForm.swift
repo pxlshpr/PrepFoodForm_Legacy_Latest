@@ -19,18 +19,20 @@ struct DetailsNameForm: View {
     
     let title: String
     
-    init(title: String, name: Binding<String>) {
+    init(title: String, isRequired: Bool, name: Binding<String>) {
         self.title = title
         _name = name
-        let viewModel = ViewModel(initialString: name.wrappedValue)
+        let viewModel = ViewModel(initialString: name.wrappedValue, isRequired: isRequired)
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     class ViewModel: ObservableObject {
         let initialString: String
+        let isRequird: Bool
         @Published var internalString: String = ""
 
-        init(initialString: String) {
+        init(initialString: String, isRequired: Bool) {
+            self.isRequird = isRequired
             self.initialString = initialString
             self.internalString = initialString
         }
@@ -40,7 +42,7 @@ struct DetailsNameForm: View {
                 return true
             }
 
-            if internalString.isEmpty {
+            if isRequird && internalString.isEmpty {
                 return true
             }
             return false
@@ -141,7 +143,7 @@ struct DetailsNameForm: View {
             }
         )
 
-        return TextField("Required", text: binding)
+        return TextField(viewModel.isRequird ? "Required" : "Optional", text: binding)
             .focused($isFocused)
             .multilineTextAlignment(.leading)
             .font(binding.wrappedValue.isEmpty ? .body : .largeTitle)
