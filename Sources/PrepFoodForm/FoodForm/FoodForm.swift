@@ -260,10 +260,10 @@ public struct FoodForm: View {
         ZStack {
             formLayer
             wizardLayer
-            if shouldShowBottomButtons {
-                buttonsLayer
-                    .transition(.move(edge: .bottom))
-            }
+//            if shouldShowBottomButtons {
+//                buttonsLayer
+//                    .transition(.move(edge: .bottom))
+//            }
         }
     }
     
@@ -303,9 +303,9 @@ public struct FoodForm: View {
             sourcesSection
             barcodesSection
             prefillSection
-            Spacer().frame(height: 38)
+//            Spacer().frame(height: 38)
         }
-        .safeAreaInset(edge: .bottom) { safeAreaInset }
+//        .safeAreaInset(edge: .bottom) { safeAreaInset }
         .overlay(overlay)
         .blur(radius: showingWizardOverlay ? 5 : 0)
         .disabled(formDisabled)
@@ -499,12 +499,32 @@ public struct FoodForm: View {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
+            CloseButtonLabelNavBar()
         }
     }
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
         }
+    }
+}
+
+public struct CloseButtonLabelNavBar: View {
+    
+    @Environment(\.colorScheme) var colorScheme
+    
+    public init() { }
+    
+    public var body: some View {
+        Image(systemName: "xmark.circle.fill")
+//            .frame(width: 30, height: 30)
+            .font(.system(size: 24))
+            .symbolRenderingMode(.palette)
+            .foregroundStyle(
+                Color(hex: colorScheme == .light ? "838388" : "A0A0A8"),      /// 'x' symbol
+//                Color(hex: colorScheme == .light ? "EEEEEF" : "313135") /// background
+                Color(.quaternaryLabel).opacity(0.5)
+            )
     }
 }
 

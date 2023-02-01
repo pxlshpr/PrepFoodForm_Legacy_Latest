@@ -111,7 +111,8 @@ extension FoodForm.SourcesSummaryCell {
     }
     
     private var axes: Axis.Set {
-        let shouldScroll = !sources.imageViewModels.isEmpty || sources.linkInfo != nil
+        let count = sources.imageViewModels.count + (sources.linkInfo != nil ? 1 : 0)
+        let shouldScroll = count > 2
         return shouldScroll ? .horizontal : []
     }
     

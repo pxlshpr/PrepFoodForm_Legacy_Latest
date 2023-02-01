@@ -101,9 +101,14 @@ extension FoodForm {
             }
         }
 
+        var axes: Axis.Set {
+            let shouldScroll = barcodeValues.count > 2
+            return shouldScroll ? .horizontal : []
+        }
+
         var addBarcodeSection: some View {
             FormStyledSection(header: header, footer: footer, horizontalPadding: 0, verticalPadding: 0) {
-                ScrollView(.horizontal, showsIndicators: false) {
+                ScrollView(axes, showsIndicators: false) {
                     HStack(spacing: 8.0) {
                         ForEach(barcodeValues, id: \.self) { barcodeValue in
                             if let image = barcodeValue.barcodeThumbnail(width: buttonWidth, height: 80) {
@@ -188,6 +193,7 @@ extension FoodForm {
                     .padding(.vertical, 10)
                     .padding(.horizontal, 15)
                 }
+                .frame(height: 100)
             }
         }
         
