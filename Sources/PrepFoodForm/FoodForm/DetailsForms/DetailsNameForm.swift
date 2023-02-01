@@ -3,62 +3,59 @@ import SwiftHaptics
 import PrepViews
 import SwiftUISugar
 
-extension SizeForm {
-    struct NameForm: View {
+struct DetailsNameForm: View {
 
-        @EnvironmentObject var fields: FoodForm.Fields
-        
-        @ObservedObject var sizeFormViewModel: SizeFormViewModel
-        @StateObject var viewModel: ViewModel
+    @EnvironmentObject var fields: FoodForm.Fields
+    
+    @Binding var name: String
+    @StateObject var viewModel: ViewModel
 
-        @Environment(\.dismiss) var dismiss
-        @Environment(\.colorScheme) var colorScheme
-        @FocusState var isFocused: Bool
-        
-        @State var hasFocusedOnAppear: Bool = false
-        @State var hasCompletedFocusedOnAppearAnimation: Bool = false
-        
-        init(sizeFormViewModel: SizeFormViewModel) {
-            self.sizeFormViewModel = sizeFormViewModel
-            let viewModel = ViewModel(initialString: sizeFormViewModel.name)
-            _viewModel = StateObject(wrappedValue: viewModel)
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
+    @FocusState var isFocused: Bool
+    
+    @State var hasFocusedOnAppear: Bool = false
+    @State var hasCompletedFocusedOnAppearAnimation: Bool = false
+    
+    let title: String
+    
+    init(title: String, name: Binding<String>) {
+        self.title = title
+        _name = name
+        let viewModel = ViewModel(initialString: name.wrappedValue)
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
+    class ViewModel: ObservableObject {
+        let initialString: String
+        @Published var internalString: String = ""
+
+        init(initialString: String) {
+            self.initialString = initialString
+            self.internalString = initialString
         }
         
-        class ViewModel: ObservableObject {
-            let initialString: String
-            @Published var internalString: String = ""
-
-            init(initialString: String) {
-                self.initialString = initialString
-                self.internalString = initialString
+        var shouldDisableDone: Bool {
+            if initialString == internalString {
+                return true
             }
-            
-            var shouldDisableDone: Bool {
-                if initialString == internalString {
-                    return true
-                }
 
-                if internalString.isEmpty {
-                    return true
-                }
-                return false
+            if internalString.isEmpty {
+                return true
             }
+            return false
         }
     }
-}
-
-extension SizeForm.NameForm {
     
     var body: some View {
         NavigationStack {
-            QuickForm(title: "Name") {
+            QuickForm(title: title) {
                 textFieldSection
             }
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
-            .safeAreaInset(edge: .bottom) { bottomSafeAreaContent }
         }
-        .presentationDetents([.height(140 + 50.0)])
+        .presentationDetents([.height(140)])
         .presentationDragIndicator(.hidden)
     }
     
@@ -85,13 +82,9 @@ extension SizeForm.NameForm {
         }
     }
     
-    var bottomSafeAreaContent: some View {
-        suggestionsBar
-    }
-    
     func dismissAfterSetting(_ string: String) {
         Haptics.feedback(style: .rigid)
-        sizeFormViewModel.name = string.lowercased()
+        self.name = string
         dismiss()
     }
     
@@ -108,7 +101,7 @@ extension SizeForm.NameForm {
                         Button {
                             dismissAfterSetting(suggestion)
                         } label: {
-                            Text(suggestion.lowercased())
+                            Text(suggestion)
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 7)
                                 .padding(.horizontal, 10)
@@ -143,7 +136,7 @@ extension SizeForm.NameForm {
             get: { viewModel.internalString },
             set: { newValue in
                 withAnimation {
-                    viewModel.internalString = newValue.lowercased()
+                    viewModel.internalString = newValue
                 }
             }
         )
@@ -172,5 +165,3 @@ extension SizeForm.NameForm {
             }
     }
 }
-
-let SizeNameSuggestions = ["bottle", "box", "biscuit", "cookie", "container", "pack", "sleeve"]

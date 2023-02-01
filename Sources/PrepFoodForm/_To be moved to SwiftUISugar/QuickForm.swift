@@ -101,15 +101,25 @@ public struct QuickForm<Content: View>: View {
             saveAction.handler()
             dismiss()
         } label: {
-            Text(saveAction.buttonTitle ?? "")
-                .bold()
-                .foregroundColor(foregroundColor)
-                .frame(width: 100, height: 38)
-                .background(
-                    RoundedRectangle(cornerRadius: 19)
-                        .foregroundStyle(Color.accentColor.gradient)
-                        .shadow(color: Color(.black).opacity(0.2), radius: 2, x: 0, y: 2)
-                )
+            Group {
+                if let buttonImage = saveAction.buttonImage {
+                    Image(systemName: "checkmark")
+                        .bold()
+                        .foregroundColor(foregroundColor)
+                        .frame(width: 38, height: 38)
+                } else {
+                    Text(saveAction.buttonTitle ?? "Save")
+                        .bold()
+                        .foregroundColor(foregroundColor)
+                        .frame(height: 38)
+                        .padding(.horizontal, 20)
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 19)
+                    .foregroundStyle(Color.accentColor.gradient)
+                    .shadow(color: Color(.black).opacity(0.2), radius: 2, x: 0, y: 2)
+            )
         }
         .disabled(saveAction.isDisabled)
         .opacity(saveAction.isDisabled ? 0.2 : 1)

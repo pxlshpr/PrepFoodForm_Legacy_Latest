@@ -26,6 +26,11 @@ public struct FoodForm: View {
 
     /// Sheets
     @State var showingEmojiPicker = false
+    @State var showingDetailsForm = false
+    @State var showingBrandForm = false
+    @State var showingNameForm = false
+    @State var showingDetailForm = false
+    
     @State var showingFoodLabelCamera = false
     @State var showingPhotosPicker = false
     @State var showingPrefill = false
@@ -194,6 +199,7 @@ public struct FoodForm: View {
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
             
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
+                .sheet(isPresented: $showingDetailsForm) { detailsForm }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
                 .fullScreenCover(isPresented: $showingBarcodeScanner) { barcodeScanner }
 //                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }

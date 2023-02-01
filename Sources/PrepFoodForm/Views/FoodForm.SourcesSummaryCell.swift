@@ -328,7 +328,8 @@ extension FoodForm.SourcesSummaryCell {
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
                 Label("Learn more", systemImage: "info.circle")
-                    .foregroundStyle(Color(hex: colorScheme == .light ? "634C00" : "FCC200").gradient)
+                    .foregroundColor(Color(hex: colorScheme == .light ? "A98112" : "FCC200"))
+//                    .foregroundStyle(Color(hex: colorScheme == .light ? "A98112" : "FCC200").gradient)
 //                    .foregroundColor(.accentColor)
                     .shimmering()
             }
