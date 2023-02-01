@@ -173,7 +173,7 @@ extension FoodForm {
                                 showingNameForm = true
                             } label: {
                                 Text(!fields.name.isEmpty ? fields.name : "Required")
-                                    .foregroundColor(!fields.name.isEmpty ? .white : Color(.tertiaryLabel))
+                                    .foregroundColor(!fields.name.isEmpty ? .primary : Color(.tertiaryLabel))
                                     .bold()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.horizontal, 15)
@@ -192,7 +192,7 @@ extension FoodForm {
                                 showingDetailForm = true
                             } label: {
                                 Text(!fields.detail.isEmpty ? fields.detail : "Optional")
-                                    .foregroundColor(!fields.detail.isEmpty ? .white : Color(.tertiaryLabel))
+                                    .foregroundColor(!fields.detail.isEmpty ? .primary : Color(.tertiaryLabel))
                                     .bold()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.horizontal, 15)
@@ -211,7 +211,7 @@ extension FoodForm {
                                 showingBrandForm = true
                             } label: {
                                 Text(!fields.brand.isEmpty ? fields.brand : "Optional")
-                                    .foregroundColor(!fields.brand.isEmpty ? .white : Color(.tertiaryLabel))
+                                    .foregroundColor(!fields.brand.isEmpty ? .primary : Color(.tertiaryLabel))
                                     .bold()
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(.horizontal, 15)
