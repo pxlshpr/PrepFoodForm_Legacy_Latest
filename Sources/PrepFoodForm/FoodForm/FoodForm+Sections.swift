@@ -162,7 +162,7 @@ extension FoodForm {
         }
         
         return NavigationStack {
-            QuickForm(title: "Details", saveAction: saveActionBinding) {
+            QuickForm(title: "Details") {
                 FormStyledSection {
                     Grid(alignment: .leading) {
                         GridRow {
@@ -227,7 +227,7 @@ extension FoodForm {
                 }
             }
         }
-        .presentationDetents([.height(320)])
+        .presentationDetents([.height(300)])
         .presentationDragIndicator(.hidden)
         .sheet(isPresented: $showingNameForm) {
             DetailsNameForm(title: "Name", name: $fields.name)
