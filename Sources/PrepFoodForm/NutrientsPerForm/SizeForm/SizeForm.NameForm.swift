@@ -65,8 +65,12 @@ extension SizeForm.NameForm {
     
     var doneButton: some View {
         FormInlineDoneButton(disabled: viewModel.shouldDisableDone) {
-            dismissAfterSetting(viewModel.internalString)
+            tappedDone()
         }
+    }
+    
+    func tappedDone() {
+        dismissAfterSetting(viewModel.internalString)
     }
     
     var textFieldSection: some View {
@@ -153,6 +157,7 @@ extension SizeForm.NameForm {
             .autocorrectionDisabled()
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.never)
+            .onSubmit(tappedDone)
             .introspectTextField { uiTextField in
                 if !hasFocusedOnAppear {
                     uiTextField.becomeFirstResponder()
