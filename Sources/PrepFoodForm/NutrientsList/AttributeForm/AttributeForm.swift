@@ -33,50 +33,41 @@ struct AttributeForm: View {
     
     var body: some View {
         NavigationStack {
-            Form {
+            QuickForm(title: viewModel.attribute.description) {
+                textFieldSection
+            }
+            .onChange(of: isFocused, perform: isFocusedChanged)
+        }
+        .presentationDetents([.height(140)])
+        .presentationDragIndicator(.hidden)
+    }
+
+    var textFieldSection: some View {
+        HStack(spacing: 0) {
+            FormStyledSection(horizontalOuterPadding: 0) {
                 HStack {
                     textField
                     clearButton
-                    unitPicker
+                    unitPickerButton
                 }
             }
-            .navigationTitle(viewModel.attribute.description)
-            .toolbar { leadingContent }
-            .toolbar { trailingContent }
-            .onChange(of: isFocused, perform: isFocusedChanged)
+            .padding(.leading, 20)
+            doneButton
+                .padding(.horizontal, 20)
         }
-        .presentationDetents([.height(170)])
-        .presentationDragIndicator(.hidden)
+    }
+    
+    var doneButton: some View {
+        FormInlineDoneButton(disabled: viewModel.shouldDisableDone) {
+            Haptics.successFeedback()
+            viewModel.handleNewValue(viewModel.value)
+            dismiss()
+        }
     }
     
     func isFocusedChanged(_ newValue: Bool) {
         if !isFocused {
             dismiss()
-        }
-    }
-    
-    var leadingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
-            }
-        }
-    }
-
-    var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                Haptics.successFeedback()
-                viewModel.handleNewValue(viewModel.value)
-                dismiss()
-            } label: {
-                Text("Done")
-                    .bold()
-            }
-            .disabled(viewModel.shouldDisableDone)
         }
     }
     
@@ -112,7 +103,7 @@ struct AttributeForm: View {
             }
     }
     
-    var unitPicker: some View {
+    var unitPickerButton: some View {
         
         func unitText(_ string: String) -> some View {
             Text(string)
@@ -189,28 +180,9 @@ struct AttributeForm: View {
         }
     }
     
-    @ViewBuilder
     var clearButton: some View {
-        Button {
+        FormTextFieldClearButton(isEmpty: viewModel.shouldShowClearButton) {
             viewModel.tappedClearButton()
-        } label: {
-            Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 20))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(
-                    Color(.tertiaryLabel),
-                    Color(.tertiarySystemFill)
-                )
-
         }
-        .opacity(viewModel.shouldShowClearButton ? 1 : 0)
-        .buttonStyle(.borderless)
-        .padding(.trailing, 5)
     }
-}
-
-var miniFormCloseLabel: some View {
-    CloseButtonLabel()
-//    closeButtonLabel
-//    Text("Cancel")
 }

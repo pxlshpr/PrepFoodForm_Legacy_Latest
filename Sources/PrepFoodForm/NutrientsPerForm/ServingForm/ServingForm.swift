@@ -37,16 +37,9 @@ struct ServingForm: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                HStack {
-                    textField
-                    clearButton
-                    unitPickerButton
-                }
+            QuickForm(title: viewModel.title) {
+                textFieldSection
             }
-            .navigationTitle(viewModel.title)
-            .toolbar { leadingContent }
-            .toolbar { trailingContent }
             .onChange(of: isFocused, perform: isFocusedChanged)
         }
         .presentationDetents([.height(170)])
@@ -60,28 +53,26 @@ struct ServingForm: View {
         }
     }
     
-    var leadingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
+    var textFieldSection: some View {
+        HStack(spacing: 0) {
+            FormStyledSection(horizontalOuterPadding: 0) {
+                HStack {
+                    textField
+                    clearButton
+                    unitPickerButton
+                }
             }
+            .padding(.leading, 20)
+            doneButton
+                .padding(.horizontal, 20)
         }
     }
     
-    var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                Haptics.successFeedback()
-                viewModel.handleNewValue(viewModel.returnTuple)
-                dismiss()
-            } label: {
-                Text("Done")
-                    .bold()
-            }
-            .disabled(viewModel.shouldDisableDone)
+    var doneButton: some View {
+        FormInlineDoneButton(disabled: viewModel.shouldDisableDone) {
+            Haptics.successFeedback()
+            viewModel.handleNewValue(viewModel.returnTuple)
+            dismiss()
         }
     }
     
@@ -135,20 +126,6 @@ struct ServingForm: View {
         )
     }
     
-    var unitPicker_legacy: some View {
-        UnitPicker_Legacy(
-            pickedUnit: viewModel.unit,
-            includeServing: !viewModel.isServingSize,
-            allowAddSize: false
-        ) { newUnit in
-            withAnimation {
-                Haptics.feedback(style: .soft)
-                viewModel.unit = newUnit
-            }
-        }
-        .environmentObject(fields)
-    }
-    
     var unitPickerButton: some View {
         Button {
             Haptics.feedback(style: .soft)
@@ -176,20 +153,8 @@ struct ServingForm: View {
     
     @ViewBuilder
     var clearButton: some View {
-        Button {
+        FormTextFieldClearButton(isEmpty: viewModel.textFieldAmountString.isEmpty) {
             viewModel.tappedClearButton()
-        } label: {
-            Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 20))
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(
-                    Color(.tertiaryLabel),
-                    Color(.tertiarySystemFill)
-                )
-
         }
-        .opacity(viewModel.shouldShowClearButton ? 1 : 0)
-        .buttonStyle(.borderless)
-        .padding(.trailing, 5)
     }
 }
