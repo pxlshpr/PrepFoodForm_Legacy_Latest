@@ -109,10 +109,11 @@ extension SizeForm.NameForm {
             Button {
                 dismissAfterSetting(viewModel.internalString)
             } label: {
-                Text("Done")
+//                Text("Done")
+                Image(systemName: "checkmark")
                     .bold()
                     .foregroundColor(foregroundColor)
-                    .frame(width: 100, height: 38)
+                    .frame(width: 38, height: 38)
                     .background(
                         RoundedRectangle(cornerRadius: 19)
                             .foregroundStyle(Color.accentColor.gradient)

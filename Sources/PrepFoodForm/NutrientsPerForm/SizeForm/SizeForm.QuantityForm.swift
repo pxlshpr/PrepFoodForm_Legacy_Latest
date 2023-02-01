@@ -127,10 +127,11 @@ extension SizeForm.QuantityForm {
                 sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
                 dismiss()
             } label: {
-                Text("Done")
+                Image(systemName: "checkmark")
+//                Text("Done")
                     .bold()
                     .foregroundColor(foregroundColor)
-                    .frame(width: 100, height: 38)
+                    .frame(width: 38, height: 38)
                     .background(
                         RoundedRectangle(cornerRadius: 19)
                             .foregroundStyle(Color.accentColor.gradient)
