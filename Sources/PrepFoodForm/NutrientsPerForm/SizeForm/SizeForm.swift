@@ -54,18 +54,19 @@ public struct SizeForm: View {
     
     public var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+//            VStack(spacing: 0) {
+            FormStyledScrollView {
                 topBar
                 fieldSection
                 toggleSection
                 doneButtonRow
                 Spacer()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                FormBackground()
-                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
-            )
+//            .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            .background(
+//                FormBackground()
+//                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
+//            )
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
             .onChange(of: viewModel.showingVolumePrefixToggle,
