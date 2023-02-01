@@ -111,7 +111,7 @@ extension FoodForm.SourcesSummaryCell {
     }
     
     private var axes: Axis.Set {
-        let shouldScroll = !sources.imageViewModels.isEmpty
+        let shouldScroll = !sources.imageViewModels.isEmpty || sources.linkInfo != nil
         return shouldScroll ? .horizontal : []
     }
     
@@ -248,6 +248,7 @@ extension FoodForm.SourcesSummaryCell {
                 .padding(.vertical, 10)
                 .padding(.horizontal, 15)
             }
+            .frame(height: 100)
         }
     }
         
