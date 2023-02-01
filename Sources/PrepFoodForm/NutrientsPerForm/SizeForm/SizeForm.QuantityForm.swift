@@ -69,21 +69,21 @@ extension SizeForm.QuantityForm {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-//            FormStyledScrollView {
+//            VStack(spacing: 0) {
+            FormStyledVStack(customVerticalSpacing: 0) {
                 topRow
                 textFieldSection
                 doneButtonRow
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(
-                FormBackground()
-                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
-            )
+//            .frame(maxWidth: .infinity, maxHeight: .infinity)
+//            .background(
+//                FormBackground()
+//                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
+//            )
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
         }
-        .presentationDetents([.height(170)])
+        .presentationDetents([.height(220)])
         .presentationDragIndicator(.hidden)
     }
     

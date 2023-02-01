@@ -35,6 +35,29 @@ public struct SizeForm: View {
             handleNewSize: handleNewSize
         ))
     }
+
+    public var body: some View {
+        NavigationStack {
+            FormStyledVStack(customVerticalSpacing: 0) {
+                topBar
+                fieldSection
+                toggleSection
+                doneButtonRow
+                Spacer()
+            }
+            .toolbar(.hidden, for: .navigationBar)
+            .onChange(of: isFocused, perform: isFocusedChanged)
+            .onChange(of: viewModel.showingVolumePrefixToggle,
+                      perform: viewModel.changedShowingVolumePrefixToggle
+            )
+            .sheet(isPresented: $showingAmountForm) { amountForm }
+            .sheet(isPresented: $showingQuantityForm) { quantityForm }
+            .sheet(isPresented: $showingNameForm) { nameForm }
+            .sheet(isPresented: $showingVolumePrefixUnitPicker) { unitPicker }
+        }
+        .presentationDetents([.height(350)])
+        .presentationDragIndicator(.hidden)
+    }
     
     var topBar: some View {
         HStack {
@@ -50,35 +73,6 @@ public struct SizeForm: View {
         .padding(.top, 12)
         .padding(.bottom, 18)
 //        .background(.green)
-    }
-    
-    public var body: some View {
-        NavigationStack {
-//            VStack(spacing: 0) {
-            FormStyledScrollView {
-                topBar
-                fieldSection
-                toggleSection
-                doneButtonRow
-                Spacer()
-            }
-//            .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            .background(
-//                FormBackground()
-//                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
-//            )
-            .toolbar(.hidden, for: .navigationBar)
-            .onChange(of: isFocused, perform: isFocusedChanged)
-            .onChange(of: viewModel.showingVolumePrefixToggle,
-                      perform: viewModel.changedShowingVolumePrefixToggle
-            )
-            .sheet(isPresented: $showingAmountForm) { amountForm }
-            .sheet(isPresented: $showingQuantityForm) { quantityForm }
-            .sheet(isPresented: $showingNameForm) { nameForm }
-            .sheet(isPresented: $showingVolumePrefixUnitPicker) { unitPicker }
-        }
-        .presentationDetents([.height(350)])
-        .presentationDragIndicator(.hidden)
     }
     
     var doneButtonRow: some View {
