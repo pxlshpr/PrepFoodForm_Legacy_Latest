@@ -36,23 +36,42 @@ public struct SizeForm: View {
         ))
     }
     
+    var topBar: some View {
+        HStack {
+            title
+                .padding(.top, 8)
+            Spacer()
+            deleteButton
+            closeButton
+        }
+        .frame(height: 33)
+        .padding(.leading, 20)
+        .padding(.trailing, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 18)
+//        .background(.green)
+    }
+    
     public var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                title
+                topBar
                 fieldSection
                 toggleSection
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
+//                Color.yellow
                 FormBackground()
                     .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
             )
-            .toolbar { leadingContent }
-            .toolbar { trailingContent }
+//            .toolbar { leadingContent }
+//            .toolbar { trailingContent }
+//            .toolbar { bottomContent }
 //            .navigationTitle("New Size")
 //            .navigationBarTitleDisplayMode(.large)
+            .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
             .onChange(of: viewModel.showingVolumePrefixToggle,
                       perform: viewModel.changedShowingVolumePrefixToggle
@@ -85,11 +104,11 @@ public struct SizeForm: View {
     
     var title: some View {
         Text("New Size")
-            .font(.title3)
+            .font(.title2)
             .fontWeight(.bold)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
+//            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .center)
+//            .padding(.bottom, 20)
     }
     
     func isFocusedChanged(_ newValue: Bool) {
@@ -97,10 +116,19 @@ public struct SizeForm: View {
             dismiss()
         }
     }
-        
+    
+    var bottomContent: some ToolbarContent {
+        ToolbarItem(placement: .bottomBar) {
+//            HStack {
+//                Spacer()
+                saveButton
+//            }
+        }
+    }
     var leadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            saveButton
+            title
+//            saveButton
         }
     }
     
@@ -162,7 +190,7 @@ public struct SizeForm: View {
         var label: some View {
             HStack {
                 Image(systemName: "trash.circle.fill")
-                    .font(.system(size: 25))
+                    .font(.system(size: 30))
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(
                         Color.red.opacity(0.75),
