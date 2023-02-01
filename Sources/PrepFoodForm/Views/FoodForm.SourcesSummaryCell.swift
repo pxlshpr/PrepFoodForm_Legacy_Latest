@@ -5,6 +5,7 @@ import SwiftHaptics
 import SwiftUISugar
 import Camera
 //import FoodLabelCamera
+import Shimmer
 
 extension FoodForm {
     struct SourcesSummaryCell: View {
@@ -313,11 +314,15 @@ extension FoodForm.SourcesSummaryCell {
         } label: {
             VStack(alignment: .leading, spacing: 5) {
 //                Text("A valid source is required for submission as a public food.")
-                Text("A source is required to be eligible for the public database and accrue subscription tokens.")
+//                Text("A source is required to be eligible for the public database and accrue subscription tokens.")
+//                Text("A source is required for this food to be eligible for the public database and award you \(Text("subscription tokens").bold()).")
+                Text("A verifiable source is required for this food to be eligible for the public database and award you \(Text("subscription tokens").bold()).")
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
                 Label("Learn more", systemImage: "info.circle")
-                    .foregroundColor(.accentColor)
+                    .foregroundStyle(Color(hex: "FCC200").gradient)
+//                    .foregroundColor(.accentColor)
+                    .shimmering()
             }
             .font(.footnote)
         }
