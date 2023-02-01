@@ -43,7 +43,7 @@ public struct SizeForm: View {
                 fieldSection
                 toggleSection
                 doneButtonRow
-                Spacer()
+//                Spacer()
             }
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)

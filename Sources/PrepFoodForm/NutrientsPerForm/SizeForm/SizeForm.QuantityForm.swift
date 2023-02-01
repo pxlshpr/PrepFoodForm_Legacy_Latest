@@ -69,21 +69,16 @@ extension SizeForm.QuantityForm {
     
     var body: some View {
         NavigationStack {
-//            VStack(spacing: 0) {
             FormStyledVStack(customVerticalSpacing: 0) {
                 topRow
                 textFieldSection
                 doneButtonRow
+//                Spacer()
             }
-//            .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            .background(
-//                FormBackground()
-//                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
-//            )
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
         }
-        .presentationDetents([.height(220)])
+        .presentationDetents([.height(190)])
         .presentationDragIndicator(.hidden)
     }
     
@@ -128,7 +123,8 @@ extension SizeForm.QuantityForm {
         return HStack {
             Spacer()
             Button {
-                Haptics.successFeedback()
+                Haptics.feedback(style: .rigid)
+                sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
                 dismiss()
             } label: {
                 Text("Done")
