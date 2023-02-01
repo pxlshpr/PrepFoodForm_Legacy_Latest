@@ -125,7 +125,7 @@ extension FoodForm.Wizard {
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
 
-                FormStyledSection(header: Text("Manually Enter")) {
+                FormStyledSection(header: Text("Or Enter It")) {
                     Button {
                         tapHandler(.startWithEmptyFood)
                     } label: {
