@@ -118,7 +118,20 @@ struct NutrientForm: View {
                 )
         }
         
-        func unitPicker(for nutrientType: NutrientType) -> some View {
+        var unitPickerForEnergy: some View {
+//            Picker("", selection: $viewModel.unit) {
+//                ForEach(
+//                    [FoodLabelUnit.kcal, FoodLabelUnit.kj],
+//                    id: \.self
+//                ) { unit in
+//                    Text(unit.description).tag(unit)
+//                }
+//            }
+//            .pickerStyle(.segmented)
+            unitPicker(for: nil)
+        }
+        
+        func unitPicker(for nutrientType: NutrientType?) -> some View {
             let binding = Binding<FoodLabelUnit>(
                 get: { viewModel.unit },
                 set: { newUnit in
@@ -130,8 +143,14 @@ struct NutrientForm: View {
             )
             return Menu {
                 Picker(selection: binding, label: EmptyView()) {
-                    ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) {
-                        Text($0.description).tag($0)
+                    if let nutrientType {
+                        ForEach(nutrientType.supportedFoodLabelUnits, id: \.self) {
+                            Text($0.description).tag($0)
+                        }
+                    } else {
+                        ForEach([FoodLabelUnit.kcal, FoodLabelUnit.kj], id: \.self) {
+                            Text($0.description).tag($0)
+                        }
                     }
                 }
             } label: {
@@ -160,15 +179,7 @@ struct NutrientForm: View {
         
         return Group {
             if viewModel.nutrient.isEnergy {
-                Picker("", selection: $viewModel.unit) {
-                    ForEach(
-                        [FoodLabelUnit.kcal, FoodLabelUnit.kj],
-                        id: \.self
-                    ) { unit in
-                        Text(unit.description).tag(unit)
-                    }
-                }
-                .pickerStyle(.segmented)
+                unitPickerForEnergy
             } else if let nutrientType = viewModel.nutrient.nutrientType {
                 if nutrientType.supportedFoodLabelUnits.count > 1 {
                     unitPicker(for: nutrientType)
