@@ -14,26 +14,9 @@ extension SizeForm {
             }
         }
         
-        return VStack(spacing: 7) {
+        return FormStyledSection(footer: footer, horizontalPadding: 0) {
             field
-                .frame(maxWidth: .infinity)
-//                .padding(.horizontal, K.FormStyle.Padding.horizontal)
-//                .padding(0)
-                .padding(.vertical, K.FormStyle.Padding.vertical)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(formCellBackgroundColor(colorScheme: colorScheme))
-                )
-            footer
-                .fixedSize(horizontal: false, vertical: true)
-                .foregroundColor(Color(.secondaryLabel))
-                .font(.footnote)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 10)
         }
-        .padding(.horizontal, 20)
-//        .padding(.bottom, 10)
     }
     
     var field: some View {

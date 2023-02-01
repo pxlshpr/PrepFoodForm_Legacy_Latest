@@ -39,14 +39,14 @@ public struct SizeForm: View {
     var topBar: some View {
         HStack {
             title
-                .padding(.top, 8)
+                .padding(.top, 5)
             Spacer()
             deleteButton
             closeButton
         }
-        .frame(height: 33)
+        .frame(height: 30)
         .padding(.leading, 20)
-        .padding(.trailing, 16)
+        .padding(.trailing, 14)
         .padding(.top, 12)
         .padding(.bottom, 18)
 //        .background(.green)
@@ -58,19 +58,14 @@ public struct SizeForm: View {
                 topBar
                 fieldSection
                 toggleSection
+                doneButtonRow
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(
-//                Color.yellow
                 FormBackground()
                     .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
             )
-//            .toolbar { leadingContent }
-//            .toolbar { trailingContent }
-//            .toolbar { bottomContent }
-//            .navigationTitle("New Size")
-//            .navigationBarTitleDisplayMode(.large)
             .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
             .onChange(of: viewModel.showingVolumePrefixToggle,
@@ -81,8 +76,39 @@ public struct SizeForm: View {
             .sheet(isPresented: $showingNameForm) { nameForm }
             .sheet(isPresented: $showingVolumePrefixUnitPicker) { unitPicker }
         }
-        .presentationDetents([.height(400)])
+        .presentationDetents([.height(350)])
         .presentationDragIndicator(.hidden)
+    }
+    
+    var doneButtonRow: some View {
+        
+        var foregroundColor: Color {
+            (colorScheme == .light && viewModel.shouldDisableDone)
+            ? .black
+            : .white
+        }
+        
+        return HStack {
+            Spacer()
+            Button {
+                Haptics.successFeedback()
+                dismiss()
+            } label: {
+                Text("Save")
+                    .bold()
+                    .foregroundColor(foregroundColor)
+                    .frame(width: 100, height: 38)
+                    .background(
+                        RoundedRectangle(cornerRadius: 19)
+                            .foregroundStyle(Color.accentColor.gradient)
+                            .shadow(color: Color(.black).opacity(0.2), radius: 2, x: 0, y: 2)
+                    )
+            }
+            .disabled(viewModel.shouldDisableDone)
+            .opacity(viewModel.shouldDisableDone ? 0.2 : 1)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
     }
     
     var unitPicker: some View {
@@ -106,9 +132,7 @@ public struct SizeForm: View {
         Text("New Size")
             .font(.title2)
             .fontWeight(.bold)
-//            .frame(maxWidth: .infinity, alignment: .leading)
             .frame(maxHeight: .infinity, alignment: .center)
-//            .padding(.bottom, 20)
     }
     
     func isFocusedChanged(_ newValue: Bool) {
@@ -121,7 +145,7 @@ public struct SizeForm: View {
         ToolbarItem(placement: .bottomBar) {
 //            HStack {
 //                Spacer()
-                saveButton
+                doneButtonRow
 //            }
         }
     }
@@ -150,18 +174,6 @@ public struct SizeForm: View {
         }
     }
     
-    var saveButton: some View {
-        Button {
-            Haptics.successFeedback()
-//                viewModel.handleNewValue(viewModel.returnTuple)
-            dismiss()
-        } label: {
-            Text("Done")
-                .bold()
-        }
-        .disabled(viewModel.shouldDisableDone)
-    }
-
     var deleteButton: some View {
         deleteButton(.init(
             shouldConfirm: true,

@@ -69,21 +69,92 @@ extension SizeForm.QuantityForm {
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    HStack {
-                        textField
-                        clearButton
-                    }
-                }
+            VStack(spacing: 0) {
+//            FormStyledScrollView {
+                topRow
+                textFieldSection
+                doneButtonRow
             }
-            .navigationTitle("Quantity")
-            .toolbar { leadingContent }
-            .toolbar { trailingContent }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(
+                FormBackground()
+                    .edgesIgnoringSafeArea(.all) /// requireds to cover the area that would be covered by the keyboard during its dismissal animation
+            )
+            .toolbar(.hidden, for: .navigationBar)
             .onChange(of: isFocused, perform: isFocusedChanged)
         }
         .presentationDetents([.height(170)])
         .presentationDragIndicator(.hidden)
+    }
+    
+    var topRow: some View {
+        var title: some View {
+            Text("Quantity")
+                .font(.title2)
+                .fontWeight(.bold)
+                .frame(maxHeight: .infinity, alignment: .center)
+        }
+        
+        var closeButton: some View {
+            Button {
+                Haptics.feedback(style: .soft)
+                dismiss()
+            } label: {
+                miniFormCloseLabel
+            }
+        }
+        
+        return HStack {
+            title
+                .padding(.top, 5)
+            Spacer()
+            closeButton
+        }
+        .frame(height: 30)
+        .padding(.leading, 20)
+        .padding(.trailing, 14)
+        .padding(.top, 12)
+        .padding(.bottom, 18)
+    }
+    
+    var doneButtonRow: some View {
+        
+        var foregroundColor: Color {
+            (colorScheme == .light && viewModel.shouldDisableDone)
+            ? .black
+            : .white
+        }
+        
+        return HStack {
+            Spacer()
+            Button {
+                Haptics.successFeedback()
+                dismiss()
+            } label: {
+                Text("Done")
+                    .bold()
+                    .foregroundColor(foregroundColor)
+                    .frame(width: 100, height: 38)
+                    .background(
+                        RoundedRectangle(cornerRadius: 19)
+                            .foregroundStyle(Color.accentColor.gradient)
+                            .shadow(color: Color(.black).opacity(0.2), radius: 2, x: 0, y: 2)
+                    )
+            }
+            .disabled(viewModel.shouldDisableDone)
+            .opacity(viewModel.shouldDisableDone ? 0.2 : 1)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
+    }
+    
+    var textFieldSection: some View {
+        FormStyledSection {
+            HStack {
+                textField
+                clearButton
+            }
+        }
     }
     
     func isFocusedChanged(_ newValue: Bool) {
@@ -103,17 +174,6 @@ extension SizeForm.QuantityForm {
                     .bold()
             }
             .disabled(viewModel.shouldDisableDone)
-        }
-    }
-    
-    var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
-            }
         }
     }
     
