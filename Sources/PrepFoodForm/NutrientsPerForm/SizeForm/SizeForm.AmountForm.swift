@@ -106,26 +106,26 @@ extension SizeForm.AmountForm {
     var leadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
-            }
+                 Haptics.feedback(style: .rigid)
+                 sizeFormViewModel.amount = viewModel.internalDouble
+                 sizeFormViewModel.amountUnit = viewModel.internalUnit
+                 dismiss()
+             } label: {
+                 Text("Done")
+                     .bold()
+             }
+             .disabled(viewModel.shouldDisableDone)
         }
     }
     
     var trailingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                Haptics.feedback(style: .rigid)
-                sizeFormViewModel.amount = viewModel.internalDouble
-                sizeFormViewModel.amountUnit = viewModel.internalUnit
+                Haptics.feedback(style: .soft)
                 dismiss()
             } label: {
-                Text("Done")
-                    .bold()
+                miniFormCloseLabel
             }
-            .disabled(viewModel.shouldDisableDone)
         }
     }
     

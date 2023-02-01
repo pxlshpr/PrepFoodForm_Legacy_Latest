@@ -33,7 +33,7 @@ extension SizeForm {
                 .padding(.bottom, 10)
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 10)
+//        .padding(.bottom, 10)
     }
     
     var field: some View {

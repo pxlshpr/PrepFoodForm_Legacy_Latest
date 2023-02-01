@@ -95,17 +95,6 @@ extension SizeForm.QuantityForm {
     var leadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
-            }
-        }
-    }
-    
-    var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
                 Haptics.feedback(style: .rigid)
                 sizeFormViewModel.quantity = viewModel.internalDouble ?? 1
                 dismiss()
@@ -114,6 +103,17 @@ extension SizeForm.QuantityForm {
                     .bold()
             }
             .disabled(viewModel.shouldDisableDone)
+        }
+    }
+    
+    var trailingContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                Haptics.feedback(style: .soft)
+                dismiss()
+            } label: {
+                miniFormCloseLabel
+            }
         }
     }
     

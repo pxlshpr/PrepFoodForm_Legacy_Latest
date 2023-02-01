@@ -210,6 +210,7 @@ struct AttributeForm: View {
 }
 
 var miniFormCloseLabel: some View {
-    closeButtonLabel
+    CloseButtonLabel()
+//    closeButtonLabel
 //    Text("Cancel")
 }

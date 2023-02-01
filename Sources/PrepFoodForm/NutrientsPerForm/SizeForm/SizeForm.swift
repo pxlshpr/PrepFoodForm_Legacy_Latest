@@ -38,7 +38,8 @@ public struct SizeForm: View {
     
     public var body: some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: 0) {
+                title
                 fieldSection
                 toggleSection
                 Spacer()
@@ -50,8 +51,8 @@ public struct SizeForm: View {
             )
             .toolbar { leadingContent }
             .toolbar { trailingContent }
-            .navigationTitle("New Size")
-            .navigationBarTitleDisplayMode(.large)
+//            .navigationTitle("New Size")
+//            .navigationBarTitleDisplayMode(.large)
             .onChange(of: isFocused, perform: isFocusedChanged)
             .onChange(of: viewModel.showingVolumePrefixToggle,
                       perform: viewModel.changedShowingVolumePrefixToggle
@@ -83,11 +84,12 @@ public struct SizeForm: View {
     }
     
     var title: some View {
-        Text("Size")
-            .font(.largeTitle)
+        Text("New Size")
+            .font(.title3)
             .fontWeight(.bold)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
+            .padding(.bottom, 20)
     }
     
     func isFocusedChanged(_ newValue: Bool) {
@@ -97,30 +99,76 @@ public struct SizeForm: View {
     }
         
     var leadingContent: some ToolbarContent {
-        func deleteButton(_ action: FormConfirmableAction) -> some View {
-            var shadowSize: CGFloat { 2 }
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            saveButton
+        }
+    }
+    
+    var trailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            HStack(spacing: 0) {
+                deleteButton
+                closeButton
+            }
+        }
+    }
 
-            var confirmationActions: some View {
-                Button(action.buttonTitle ?? "Delete", role: .destructive) {
+    var closeButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            dismiss()
+        } label: {
+            miniFormCloseLabel
+        }
+    }
+    
+    var saveButton: some View {
+        Button {
+            Haptics.successFeedback()
+//                viewModel.handleNewValue(viewModel.returnTuple)
+            dismiss()
+        } label: {
+            Text("Done")
+                .bold()
+        }
+        .disabled(viewModel.shouldDisableDone)
+    }
+
+    var deleteButton: some View {
+        deleteButton(.init(
+            shouldConfirm: true,
+            message: "Are you sure you want to remove this size?",
+            buttonTitle: "Remove",
+            handler: {
+                //TODO: Handle deletion
+            }
+        ))
+    }
+    
+    func deleteButton(_ action: FormConfirmableAction) -> some View {
+        var shadowSize: CGFloat { 2 }
+
+        var confirmationActions: some View {
+            Button(action.buttonTitle ?? "Delete", role: .destructive) {
 //                    action.handler()
 //                    cancelAction.handler()
-                }
             }
+        }
 
-            var confirmationMessage: some View {
-                Text(action.message ?? "Are you sure?")
-            }
-            
-            var label: some View {
-                HStack {
-                    Image(systemName: "trash.circle.fill")
-                        .font(.system(size: 20))
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(
-                            Color.red.opacity(0.75),
-                            Color(.quaternaryLabel)
-                                .opacity(0.5)
-                        )
+        var confirmationMessage: some View {
+            Text(action.message ?? "Are you sure?")
+        }
+        
+        var label: some View {
+            HStack {
+                Image(systemName: "trash.circle.fill")
+                    .font(.system(size: 25))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(
+                        Color.red.opacity(0.75),
+//                        Color(hex: colorScheme == .light ? "EEEEEF" : "313135") /// background
+                        Color(.quaternaryLabel).opacity(0.5)
+                    )
 //                        .symbolRenderingMode(.multicolor)
 //                        .foregroundColor(.red)
 //                        .imageScale(.medium)
@@ -128,7 +176,7 @@ public struct SizeForm: View {
 //                        .padding(.leading, 5)
 //                    Text("Delete")
 //                        .padding(.trailing, 7)
-                }
+            }
 //                .frame(width: 38, height: 38)
 //                .frame(width: 105, height: 38)
 //                .background(
@@ -136,69 +184,37 @@ public struct SizeForm: View {
 //                        .foregroundStyle(.ultraThinMaterial)
 //                        .shadow(color: Color(.black).opacity(0.2), radius: shadowSize, x: 0, y: shadowSize)
 //                )
-                .confirmationDialog(
-                    "",
-                    isPresented: $showingDeleteConfirmation,
-                    actions: { confirmationActions },
-                    message: { confirmationMessage }
-                )
-            }
-            
-            return Button {
-                if action.shouldConfirm {
-                    Haptics.warningFeedback()
+            .confirmationDialog(
+                "",
+                isPresented: $showingDeleteConfirmation,
+                actions: { confirmationActions },
+                message: { confirmationMessage }
+            )
+        }
+        
+        return Button {
+            if action.shouldConfirm {
+                Haptics.warningFeedback()
 //                    if let preconfirmationAction {
 //                        preconfirmationAction()
 //                        DispatchQueue.main.asyncAfter(deadline: FormSaveLayerPreConfirmationDelay) {
 //                            showingDeleteConfirmation = true
 //                        }
 //                    } else {
-                        showingDeleteConfirmation = true
+                    showingDeleteConfirmation = true
 //                    }
-                } else {
+            } else {
 //                    if let preconfirmationAction {
 //                        preconfirmationAction()
 //                        DispatchQueue.main.asyncAfter(deadline: FormSaveLayerPreConfirmationDelay) {
 //                            action.handler()
 //                        }
 //                    } else {
-                        action.handler()
+                    action.handler()
 //                    }
-                }
-            } label: {
-                label
             }
-        }
-        
-        return ToolbarItemGroup(placement: .navigationBarLeading) {
-            Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
-            }
-            deleteButton(.init(
-                shouldConfirm: true,
-                message: "Are you sure you want to remove this size?",
-                buttonTitle: "Remove",
-                handler: {
-                    //TODO: Handle deletion
-                }
-            ))
-        }
-    }
-    
-    var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                Haptics.successFeedback()
-//                viewModel.handleNewValue(viewModel.returnTuple)
-                dismiss()
-            } label: {
-                Text("Done")
-                    .bold()
-            }
-            .disabled(viewModel.shouldDisableDone)
+        } label: {
+            label
         }
     }
     
@@ -214,3 +230,4 @@ public struct SizeForm: View {
         NameForm(sizeFormViewModel: viewModel)
     }
 }
+

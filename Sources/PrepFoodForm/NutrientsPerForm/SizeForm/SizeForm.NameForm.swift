@@ -125,23 +125,23 @@ extension SizeForm.NameForm {
     var leadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button {
-                Haptics.feedback(style: .soft)
-                dismiss()
-            } label: {
-                miniFormCloseLabel
-            }
-        }
-    }
-    
-    var trailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
                 dismissAfterSetting(viewModel.internalString)
             } label: {
                 Text("Done")
                     .bold()
             }
             .disabled(viewModel.shouldDisableDone)
+        }
+    }
+    
+    var trailingContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                Haptics.feedback(style: .soft)
+                dismiss()
+            } label: {
+                miniFormCloseLabel
+            }
         }
     }
     
