@@ -110,9 +110,14 @@ extension FoodForm.SourcesSummaryCell {
         (UIScreen.main.bounds.width - (2 * 35.0) - (8.0 * 2.0)) / 3.0
     }
     
+    private var axes: Axis.Set {
+        let shouldScroll = !sources.imageViewModels.isEmpty
+        return shouldScroll ? .horizontal : []
+    }
+    
     var filledContent: some View {
         FormStyledSection(header: header, footer: filledFooter, horizontalPadding: 0, verticalPadding: 0) {
-            ScrollView(.horizontal, showsIndicators: false) {
+            ScrollView(axes, showsIndicators: false) {
                 HStack(spacing: 8.0) {
                     /// Images
                     ForEach(sources.imageViewModels, id: \.self.hashValue) { imageViewModel in
