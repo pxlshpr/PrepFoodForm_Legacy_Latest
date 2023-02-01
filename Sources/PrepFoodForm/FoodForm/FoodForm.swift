@@ -13,6 +13,8 @@ public struct FoodForm: View {
     
     let didSave: (FoodFormOutput) -> ()
     
+    @State var showingCancelConfirmation = false
+
     /// ViewModels
     @ObservedObject var fields: Fields
     @ObservedObject var sources: Sources
@@ -499,32 +501,42 @@ public struct FoodForm: View {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            CloseButtonLabelNavBar()
+            dismissButton
         }
     }
     
+    var dismissButton: some View {
+        var confirmationActions: some View {
+            Button("Close without saving", role: .destructive) {
+                dismiss()
+            }
+        }
+
+        var confirmationMessage: some View {
+            Text("Are you sure?")
+        }
+        
+        return Button {
+            if fields.isDirty {
+                Haptics.warningFeedback()
+                showingCancelConfirmation = true
+            } else {
+                dismiss()
+            }
+        } label: {
+            CloseButtonLabel(forNavigationBar: true)
+        }
+        .confirmationDialog(
+            "",
+            isPresented: $showingCancelConfirmation,
+            actions: { confirmationActions },
+            message: { confirmationMessage }
+        )
+    }
+
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
         }
-    }
-}
-
-public struct CloseButtonLabelNavBar: View {
-    
-    @Environment(\.colorScheme) var colorScheme
-    
-    public init() { }
-    
-    public var body: some View {
-        Image(systemName: "xmark.circle.fill")
-//            .frame(width: 30, height: 30)
-            .font(.system(size: 24))
-            .symbolRenderingMode(.palette)
-            .foregroundStyle(
-                Color(hex: colorScheme == .light ? "838388" : "A0A0A8"),      /// 'x' symbol
-//                Color(hex: colorScheme == .light ? "EEEEEF" : "313135") /// background
-                Color(.quaternaryLabel).opacity(0.5)
-            )
     }
 }
 

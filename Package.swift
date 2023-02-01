@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.86"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.41"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.339"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.340"),
 //        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.67"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.77"),
 
