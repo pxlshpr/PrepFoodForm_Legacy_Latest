@@ -16,6 +16,7 @@ extension FoodForm {
     public var detailsCell: some View {
         var emojiButton: some View {
             Button {
+                Haptics.feedback(style: .soft)
                 showingEmojiPicker = true
             } label: {
                 Text(fields.emoji)
