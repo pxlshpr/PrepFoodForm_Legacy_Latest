@@ -168,7 +168,7 @@ struct SaveSheet: View {
             
             switch validationMessage {
             case .needsSource:
-                Text("Provide a source if you'd like to submit this as a Verified Food, or add it as a private food only visible to you.")
+                Text("Provide a source if you'd like to submit this as a Verified Food, or add it as a private food visible only to you.")
                     .fixedSize(horizontal: false, vertical: true)
             case .missingFields(let fieldNames):
                 if let fieldName = fieldNames.first, fieldNames.count == 1 {
