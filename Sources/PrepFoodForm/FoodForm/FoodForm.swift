@@ -27,10 +27,7 @@ public struct FoodForm: View {
     /// Sheets
     @State var showingEmojiPicker = false
     @State var showingDetailsForm = false
-    @State var showingBrandForm = false
-    @State var showingNameForm = false
-    @State var showingDetailForm = false
-    
+
     @State var showingFoodLabelCamera = false
     @State var showingPhotosPicker = false
     @State var showingPrefill = false
@@ -39,7 +36,8 @@ public struct FoodForm: View {
     @State var showingBarcodeScanner = false
 
     @State var showingAddLinkAlert = false
-    @State var shouldShowBottomButtons = false
+    @State var showingBottomButtons = false
+    @State var showingBottomButtonsSaved = false /// Used when presenting keyboard and alerts
 
     @State var showingExtractorView: Bool = false
     
@@ -172,19 +170,21 @@ public struct FoodForm: View {
     let keyboardDidShow = NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)
     let keyboardDidHide = NotificationCenter.default.publisher(for: UITextField.textDidEndEditingNotification)
     func keyboardDidShow(_ notification: Notification) {
+        showingBottomButtonsSaved = showingBottomButtons
         withAnimation {
-            shouldShowBottomButtons = false
+            showingBottomButtons = false
         }
     }
     func keyboardDidHide(_ notification: Notification) {
         withAnimation {
-            shouldShowBottomButtons = true
+            showingBottomButtons = showingBottomButtonsSaved
         }
     }
 
     var navigationView: some View {
         NavigationView {
             formContent
+//                .edgesIgnoringSafeArea(.bottom)
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }
                 .toolbar { navigationTrailingContent }
@@ -227,20 +227,20 @@ public struct FoodForm: View {
     }
     
     func showingWizardChanged(_ showingWizard: Bool) {
-        withAnimation {
-            shouldShowBottomButtons = !showingWizard
-        }
+//        withAnimation {
+//            showingBottomButtons = !showingWizard
+//        }
     }
     
     func showingAddLinkAlertChanged(_ showingAddLinkAlert: Bool) {
         withAnimation {
-            shouldShowBottomButtons = !showingAddLinkAlert
+            showingBottomButtons = !showingAddLinkAlert
         }
     }
     
     func showingAddBarcodeAlertChanged(_ showingAddBarcodeAlert: Bool) {
         withAnimation {
-            shouldShowBottomButtons = !showingAddBarcodeAlert
+            showingBottomButtons = !showingAddBarcodeAlert
         }
     }
  
@@ -268,9 +268,11 @@ public struct FoodForm: View {
         ZStack {
             formLayer
             wizardLayer
-//            if shouldShowBottomButtons {
-//                buttonsLayer
-//                    .transition(.move(edge: .bottom))
+//            if showingBottomButtons {
+            buttonsSection
+//                .transition(.move(edge: .bottom))
+//            } else {
+//                checkmarkButtonLayer
 //            }
         }
     }
@@ -304,17 +306,31 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var formLayer: some View {
-        FormStyledScrollView(showsIndicators: false) {
-            detailsSection
-            servingSection
-            foodLabelSection
-            sourcesSection
-            barcodesSection
-            prefillSection
-            Spacer().frame(height: 15)
-            buttonsSection
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: 8) {
+                detailsSection
+                servingSection
+                foodLabelSection
+                sourcesSection
+                barcodesSection
+                prefillSection
+//                buttonsSection
+            }
+            .frame(maxWidth: .infinity)
         }
-//        .safeAreaInset(edge: .bottom) { safeAreaInset }
+        .background(
+            FormBackground()
+                .edgesIgnoringSafeArea(.all)
+        )
+//        FormStyledScrollView(showsIndicators: false) {
+//            detailsSection
+//            servingSection
+//            foodLabelSection
+//            sourcesSection
+//            barcodesSection
+//            prefillSection
+//            buttonsSection
+//        }
         .overlay(overlay)
         .blur(radius: showingWizardOverlay ? 5 : 0)
         .disabled(formDisabled)
@@ -449,6 +465,27 @@ public struct FoodForm: View {
             deleteAction: nil
         )
 //        .edgesIgnoringSafeArea(.bottom)
+    }
+    
+    var checkmarkButtonLayer: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button {
+                    withAnimation {
+                        showingBottomButtons = true
+                    }
+                } label: {
+                    Image(systemName: "checkmark.circle.badge.questionmark.fill")
+                        .symbolRenderingMode(.multicolor)
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 30))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
+        }
     }
     
     var buttonsSection: some View {
@@ -595,23 +632,84 @@ public struct FoodForm: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(
-                            .shadow(.inner(color: topLeft, radius: r, x: r, y: r))
-                            .shadow(.inner(color: bottomRight,radius: r, x: -r, y: -r))
-                        )
+//                        .fill(
+//                            .shadow(.inner(color: topLeft, radius: r, x: r, y: r))
+//                            .shadow(.inner(color: bottomRight,radius: r, x: -r, y: -r))
+//                        )
                         .foregroundColor(fill)
             )
             .padding(.horizontal, 20)
-            .padding(.bottom, 5)
+            .padding(.bottom, 12)
         }
         
-        return VStack {
-            if let validationMessage {
-                validationInfo(validationMessage)
+        
+        var legacy: some View {
+            
+            ZStack {
+                Color(.quaternarySystemFill)
+                VStack {
+                    validationInfo(.needsSource)
+                    //                if let validationMessage {
+                    //                    validationInfo(validationMessage)
+                    //                }
+                    publicButton
+                    privateButton
+                }
+                .padding(.top, 20)
+                .padding(.bottom, 34)
             }
-            publicButton
-            privateButton
         }
+        
+        var checkmarkButton: some View {
+            var imageName: String {
+                showingBottomButtons
+                ? "chevron.down.circle.fill"
+                : "checkmark.circle.badge.questionmark.fill"
+            }
+            
+            return Button {
+                withAnimation {
+                    showingBottomButtons = true
+                }
+            } label: {
+                Image(systemName: imageName)
+                    .symbolRenderingMode(.multicolor)
+                    .foregroundColor(.secondary)
+                    .font(.system(size: 30))
+            }
+        }
+        
+        var topButtonRow: some View {
+            HStack {
+                Spacer()
+                checkmarkButton
+            }
+            .padding(.horizontal, 20)
+        }
+        
+        var buttons: some View {
+            VStack(spacing: 0) {
+                Divider()
+                validationInfo(.needsSource)
+                    .padding(.top, 12)
+//                    if let validationMessage {
+//                        validationInfo(validationMessage)
+//                    }
+                publicButton
+                privateButton
+            }
+        }
+        
+        var layer: some View {
+            VStack {
+                Spacer()
+                topButtonRow
+                buttons
+                .background(Color.clear.background(.thinMaterial))
+            }
+        }
+        
+        return layer
     }
     
 

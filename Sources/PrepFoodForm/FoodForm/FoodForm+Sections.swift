@@ -152,137 +152,24 @@ extension FoodForm {
 
 extension FoodForm {
     var detailsForm: some View {
-        var saveActionBinding: Binding<FormConfirmableAction?> {
-            Binding<FormConfirmableAction?>(
-                get: {
-                    .init(buttonImage: "checkmark", isDisabled: false) {
-                        
-                    }
-                },
-                set: { _ in }
-            )
-        }
-        
-        func fieldButton(_ string: String, isRequired: Bool = false, action: @escaping () -> ()) -> some View {
-            let r: CGFloat = 2.0
-            
-            let topLeft: Color = colorScheme == .light
-            ? Color(red: 197/255, green: 197/255, blue: 197/255)
-            : Color(hex: "050505")
-//            : Color(hex: "131313")
+        DetailsQuickForm()
+            .environmentObject(fields)
+    }
+}
 
-            let bottomRight: Color = colorScheme == .light
-            ? .white
-//            : Color(hex: "5E5E5E")
-            : Color(hex: "2A2A2C")
 
-            let fill: Color = colorScheme == .light
-            ? Color(hex: "EFEFF0")
-//            ? Color(red: 236/255, green: 234/255, blue: 235/255)
-//            : Color(hex: "404040")
-            : Color(.secondarySystemFill)
-            
-            return Button {
-                Haptics.feedback(style: .soft)
-                action()
-            } label: {
-                Text(!string.isEmpty ? string : (isRequired ? "Required" : "Optional"))
-                    .foregroundColor(!string.isEmpty ? .primary : Color(.tertiaryLabel))
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 15)
-                    .padding(.vertical, 10)
-                
-                    .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(
-                                    .shadow(.inner(color: topLeft, radius: r, x: r, y: r))
-                                    .shadow(.inner(color: bottomRight,radius: r, x: -r, y: -r))
-                                )
-                                .foregroundColor(fill)
-                    )
-                
-//                    .background(
-//                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-//                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-//                    )
-            }
-        }
-        
-        return NavigationStack {
-            QuickForm(title: "Details") {
-                FormStyledSection {
-                    Grid(alignment: .leading) {
-                        GridRow {
-                            Text("Name")
-                                .foregroundColor(.secondary)
-                            fieldButton(fields.name, isRequired: true) {
-                                showingNameForm = true
-                            }
-//                            Button {
-//                                Haptics.feedback(style: .soft)
-//                                showingNameForm = true
-//                            } label: {
-//                                Text(!fields.name.isEmpty ? fields.name : "Required")
-//                                    .foregroundColor(!fields.name.isEmpty ? .primary : Color(.tertiaryLabel))
-//                                    .bold()
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                    .padding(.horizontal, 15)
-//                                    .padding(.vertical, 10)
-//                                    .background(
-//                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-//                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-//                                    )
-//                            }
-                        }
-                        GridRow {
-                            Text("Detail")
-                                .foregroundColor(.secondary)
-                            fieldButton(fields.detail) {
-                                showingDetailForm = true
-                            }
-//                            Button {
-//                                Haptics.feedback(style: .soft)
-//                                showingDetailForm = true
-//                            } label: {
-//                                Text(!fields.detail.isEmpty ? fields.detail : "Optional")
-//                                    .foregroundColor(!fields.detail.isEmpty ? .primary : Color(.tertiaryLabel))
-//                                    .bold()
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                    .padding(.horizontal, 15)
-//                                    .padding(.vertical, 10)
-//                                    .background(
-//                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-//                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-//                                    )
-//                            }
-                        }
-                        GridRow {
-                            Text("Brand")
-                                .foregroundColor(.secondary)
-                            fieldButton(fields.brand) {
-                                showingBrandForm = true
-                            }
-//                            Button {
-//                                Haptics.feedback(style: .soft)
-//                                showingBrandForm = true
-//                            } label: {
-//                                Text(!fields.brand.isEmpty ? fields.brand : "Optional")
-//                                    .foregroundColor(!fields.brand.isEmpty ? .primary : Color(.tertiaryLabel))
-//                                    .bold()
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                    .padding(.horizontal, 15)
-//                                    .padding(.vertical, 10)
-//                                    .background(
-//                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-//                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-//                                    )
-//                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
+struct DetailsQuickForm: View {
+    
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var fields: FoodForm.Fields
+    
+    @State var showingBrandForm = false
+    @State var showingNameForm = false
+    @State var showingDetailForm = false
+
+    var body: some View {
+        NavigationStack {
+            form
         }
         .presentationDetents([.height(280)])
         .presentationDragIndicator(.hidden)
@@ -296,88 +183,59 @@ extension FoodForm {
             DetailsNameForm(title: "Brand", isRequired: false, name: $fields.brand)
         }
     }
-}
-
-
-struct DetailsQuickForm: View {
-    var body: some View {
-        NavigationStack {
-            QuickForm(title: "Details", saveAction: saveActionBinding) {
-                FormStyledSection {
-                    Grid(alignment: .leading) {
-                        GridRow {
-                            Text("Name")
-                                .foregroundColor(.secondary)
-                            Button {
-                                Haptics.feedback(style: .soft)
-                            } label: {
-                                Text("Triple Whopper")
-                                    .foregroundColor(.white)
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 15)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-                                    )
-                            }
-                        }
-                        GridRow {
-                            Text("Detail")
-                                .foregroundColor(.secondary)
-                            Button {
-                            } label: {
-                                Text("With Cheese")
-                                    .foregroundColor(.white)
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 15)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-                                    )
-                            }
-                        }
-                        GridRow {
-                            Text("Brand")
-                                .foregroundColor(.secondary)
-                            Button {
-                                
-                            } label: {
-                                Text("Burger King")
-                                    .foregroundColor(.white)
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 15)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-                                    )
-                            }
+    
+    var form: some View {
+        QuickForm(title: "Details") {
+            FormStyledSection {
+                Grid(alignment: .leading) {
+                    GridRow {
+                        Text("Name")
+                            .foregroundColor(.secondary)
+                        fieldButton(fields.name, isRequired: true) {
+                            showingNameForm = true
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    GridRow {
+                        Text("Detail")
+                            .foregroundColor(.secondary)
+                        fieldButton(fields.detail) {
+                            showingDetailForm = true
+                        }
+                    }
+                    GridRow {
+                        Text("Brand")
+                            .foregroundColor(.secondary)
+                        fieldButton(fields.brand) {
+                            showingBrandForm = true
+                        }
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .presentationDetents([.height(320)])
-        .presentationDragIndicator(.hidden)
     }
     
-    var saveActionBinding: Binding<FormConfirmableAction?> {
-        Binding<FormConfirmableAction?>(
-            get: {
-                .init(buttonImage: "checkmark", isDisabled: false) {
-                    
-                }
-            },
-            set: { _ in }
-        )
+    func fieldButton(_ string: String, isRequired: Bool = false, action: @escaping () -> ()) -> some View {
+        let fill: Color = colorScheme == .light
+        ? Color(hex: "EFEFF0")
+        : Color(.secondarySystemFill)
+        
+        return Button {
+            Haptics.feedback(style: .soft)
+            action()
+        } label: {
+            Text(!string.isEmpty ? string : (isRequired ? "Required" : "Optional"))
+                .foregroundColor(!string.isEmpty ? .primary : Color(.tertiaryLabel))
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 15)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .foregroundColor(fill)
+                )
+        }
     }
-
 }
 
 struct DetailsQuickFormPreview: View {
