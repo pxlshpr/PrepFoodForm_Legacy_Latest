@@ -10,17 +10,42 @@ struct SaveSheet: View {
     @State var size: CGSize = .zero
     @State var safeAreaInsets: EdgeInsets = .init()
 
+    @State var height: CGFloat = 0
+    @State var heightCopy: CGFloat = 0
 
+    @State var refresh: Bool = false
+    
     var body: some View {
         return contents
+            .id(refresh)
             .readSafeAreaInsets { insets in
                 safeAreaInsets = insets
             }
             .presentationDetents([.height(height)])
             .presentationDragIndicator(.hidden)
+            .onChange(of: size) { newValue in
+                if self.height == 0 {
+                    self.height = calculatedHeight
+                    self.heightCopy = self.height
+                }
+            }
+            .onChange(of: safeAreaInsets) { newValue in
+                if self.height == 0 {
+                    self.height = calculatedHeight
+                    self.heightCopy = self.height
+                }
+            }
+            .onChange(of: colorScheme) { newValue in
+                /// Workaround for a bug where color scheme changes shifts the presented sheet downwards for some reason
+                /// (This seems to happen only when we have a dynamic height—even if we're not actually changing the height)
+                height = height + 1
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                    height = height - 1
+                }
+            }
     }
     
-    var height: CGFloat {
+    var calculatedHeight: CGFloat {
         
         let height = size.height + 60.0
         print("👨🏽‍🚀 height: \(height) = size.height: \(size.height) + safeAreaInsets.bottom: \(safeAreaInsets.bottom)")
@@ -29,7 +54,7 @@ struct SaveSheet: View {
 
     var contents: some View {
         QuickForm(title: "Save") {
-            VStack(spacing: 0) {
+            VStack {
                 if let validationMessage {
                     validationInfo(validationMessage)
                 }
