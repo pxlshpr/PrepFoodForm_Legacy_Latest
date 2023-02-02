@@ -14,47 +14,47 @@ public struct FoodForm: View {
     let didSave: (FoodFormOutput) -> ()
     
     @State var showingCancelConfirmation = false
-
+    
     /// ViewModels
     @ObservedObject var fields: Fields
     @ObservedObject var sources: Sources
     @ObservedObject var extractor: Extractor
-
+    
     //MARK: ☣️
-//    @ObservedObject var scanner: LabelScannerViewModel
-//    @ObservedObject var interactiveScanner: ScannerViewModel
-
+    //    @ObservedObject var scanner: LabelScannerViewModel
+    //    @ObservedObject var interactiveScanner: ScannerViewModel
+    
     /// Sheets
     @State var showingEmojiPicker = false
     @State var showingDetailsForm = false
-
+    
     @State var showingFoodLabelCamera = false
     @State var showingPhotosPicker = false
     @State var showingPrefill = false
     @State var showingPrefillInfo = false
     @State var showingTextPicker = false
     @State var showingBarcodeScanner = false
-
+    
     @State var showingAddLinkAlert = false
     @State var showingBottomButtons = false
     @State var showingBottomButtonsSaved = false /// Used when presenting keyboard and alerts
-
+    
     @State var showingExtractorView: Bool = false
     
     @State var showingLabelScanner: Bool
     @State var animateLabelScannerUp: Bool
-
+    
     @State var selectedPhoto: UIImage? = nil
-
+    
     /// Menus
     @State var showingFoodLabel = false
-
+    
     /// Wizard
     @State var shouldShowWizard: Bool
     @State var showingWizard = true
     @State var showingWizardOverlay = true
     @State var formDisabled = false
-
+    
     /// Barcode
     @State var showingAddBarcodeAlert = false
     @State var barcodePayload: String = ""
@@ -63,10 +63,10 @@ public struct FoodForm: View {
     
     @State var initialScanResult: ScanResult?
     @State var initialScanImage: UIImage?
-
+    
     @State var mockScanResult: ScanResult?
     @State var mockScanImage: UIImage?
-
+    
     public init(
         mockScanResult: ScanResult,
         mockScanImage: UIImage,
@@ -74,8 +74,8 @@ public struct FoodForm: View {
         sources: FoodForm.Sources,
         extractor: Extractor,
         //MARK: ☣️
-//        scanner: LabelScannerViewModel,
-//        interactiveScanner: ScannerViewModel,
+        //        scanner: LabelScannerViewModel,
+        //        interactiveScanner: ScannerViewModel,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
         Fields.shared = fields
@@ -84,8 +84,8 @@ public struct FoodForm: View {
         self.sources = sources
         self.extractor = extractor
         //MARK: ☣️
-//        self.scanner = scanner
-//        self.interactiveScanner = interactiveScanner
+        //        self.scanner = scanner
+        //        self.interactiveScanner = interactiveScanner
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
@@ -95,14 +95,14 @@ public struct FoodForm: View {
         _animateLabelScannerUp = State(initialValue: false)
         _shouldShowWizard = State(initialValue: true)
     }
-
+    
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
         extractor: Extractor,
         //MARK: ☣️
-//        scanner: LabelScannerViewModel,
-//        interactiveScanner: ScannerViewModel,
+        //        scanner: LabelScannerViewModel,
+        //        interactiveScanner: ScannerViewModel,
         startWithLabelScanner: Bool = false,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
@@ -112,8 +112,8 @@ public struct FoodForm: View {
         self.sources = sources
         self.extractor = extractor
         //MARK: ☣️
-//        self.scanner = scanner
-//        self.interactiveScanner = interactiveScanner
+        //        self.scanner = scanner
+        //        self.interactiveScanner = interactiveScanner
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
@@ -130,8 +130,8 @@ public struct FoodForm: View {
         extractor: Extractor,
         scanResult: ScanResult,
         //MARK: ☣️
-//        scanner: LabelScannerViewModel,
-//        interactiveScanner: ScannerViewModel,
+        //        scanner: LabelScannerViewModel,
+        //        interactiveScanner: ScannerViewModel,
         image: UIImage,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
@@ -141,8 +141,8 @@ public struct FoodForm: View {
         self.sources = sources
         self.extractor = extractor
         //MARK: ☣️
-//        self.scanner = scanner
-//        self.interactiveScanner = interactiveScanner
+        //        self.scanner = scanner
+        //        self.interactiveScanner = interactiveScanner
         self.didSave = didSave
         _shouldShowWizard = State(initialValue: false)
         _initialScanResult = State(initialValue: scanResult)
@@ -155,10 +155,10 @@ public struct FoodForm: View {
     }
     
     public var body: some View {
-//        let _ = Self._printChanges()
+        //        let _ = Self._printChanges()
         return content
     }
-
+    
     var content: some View {
         ZStack {
             navigationView
@@ -170,30 +170,30 @@ public struct FoodForm: View {
     let keyboardDidShow = NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)
     let keyboardDidHide = NotificationCenter.default.publisher(for: UITextField.textDidEndEditingNotification)
     func keyboardDidShow(_ notification: Notification) {
-        showingBottomButtonsSaved = showingBottomButtons
-        withAnimation {
-            showingBottomButtons = false
-        }
+//        showingBottomButtonsSaved = showingBottomButtons
+//        withAnimation {
+//            showingBottomButtons = false
+//        }
     }
     func keyboardDidHide(_ notification: Notification) {
-        withAnimation {
-            showingBottomButtons = showingBottomButtonsSaved
-        }
+//        withAnimation {
+//            showingBottomButtons = showingBottomButtonsSaved
+//        }
     }
-
+    
     var navigationView: some View {
         NavigationView {
             formContent
-//                .edgesIgnoringSafeArea(.bottom)
+            //                .edgesIgnoringSafeArea(.bottom)
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }
                 .toolbar { navigationTrailingContent }
                 .onAppear(perform: appeared)
                 .onChange(of: sources.selectedPhotos, perform: selectedPhotosChanged)
-//                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
+            //                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .onChange(of: showingWizard, perform: showingWizardChanged)
-//                .onChange(of: showingAddLinkAlert, perform: showingAddLinkAlertChanged)
-//                .onChange(of: showingAddBarcodeAlert, perform: showingAddBarcodeAlertChanged)
+            //                .onChange(of: showingAddLinkAlert, perform: showingAddLinkAlertChanged)
+            //                .onChange(of: showingAddBarcodeAlert, perform: showingAddBarcodeAlertChanged)
                 .onReceive(keyboardDidShow, perform: keyboardDidShow)
                 .onReceive(keyboardDidHide, perform: keyboardDidHide)
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
@@ -201,64 +201,63 @@ public struct FoodForm: View {
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingDetailsForm) { detailsForm }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
+                .sheet(isPresented: $showingBottomButtons) { bottomButtonsSheet }
                 .fullScreenCover(isPresented: $showingBarcodeScanner) { barcodeScanner }
-//                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
+            //                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
                 .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
                 .alert(addBarcodeTitle,
                        isPresented: $showingAddBarcodeAlert,
                        actions: { addBarcodeActions },
                        message: { addBarcodeMessage })
             //MARK: ☣️
-//                .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
+            //                .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
                     selection: $sources.selectedPhotos,
-//                    maxSelectionCount: sources.availableImagesCount,
+                    //                    maxSelectionCount: sources.availableImagesCount,
                     maxSelectionCount: 1,
                     matching: .images
                 )
             //MARK: ☣️
-//                .onChange(of: sources.columnSelectionInfo) { columnSelectionInfo in
-//                    if columnSelectionInfo != nil {
-//                        self.showingTextPicker = true
-//                    }
-//                }
+            //                .onChange(of: sources.columnSelectionInfo) { columnSelectionInfo in
+            //                    if columnSelectionInfo != nil {
+            //                        self.showingTextPicker = true
+            //                    }
+            //                }
         }
     }
     
     func showingWizardChanged(_ showingWizard: Bool) {
-//        withAnimation {
-//            showingBottomButtons = !showingWizard
-//        }
+        //        withAnimation {
+        //            showingBottomButtons = !showingWizard
+        //        }
     }
     
-    func showingAddLinkAlertChanged(_ showingAddLinkAlert: Bool) {
-        withAnimation {
-            showingBottomButtons = !showingAddLinkAlert
-        }
+    var bottomButtonsSheet: some View {
+        SaveSheet(validationMessage: Binding<ValidationMessage?>(
+            get: { validationMessage },
+//            get: { .missingFields(["Protein"]) },
+            set: { _ in }
+        ))
+        .environmentObject(fields)
+        .environmentObject(sources)
     }
     
-    func showingAddBarcodeAlertChanged(_ showingAddBarcodeAlert: Bool) {
-        withAnimation {
-            showingBottomButtons = !showingAddBarcodeAlert
-        }
-    }
- 
     @ViewBuilder
     var extractorViewLayer: some View {
         if showingExtractorView {
             ExtractorView(extractor: extractor)
         }
     }
-
+    
     func selectedPhotosChanged(to items: [PhotosPickerItem]) {
-//        guard let item = items.first else { return }
-//        presentLabelScanner(forCamera: false)
-//        let _ = ImageViewModel(photosPickerItem: item) { image in
-//                self.selectedPhoto = image
-//        }
-//        sources.selectedPhotos = []
-
+        //        guard let item = items.first else { return }
+        //        presentLabelScanner(forCamera: false)
+        //        let _ = ImageViewModel(photosPickerItem: item) { image in
+        //                self.selectedPhoto = image
+        //        }
+        //        sources.selectedPhotos = []
+        
         guard let item = items.first else { return }
         showExtractor(with: item)
         sources.selectedPhotos = []
@@ -268,12 +267,12 @@ public struct FoodForm: View {
         ZStack {
             formLayer
             wizardLayer
-//            if showingBottomButtons {
-            buttonsSection
-//                .transition(.move(edge: .bottom))
-//            } else {
-//                checkmarkButtonLayer
-//            }
+            //            if showingBottomButtons {
+            toggleButtonLayer
+            //                .transition(.move(edge: .bottom))
+            //            } else {
+            //                checkmarkButtonLayer
+            //            }
         }
     }
     
@@ -298,7 +297,7 @@ public struct FoodForm: View {
             extractFieldsOrShowColumnSelectionInfo()
         }
     }
-
+    
     //MARK: - Layers
     
     @State var showingSaveButtons = false
@@ -306,49 +305,27 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var formLayer: some View {
-        ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: 8) {
-                detailsSection
-                servingSection
-                foodLabelSection
-                sourcesSection
-                barcodesSection
-                prefillSection
-//                buttonsSection
-            }
-            .frame(maxWidth: .infinity)
+        FormStyledScrollView(showsIndicators: false) {
+            detailsSection
+            servingSection
+            foodLabelSection
+            sourcesSection
+            barcodesSection
         }
-        .background(
-            FormBackground()
-                .edgesIgnoringSafeArea(.all)
-        )
-//        FormStyledScrollView(showsIndicators: false) {
-//            detailsSection
-//            servingSection
-//            foodLabelSection
-//            sourcesSection
-//            barcodesSection
-//            prefillSection
-//            buttonsSection
-//        }
         .overlay(overlay)
         .blur(radius: showingWizardOverlay ? 5 : 0)
         .disabled(formDisabled)
+        .safeAreaInset(edge: .bottom) { safeAreaInset }
     }
     
     var backgroundColor: Color {
-//        Color(.systemGroupedBackground)
+        //        Color(.systemGroupedBackground)
         colorScheme == .dark ? Color(hex: "1C1C1E") : Color(hex: "F2F1F6")
     }
     
-    @ViewBuilder
     var safeAreaInset: some View {
-//        if fields.canBeSaved {
-            //TODO: Programmatically get this inset (67516AA6)
-            Spacer()
-//                .frame(height: 137)
-                .frame(height: 157)
-//        }
+        Spacer()
+            .frame(height: 60)
     }
     
     @ViewBuilder
@@ -405,26 +382,26 @@ public struct FoodForm: View {
             get: { formSaveInfo },
             set: { _ in }
         )
-
+        
         var saveTitle: String {
             /// [ ] Do this
-//            if isEditingPublicFood {
-//                return "Resubmit to Public Foods"
-//            } else {
-                return "Submit to Public Foods"
-//            }
+            //            if isEditingPublicFood {
+            //                return "Resubmit to Public Foods"
+            //            } else {
+            return "Submit to Public Foods"
+            //            }
         }
         
         var saveSecondaryTitle: String {
             /// [ ] Do this
-//            if isEditingPublicFood {
-//                return "Save and Make Private"
-//            } else if isEditingPrivateFood {
-//                return "Save Private Food"
-//            } else {
-//            return "Add as Private Food"
+            //            if isEditingPublicFood {
+            //                return "Save and Make Private"
+            //            } else if isEditingPrivateFood {
+            //                return "Save Private Food"
+            //            } else {
+            //            return "Add as Private Food"
             return "Save as Private Food"
-//            }
+            //            }
         }
         
         /// [ ] Check if form is dirty (if editing), or if new, if there's been substantial data entered
@@ -443,7 +420,7 @@ public struct FoodForm: View {
             didSave(data)
             dismiss()
         }
-
+        
         let saveSecondaryAction = FormConfirmableAction {
             guard let data = foodFormOutput(shouldPublish: false) else {
                 return
@@ -451,7 +428,7 @@ public struct FoodForm: View {
             didSave(data)
             dismiss()
         }
-
+        
         return FormDualSaveLayer(
             saveIsDisabled: saveIsDisabled,
             saveSecondaryIsDisabled: saveSecondaryIsDisabled,
@@ -464,257 +441,74 @@ public struct FoodForm: View {
             saveSecondaryAction: saveSecondaryAction,
             deleteAction: nil
         )
-//        .edgesIgnoringSafeArea(.bottom)
+        //        .edgesIgnoringSafeArea(.bottom)
     }
     
-    var checkmarkButtonLayer: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    withAnimation {
-                        showingBottomButtons = true
-                    }
-                } label: {
-                    Image(systemName: "checkmark.circle.badge.questionmark.fill")
-                        .symbolRenderingMode(.multicolor)
-                        .foregroundColor(.secondary)
-                        .font(.system(size: 30))
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
-        }
-    }
-    
-    var buttonsSection: some View {
-        let saveIsDisabled = Binding<Bool>(
-            get: { sources.numberOfSources == 0 || !fields.hasMinimumRequiredFields },
-            set: { _ in }
-        )
-        let saveSecondaryIsDisabled = Binding<Bool>(
-            get: { !fields.hasMinimumRequiredFields },
-            set: { _ in }
-        )
-
-        var buttonWidth: CGFloat { UIScreen.main.bounds.width - (20 * 2) }
-        var buttonHeight: CGFloat { 52 }
-        var buttonCornerRadius: CGFloat { 10 }
-        var shadowSize: CGFloat { 2 }
-        var shadowOpacity: CGFloat { 0.2 }
-
-        var saveTitle: String {
-            /// [ ] Do this
-//            if isEditingPublicFood {
-//                return "Resubmit to Public Foods"
-//            } else {
-//                return "Submit to Public Foods"
-//                return "Submit as Public Food"
-            return "Submit as Verified Food"
-//            }
-        }
-        
-        var saveSecondaryTitle: String {
-            /// [ ] Do this
-//            if isEditingPublicFood {
-//                return "Save and Make Private"
-//            } else if isEditingPrivateFood {
-//                return "Save Private Food"
-//            } else {
-            return "Add as Private Food"
-//            return "Save as Private Food"
-//            }
-        }
-        
-        var publicButton: some View {
-            var foregroundColor: Color {
-                (colorScheme == .light && saveIsDisabled.wrappedValue) ? .black : .white
-            }
-            
-            var opacity: CGFloat {
-                saveIsDisabled.wrappedValue ? (colorScheme == .light ? 0.2 : 0.2) : 1
-            }
-            
-            return Button {
-                
-            } label: {
-                Text(saveTitle)
-                    .bold()
-                    .foregroundColor(foregroundColor)
-                    .frame(width: buttonWidth, height: buttonHeight)
-                    .background(
-                        RoundedRectangle(cornerRadius: buttonCornerRadius)
-                            .foregroundStyle(Color.accentColor.gradient)
-                            .shadow(
-                                color: Color(.black).opacity(shadowOpacity),
-                                radius: shadowSize,
-                                x: 0, y: shadowSize
-                            )
-                    )
-            }
-            .disabled(saveIsDisabled.wrappedValue)
-            .opacity(opacity)
-        }
-        
-        var privateButton: some View {
-            var foregroundColor: Color {
-                (colorScheme == .light && saveSecondaryIsDisabled.wrappedValue) ? .black : .white
-            }
-            
-            var opacity: CGFloat {
-                saveSecondaryIsDisabled.wrappedValue ? (colorScheme == .light ? 0.2 : 0.2) : 1
-            }
-            
-            return Button {
-                
-            } label: {
-                Text(saveSecondaryTitle)
-                .frame(width: buttonWidth, height: buttonHeight)
-                .background(
-                    RoundedRectangle(cornerRadius: buttonCornerRadius)
-                        .foregroundStyle(.ultraThinMaterial)
-                        .shadow(
-                            color: Color(.black).opacity(0.2),
-                            radius: shadowSize,
-                            x: 0, y: shadowSize
-                        )
-                        .opacity(0)
-                )
-            }
-            .disabled(saveSecondaryIsDisabled.wrappedValue)
-            .opacity(opacity)
-        }
-        
-        func validationInfo(_ validationMessage: ValidationMessage) -> some View {
-            let r: CGFloat = 2.0
-            
-            let topLeft: Color = colorScheme == .light
-            ? Color(red: 197/255, green: 197/255, blue: 197/255)
-            : Color(hex: "050505")
-//            : Color(hex: "131313")
-
-            let bottomRight: Color = colorScheme == .light
-            ? .white
-//            : Color(hex: "5E5E5E")
-            : Color(hex: "2A2A2C")
-
-            let fill: Color = colorScheme == .light
-            ? Color(hex: "EFEFF0")
-//            ? Color(red: 236/255, green: 234/255, blue: 235/255)
-//            : Color(hex: "404040")
-            : Color(.secondarySystemFill)
-
-            return VStack {
-                
-                switch validationMessage {
-                case .needsSource:
-                    Text("Provide a source if you'd like to submit this as a Verified Food, or add it as a private food only visible to you.")
-                case .missingFields(let fieldNames):
-                    if let fieldName = fieldNames.first, fieldNames.count == 1 {
-                        Text("Please fill in the \(Text(fieldName).bold()) to be able to save this food.")
-                    } else {
-                        VStack(alignment: .leading) {
-                            Text("Please fill in the following to be able to save this food:")
-                                .padding(.bottom, 1)
-                            ForEach(fieldNames, id: \.self) { fieldName in
-                                Text("• \(fieldName)")
-                                    .bold()
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-            }
-            .foregroundColor(.secondary)
-            .padding(.vertical, 20)
-            .padding(.horizontal, 20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-//                        .fill(
-//                            .shadow(.inner(color: topLeft, radius: r, x: r, y: r))
-//                            .shadow(.inner(color: bottomRight,radius: r, x: -r, y: -r))
-//                        )
-                        .foregroundColor(fill)
-            )
-            .padding(.horizontal, 20)
-            .padding(.bottom, 12)
-        }
-        
-        
-        var legacy: some View {
-            
-            ZStack {
-                Color(.quaternarySystemFill)
-                VStack {
-                    validationInfo(.needsSource)
-                    //                if let validationMessage {
-                    //                    validationInfo(validationMessage)
-                    //                }
-                    publicButton
-                    privateButton
-                }
-                .padding(.top, 20)
-                .padding(.bottom, 34)
-            }
-        }
-        
-        var checkmarkButton: some View {
+    var toggleButtonLayer: some View {
+        var toggleButton: some View {
             var imageName: String {
-                showingBottomButtons
-                ? "chevron.down.circle.fill"
-                : "checkmark.circle.badge.questionmark.fill"
+                "checkmark"
+            }
+            
+            var fontSize: CGFloat {
+                25
+            }
+            
+            var size: CGFloat {
+                48
+            }
+            
+            var shouldShowAccentColor: Bool {
+                !showingBottomButtons && fields.hasMinimumRequiredFields
+            }
+            
+            var foregroundColor: Color {
+                shouldShowAccentColor
+                ? .white
+                : Color(.secondaryLabel)
             }
             
             return Button {
+                Haptics.feedback(style: .soft)
                 withAnimation(.interactiveSpring()) {
                     showingBottomButtons.toggle()
                 }
             } label: {
                 Image(systemName: imageName)
-//                    .symbolRenderingMode(.multicolor)
-                    .foregroundColor(Color.gray)
-                    .font(.system(size: 30))
-            }
-        }
-        
-        var topButtonRow: some View {
-            HStack {
-                Spacer()
-                checkmarkButton
-            }
-            .padding(.horizontal, 20)
-        }
-        
-        var buttons: some View {
-            VStack(spacing: 0) {
-                Divider()
-                validationInfo(.needsSource)
-                    .padding(.top, 12)
-//                    if let validationMessage {
-//                        validationInfo(validationMessage)
-//                    }
-                publicButton
-                privateButton
+//                    .foregroundColor(Color.gray)
+                    .font(.system(size: fontSize))
+                    .fontWeight(.medium)
+                    .foregroundColor(foregroundColor)
+                    .frame(width: size, height: size)
+                    .background(
+                        ZStack {
+                            Circle()
+                                .foregroundStyle(.ultraThinMaterial)
+                            Circle()
+                                .foregroundStyle(Color.accentColor.gradient)
+                                .opacity(shouldShowAccentColor ? 1 : 0)
+                        }
+                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                    )
+
             }
         }
         
         var layer: some View {
             VStack {
                 Spacer()
-                VStack {
-                    topButtonRow
-                    buttons
-                        .background(Color.clear.background(.thinMaterial))
+                HStack {
+                    Spacer()
+                    toggleButton
                 }
-                .offset(y: showingBottomButtons ? 0 : 100 + 167)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 0)
             }
+            .opacity(showingWizard ? 0 : 1)
         }
         
         return layer
     }
-    
 
     var buttonsLayer_legacy: some View {
         VStack {
@@ -730,7 +524,7 @@ public struct FoodForm: View {
         }
         .edgesIgnoringSafeArea(.bottom)
     }
-
+    
     var saveButtons: some View {
         var publicButton: some View {
             FormPrimaryButton(title: "Submit to Prep Database") {
@@ -784,7 +578,7 @@ public struct FoodForm: View {
                 dismiss()
             }
         }
-
+        
         var confirmationMessage: some View {
             Text("You have unsaved data. Are you sure?")
         }
@@ -806,7 +600,7 @@ public struct FoodForm: View {
             message: { confirmationMessage }
         )
     }
-
+    
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
         }
@@ -832,16 +626,16 @@ extension FoodForm {
     func tappedNoSource() {
         
     }
-
+    
     func tappedMissingRequiredFields() {
         
     }
     
     var validationMessage: ValidationMessage? {
-        guard !(showingWizard || fields.isInEmptyState) else {
-            return nil
-        }
-        
+//        guard !(showingWizard || fields.isInEmptyState) else {
+//            return nil
+//        }
+//
         if !fields.missingRequiredFields.isEmpty {
             return .missingFields(fields.missingRequiredFields)
         } else if !sources.canBePublished {
@@ -849,7 +643,7 @@ extension FoodForm {
         }
         return nil
     }
-
+    
     var formSaveInfo: FormSaveInfo? {
         guard !(showingWizard || fields.isInEmptyState) else {
             return nil
@@ -876,19 +670,19 @@ extension FoodForm {
             }
         }
     }
-
     
-//    var statusMessageColor: Color {
-//        if fields.canBeSaved {
-//            if sources.canBePublished {
-//                return .green.opacity(0.4)
-//            } else {
-//                return .yellow.opacity(0.5)
-//            }
-//        } else {
-//            return Color(.tertiaryLabel).opacity(0.8)
-//        }
-//    }
+    
+    //    var statusMessageColor: Color {
+    //        if fields.canBeSaved {
+    //            if sources.canBePublished {
+    //                return .green.opacity(0.4)
+    //            } else {
+    //                return .yellow.opacity(0.5)
+    //            }
+    //        } else {
+    //            return Color(.tertiaryLabel).opacity(0.8)
+    //        }
+    //    }
 }
 
 extension FoodForm.Fields {
@@ -912,7 +706,7 @@ extension FoodForm.Fields {
         if protein.value.isEmpty { fields.append("Protein")}
         return fields
     }
-
+    
     
     var isInEmptyState: Bool {
         name.isEmpty && detail.isEmpty && brand.isEmpty
@@ -925,4 +719,38 @@ extension FoodForm.Fields {
         && allMicronutrientFields.isEmpty
         && prefilledFood == nil
     }
+}
+
+extension View {
+    func readSize(onChange: @escaping (CGSize) -> Void) -> some View {
+        background(
+            GeometryReader { geometryProxy in
+                Color.clear
+                    .preference(key: SizePreferenceKey.self, value: geometryProxy.size)
+            }
+        )
+        .onPreferenceChange(SizePreferenceKey.self, perform: onChange)
+    }
+}
+
+private struct SizePreferenceKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {}
+}
+
+extension View {
+    func readSafeAreaInsets(onChange: @escaping (EdgeInsets) -> Void) -> some View {
+        background(
+            GeometryReader { geometryProxy in
+                Color.clear
+                    .preference(key: InsetsPreferenceKey.self, value: geometryProxy.safeAreaInsets)
+            }
+        )
+        .onPreferenceChange(InsetsPreferenceKey.self, perform: onChange)
+    }
+}
+
+private struct InsetsPreferenceKey: PreferenceKey {
+    static var defaultValue: EdgeInsets = .init()
+    static func reduce(value: inout EdgeInsets, nextValue: () -> EdgeInsets) {}
 }
