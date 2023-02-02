@@ -474,7 +474,7 @@ public struct FoodForm: View {
 //            } else {
 //                return "Submit to Public Foods"
 //                return "Submit as Public Food"
-            return "Submit to Verified Foods"
+            return "Submit as Verified Food"
 //            }
         }
         
