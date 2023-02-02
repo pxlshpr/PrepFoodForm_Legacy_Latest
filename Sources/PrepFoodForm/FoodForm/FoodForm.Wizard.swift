@@ -120,12 +120,25 @@ extension FoodForm.Wizard {
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.bottom, 10)
+                    .padding(.bottom, 5)
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.accentColor)
+                            .shimmering()
+                        Text("using our \(Text("Smart Food Label Scanner").fontWeight(.medium).foregroundColor(.primary)) to automagically fill it in.")
+                            .font(.system(.footnote, design: .rounded, weight: .regular))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 5)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
 
-                FormStyledSection(header: Text("Or Manually Enter It")) {
+                FormStyledSection(header: HStack {
+                    Text("Or Manually Enter It")
+                }) {
                     Button {
                         tapHandler(.startWithEmptyFood)
                     } label: {
@@ -144,7 +157,7 @@ extension FoodForm.Wizard {
             }
         }
         .cornerRadius(20)
-        .frame(height: 250)
+        .frame(height: 280)
         .frame(maxWidth: 350)
         .padding(.horizontal, 30)
         .shadow(color: colorScheme == .dark ? .black : .gray.opacity(0.6), radius: 30, x: 0, y: 0)

@@ -146,7 +146,8 @@ struct SaveSheet: View {
     
     func validationInfo(_ validationMessage: ValidationMessage) -> some View {
         let fill: Color = colorScheme == .light
-        ? Color(hex: "EFEFF0")
+//        ? Color(hex: "EFEFF0")
+        ? Color(.quaternarySystemFill)
         : Color(.secondarySystemFill)
         
         return VStack {
@@ -154,6 +155,7 @@ struct SaveSheet: View {
             switch validationMessage {
             case .needsSource:
                 Text("Provide a source if you'd like to submit this as a Verified Food, or add it as a private food only visible to you.")
+                    .fixedSize(horizontal: false, vertical: true)
             case .missingFields(let fieldNames):
                 if let fieldName = fieldNames.first, fieldNames.count == 1 {
                     Text("Please fill in the \(Text(fieldName).bold()) value to be able to save this food.")
@@ -161,6 +163,7 @@ struct SaveSheet: View {
                 } else {
                     VStack(alignment: .leading) {
                         Text("Please fill in the following to be able to save this food:")
+                            .fixedSize(horizontal: false, vertical: true)
                             .padding(.bottom, 1)
                         ForEach(fieldNames, id: \.self) { fieldName in
                             Text("• \(fieldName)")
