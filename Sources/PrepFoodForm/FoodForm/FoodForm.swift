@@ -668,13 +668,13 @@ public struct FoodForm: View {
             }
             
             return Button {
-                withAnimation {
-                    showingBottomButtons = true
+                withAnimation(.interactiveSpring()) {
+                    showingBottomButtons.toggle()
                 }
             } label: {
                 Image(systemName: imageName)
-                    .symbolRenderingMode(.multicolor)
-                    .foregroundColor(.secondary)
+//                    .symbolRenderingMode(.multicolor)
+                    .foregroundColor(Color.gray)
                     .font(.system(size: 30))
             }
         }
@@ -703,9 +703,12 @@ public struct FoodForm: View {
         var layer: some View {
             VStack {
                 Spacer()
-                topButtonRow
-                buttons
-                .background(Color.clear.background(.thinMaterial))
+                VStack {
+                    topButtonRow
+                    buttons
+                        .background(Color.clear.background(.thinMaterial))
+                }
+                .offset(y: showingBottomButtons ? 0 : 100 + 167)
             }
         }
         
