@@ -406,7 +406,8 @@ public struct FoodForm: View {
 //            } else if isEditingPrivateFood {
 //                return "Save Private Food"
 //            } else {
-                return "Add as Private Food"
+//            return "Add as Private Food"
+            return "Save as Private Food"
 //            }
         }
         
@@ -466,6 +467,29 @@ public struct FoodForm: View {
         var shadowSize: CGFloat { 2 }
         var shadowOpacity: CGFloat { 0.2 }
 
+        var saveTitle: String {
+            /// [ ] Do this
+//            if isEditingPublicFood {
+//                return "Resubmit to Public Foods"
+//            } else {
+//                return "Submit to Public Foods"
+//                return "Submit as Public Food"
+            return "Submit to Verified Foods"
+//            }
+        }
+        
+        var saveSecondaryTitle: String {
+            /// [ ] Do this
+//            if isEditingPublicFood {
+//                return "Save and Make Private"
+//            } else if isEditingPrivateFood {
+//                return "Save Private Food"
+//            } else {
+            return "Add as Private Food"
+//            return "Save as Private Food"
+//            }
+        }
+        
         var publicButton: some View {
             var foregroundColor: Color {
                 (colorScheme == .light && saveIsDisabled.wrappedValue) ? .black : .white
@@ -478,7 +502,7 @@ public struct FoodForm: View {
             return Button {
                 
             } label: {
-                Text("Submit to Public Foods")
+                Text(saveTitle)
                     .bold()
                     .foregroundColor(foregroundColor)
                     .frame(width: buttonWidth, height: buttonHeight)
@@ -508,7 +532,7 @@ public struct FoodForm: View {
             return Button {
                 
             } label: {
-                Text("Add as Private Food")
+                Text(saveSecondaryTitle)
                 .frame(width: buttonWidth, height: buttonHeight)
                 .background(
                     RoundedRectangle(cornerRadius: buttonCornerRadius)
@@ -548,7 +572,7 @@ public struct FoodForm: View {
                 
                 switch validationMessage {
                 case .needsSource:
-                    Text("Provide a source if you'd like to submit this as a Public Food.")
+                    Text("Provide a source if you'd like to submit this as a Verified Food, or add it as a private food only visible to you.")
                 case .missingFields(let fieldNames):
                     if let fieldName = fieldNames.first, fieldNames.count == 1 {
                         Text("Please fill in the \(Text(fieldName).bold()) to be able to save this food.")

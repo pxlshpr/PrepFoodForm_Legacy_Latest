@@ -163,6 +163,52 @@ extension FoodForm {
             )
         }
         
+        func fieldButton(_ string: String, isRequired: Bool = false, action: @escaping () -> ()) -> some View {
+            let r: CGFloat = 2.0
+            
+            let topLeft: Color = colorScheme == .light
+            ? Color(red: 197/255, green: 197/255, blue: 197/255)
+            : Color(hex: "050505")
+//            : Color(hex: "131313")
+
+            let bottomRight: Color = colorScheme == .light
+            ? .white
+//            : Color(hex: "5E5E5E")
+            : Color(hex: "2A2A2C")
+
+            let fill: Color = colorScheme == .light
+            ? Color(hex: "EFEFF0")
+//            ? Color(red: 236/255, green: 234/255, blue: 235/255)
+//            : Color(hex: "404040")
+            : Color(.secondarySystemFill)
+            
+            return Button {
+                Haptics.feedback(style: .soft)
+                action()
+            } label: {
+                Text(!string.isEmpty ? string : (isRequired ? "Required" : "Optional"))
+                    .foregroundColor(!string.isEmpty ? .primary : Color(.tertiaryLabel))
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 15)
+                    .padding(.vertical, 10)
+                
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(
+                                    .shadow(.inner(color: topLeft, radius: r, x: r, y: r))
+                                    .shadow(.inner(color: bottomRight,radius: r, x: -r, y: -r))
+                                )
+                                .foregroundColor(fill)
+                    )
+                
+//                    .background(
+//                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+//                            .foregroundStyle(Color(.secondarySystemFill).gradient)
+//                    )
+            }
+        }
+        
         return NavigationStack {
             QuickForm(title: "Details") {
                 FormStyledSection {
@@ -170,59 +216,68 @@ extension FoodForm {
                         GridRow {
                             Text("Name")
                                 .foregroundColor(.secondary)
-                            Button {
-                                Haptics.feedback(style: .soft)
+                            fieldButton(fields.name, isRequired: true) {
                                 showingNameForm = true
-                            } label: {
-                                Text(!fields.name.isEmpty ? fields.name : "Required")
-                                    .foregroundColor(!fields.name.isEmpty ? .primary : Color(.tertiaryLabel))
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 15)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-                                    )
                             }
+//                            Button {
+//                                Haptics.feedback(style: .soft)
+//                                showingNameForm = true
+//                            } label: {
+//                                Text(!fields.name.isEmpty ? fields.name : "Required")
+//                                    .foregroundColor(!fields.name.isEmpty ? .primary : Color(.tertiaryLabel))
+//                                    .bold()
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                    .padding(.horizontal, 15)
+//                                    .padding(.vertical, 10)
+//                                    .background(
+//                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+//                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
+//                                    )
+//                            }
                         }
                         GridRow {
                             Text("Detail")
                                 .foregroundColor(.secondary)
-                            Button {
-                                Haptics.feedback(style: .soft)
+                            fieldButton(fields.detail) {
                                 showingDetailForm = true
-                            } label: {
-                                Text(!fields.detail.isEmpty ? fields.detail : "Optional")
-                                    .foregroundColor(!fields.detail.isEmpty ? .primary : Color(.tertiaryLabel))
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 15)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-                                    )
                             }
+//                            Button {
+//                                Haptics.feedback(style: .soft)
+//                                showingDetailForm = true
+//                            } label: {
+//                                Text(!fields.detail.isEmpty ? fields.detail : "Optional")
+//                                    .foregroundColor(!fields.detail.isEmpty ? .primary : Color(.tertiaryLabel))
+//                                    .bold()
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                    .padding(.horizontal, 15)
+//                                    .padding(.vertical, 10)
+//                                    .background(
+//                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+//                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
+//                                    )
+//                            }
                         }
                         GridRow {
                             Text("Brand")
                                 .foregroundColor(.secondary)
-                            Button {
-                                Haptics.feedback(style: .soft)
+                            fieldButton(fields.brand) {
                                 showingBrandForm = true
-                            } label: {
-                                Text(!fields.brand.isEmpty ? fields.brand : "Optional")
-                                    .foregroundColor(!fields.brand.isEmpty ? .primary : Color(.tertiaryLabel))
-                                    .bold()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 15)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
-                                    )
                             }
+//                            Button {
+//                                Haptics.feedback(style: .soft)
+//                                showingBrandForm = true
+//                            } label: {
+//                                Text(!fields.brand.isEmpty ? fields.brand : "Optional")
+//                                    .foregroundColor(!fields.brand.isEmpty ? .primary : Color(.tertiaryLabel))
+//                                    .bold()
+//                                    .frame(maxWidth: .infinity, alignment: .leading)
+//                                    .padding(.horizontal, 15)
+//                                    .padding(.vertical, 10)
+//                                    .background(
+//                                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+//                                            .foregroundStyle(Color(.secondarySystemFill).gradient)
+//                                    )
+//                            }
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
