@@ -176,11 +176,12 @@ public struct ServingsAndSizesCell: View {
                                 .foregroundColor(.secondary)
                             HStack(alignment: .firstTextBaseline, spacing: 2) {
                                 Text(sizeField.sizeAmountString)
-                                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                                    .font(.system(.footnote, design: .rounded, weight: .semibold))
                                     .foregroundColor(.secondary)
                                 Text(sizeField.sizeAmountUnitString)
-                                    .font(.system(.caption2, design: .rounded, weight: .medium))
-                                    .foregroundColor(Color(.tertiaryLabel))
+                                    .font(.system(.caption, design: .rounded, weight: .medium))
+                                    .foregroundColor(.secondary)
+//                                    .foregroundColor(Color(.tertiaryLabel))
                             }
                             .padding(.vertical, 1)
                             .padding(.horizontal, 5)

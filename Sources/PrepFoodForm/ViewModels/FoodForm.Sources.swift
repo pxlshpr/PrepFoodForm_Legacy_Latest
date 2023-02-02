@@ -73,9 +73,13 @@ extension FoodForm.Sources {
         selectedPhotos = []
     }
     
+    var numberOfSources: Int {
+        imageViewModels.count + (linkInfo != nil ? 1 : 0)
+    }
+    
     func updateCanBePublished() {
         withAnimation {
-            canBePublished = !imageViewModels.isEmpty || linkInfo != nil
+            canBePublished = numberOfSources > 0
         }
     }
     

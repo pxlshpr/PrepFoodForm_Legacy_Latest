@@ -451,8 +451,14 @@ public struct FoodForm: View {
     }
     
     var buttonsSection: some View {
-        var saveIsDisabled: Bool { !sources.canBePublished }
-        var saveSecondaryIsDisabled: Bool { !fields.canBeSaved }
+        let saveIsDisabled = Binding<Bool>(
+            get: { sources.numberOfSources == 0 || !fields.hasMinimumRequiredFields },
+            set: { _ in }
+        )
+        let saveSecondaryIsDisabled = Binding<Bool>(
+            get: { !fields.hasMinimumRequiredFields },
+            set: { _ in }
+        )
 
         var buttonWidth: CGFloat { UIScreen.main.bounds.width - (20 * 2) }
         var buttonHeight: CGFloat { 52 }
@@ -462,11 +468,11 @@ public struct FoodForm: View {
 
         var publicButton: some View {
             var foregroundColor: Color {
-                (colorScheme == .light && saveIsDisabled) ? .black : .white
+                (colorScheme == .light && saveIsDisabled.wrappedValue) ? .black : .white
             }
             
             var opacity: CGFloat {
-                saveIsDisabled ? (colorScheme == .light ? 0.2 : 0.2) : 1
+                saveIsDisabled.wrappedValue ? (colorScheme == .light ? 0.2 : 0.2) : 1
             }
             
             return Button {
@@ -486,17 +492,17 @@ public struct FoodForm: View {
                             )
                     )
             }
-            .disabled(saveIsDisabled)
+            .disabled(saveIsDisabled.wrappedValue)
             .opacity(opacity)
         }
         
         var privateButton: some View {
             var foregroundColor: Color {
-                (colorScheme == .light && saveSecondaryIsDisabled) ? .black : .white
+                (colorScheme == .light && saveSecondaryIsDisabled.wrappedValue) ? .black : .white
             }
             
             var opacity: CGFloat {
-                saveSecondaryIsDisabled ? (colorScheme == .light ? 0.2 : 0.2) : 1
+                saveSecondaryIsDisabled.wrappedValue ? (colorScheme == .light ? 0.2 : 0.2) : 1
             }
             
             return Button {
@@ -515,7 +521,7 @@ public struct FoodForm: View {
                         .opacity(0)
                 )
             }
-            .disabled(saveSecondaryIsDisabled)
+            .disabled(saveSecondaryIsDisabled.wrappedValue)
             .opacity(opacity)
         }
         
@@ -533,7 +539,8 @@ public struct FoodForm: View {
             : Color(hex: "2A2A2C")
 
             let fill: Color = colorScheme == .light
-            ? Color(red: 236/255, green: 234/255, blue: 235/255)
+            ? Color(hex: "EFEFF0")
+//            ? Color(red: 236/255, green: 234/255, blue: 235/255)
 //            : Color(hex: "404040")
             : Color(.secondarySystemFill)
 

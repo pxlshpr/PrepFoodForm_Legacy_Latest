@@ -10,13 +10,17 @@ extension FoodForm.Fields {
         updateCanBeSaved()
     }
     
-    func updateCanBeSaved() {
-        canBeSaved = !name.isEmpty
+    var hasMinimumRequiredFields: Bool {
+        !name.isEmpty
         && !energy.value.isEmpty
         && !amount.value.isEmpty
         && !carb.value.isEmpty
         && !fat.value.isEmpty
         && !protein.value.isEmpty
+    }
+    
+    func updateCanBeSaved() {
+        canBeSaved = hasMinimumRequiredFields
     }
     
     var isDirty: Bool {
