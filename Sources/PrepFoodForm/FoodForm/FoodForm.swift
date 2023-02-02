@@ -472,6 +472,11 @@ public struct FoodForm: View {
                 Haptics.feedback(style: .soft)
                 withAnimation(.interactiveSpring()) {
                     showingBottomButtons.toggle()
+                    if showingBottomButtons, !fields.hasMinimumRequiredFields {
+                        Haptics.warningFeedback()
+                    } else {
+                        Haptics.feedback(style: .soft)
+                    }
                 }
             } label: {
                 Image(systemName: imageName)
