@@ -9,31 +9,20 @@ struct SaveSheet: View {
     @Environment(\.colorScheme) var colorScheme
     @State var size: CGSize = .zero
     @State var safeAreaInsets: EdgeInsets = .init()
-
     @State var height: CGFloat = 0
-    @State var heightCopy: CGFloat = 0
-
-    @State var refresh: Bool = false
     
     var body: some View {
         return contents
-            .id(refresh)
             .readSafeAreaInsets { insets in
                 safeAreaInsets = insets
             }
             .presentationDetents([.height(height)])
             .presentationDragIndicator(.hidden)
             .onChange(of: size) { newValue in
-                if self.height == 0 {
-                    self.height = calculatedHeight
-                    self.heightCopy = self.height
-                }
+                self.height = calculatedHeight
             }
             .onChange(of: safeAreaInsets) { newValue in
-                if self.height == 0 {
-                    self.height = calculatedHeight
-                    self.heightCopy = self.height
-                }
+                self.height = calculatedHeight
             }
             .onChange(of: colorScheme) { newValue in
                 /// Workaround for a bug where color scheme changes shifts the presented sheet downwards for some reason
