@@ -448,11 +448,10 @@ public struct FoodForm: View {
     }
     
     func tappedSavePrivate() {
-        //TODO: Save Override
-//        guard let data = foodFormOutput(shouldPublish: false) else {
-//            return
-//        }
-//        didSave(data)
+        guard let data = foodFormOutput(shouldPublish: false) else {
+            return
+        }
+        didSave(data)
         dismiss()
     }
     

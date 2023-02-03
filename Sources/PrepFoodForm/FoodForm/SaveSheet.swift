@@ -29,11 +29,11 @@ struct SaveSheet: View {
                 Color.black.opacity(colorScheme == .light ? 0.2 : 0.5)
                     .transition(.opacity)
                     .edgesIgnoringSafeArea(.all)
-                    .onTapGesture { tappedOverlay() }
+                    .onTapGesture { tappedDismiss() }
                 shadowLayer
                     .transition(.move(edge: .bottom))
                     .edgesIgnoringSafeArea(.all)
-                    .onTapGesture { tappedOverlay() }
+                    .onTapGesture { tappedDismiss() }
             }
             if isPresented {
                 VStack {
@@ -47,7 +47,7 @@ struct SaveSheet: View {
         }
     }
     
-    func tappedOverlay() {
+    func tappedDismiss() {
 //        Haptics.feedback(style: .soft)
         let totalHeight = height + hardcodedSafeAreaBottomInset
         withAnimation {
@@ -127,23 +127,35 @@ struct SaveSheet: View {
         
         func ended(_ value: DragGesture.Value) {
             let totalHeight = height + hardcodedSafeAreaBottomInset
-            print("🥸 predictedEndLocation.y: \(value.predictedEndLocation.y)")
-            print("🥸 height: \(totalHeight)")
-            withAnimation {
-                if value.predictedEndLocation.y > totalHeight / 2.0 {
-                    isPresented = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        dragOffsetY = 0.0
-                    }
-//
-//                    dragOffsetY = totalHeight
-//                    fadeOutOverlay = true
-//                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                         fadeOutOverlay = false
-//                         isPresented = false
-//                         dragOffsetY = 0.0
-//                    }
-                } else {
+//            print("🥸 predictedEndLocation.y: \(value.predictedEndLocation.y)")
+//            print("🥸 height: \(totalHeight)")
+            if value.predictedEndLocation.y > totalHeight / 2.0 {
+//                isPresented = false
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                    dragOffsetY = 0.0
+//                }
+                /// Animate the offset with the speed that the drag ended with, but
+                let velocity = CGSize(
+                    width:  value.predictedEndLocation.x - value.location.x,
+                    height: value.predictedEndLocation.y - value.location.y
+                )
+                print("🥸 velocity: \(velocity)")
+
+                let duration = (1.0 / velocity.height) * 45.0
+                withAnimation(.easeInOut(duration: duration)) {
+                    dragOffsetY = totalHeight
+                }
+                /// Animate the fade normally
+                withAnimation {
+                    fadeOutOverlay = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                     fadeOutOverlay = false
+                     isPresented = false
+                     dragOffsetY = 0.0
+                }
+            } else {
+                withAnimation {
                     dragOffsetY = 0.0
                 }
             }
@@ -173,9 +185,7 @@ struct SaveSheet: View {
         var closeButton: some View {
             Button {
                 Haptics.feedback(style: .soft)
-                withAnimation {
-                    isPresented = false
-                }
+                tappedDismiss()
             } label: {
                 CloseButtonLabel()
             }
@@ -256,8 +266,8 @@ struct SaveSheet: View {
     var saveSecondaryIsDisabled: Binding<Bool> {
         Binding<Bool>(
             //TODO: Save Override
-            get: { false },
-//            get: { !fields.hasMinimumRequiredFields },
+//            get: { false },
+            get: { !fields.hasMinimumRequiredFields },
             set: { _ in }
         )
     }
@@ -334,6 +344,7 @@ struct SaveSheet: View {
             didTapSavePrivate()
         } label: {
             Text(saveSecondaryTitle)
+                .bold()
                 .frame(width: buttonWidth, height: buttonHeight)
                 .background(
                     RoundedRectangle(cornerRadius: buttonCornerRadius)
