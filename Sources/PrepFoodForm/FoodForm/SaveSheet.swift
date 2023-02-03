@@ -49,9 +49,15 @@ struct SaveSheet: View {
     
     func tappedOverlay() {
 //        Haptics.feedback(style: .soft)
+        let totalHeight = height + hardcodedSafeAreaBottomInset
         withAnimation {
-            isPresented = false
-            dragOffsetY = 0
+            dragOffsetY = totalHeight
+            fadeOutOverlay = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isPresented = false
+                dragOffsetY = 0
+                fadeOutOverlay = false
+            }
         }
     }
     
