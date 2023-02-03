@@ -21,15 +21,19 @@ struct SaveSheet: View {
     
     @State var dragOffsetY: CGFloat = 0.0
 
+    @State var fadeOutOverlay: Bool = false
+    
     var body: some View {
         ZStack {
-            if isPresented {
+            if isPresented && !fadeOutOverlay {
                 Color.black.opacity(colorScheme == .light ? 0.2 : 0.5)
                     .transition(.opacity)
                     .edgesIgnoringSafeArea(.all)
+                    .onTapGesture { tappedOverlay() }
                 shadowLayer
                     .transition(.move(edge: .bottom))
                     .edgesIgnoringSafeArea(.all)
+                    .onTapGesture { tappedOverlay() }
             }
             if isPresented {
                 VStack {
@@ -37,8 +41,16 @@ struct SaveSheet: View {
                     sheet
                 }
                 .edgesIgnoringSafeArea(.all)
+                .animation(.interactiveSpring(), value: isPresented)
                 .transition(.move(edge: .bottom))
             }
+        }
+    }
+    
+    func tappedOverlay() {
+        withAnimation {
+            isPresented = false
+            dragOffsetY = 0`
         }
     }
     
@@ -107,8 +119,26 @@ struct SaveSheet: View {
         }
         
         func ended(_ value: DragGesture.Value) {
+            let totalHeight = height + hardcodedSafeAreaBottomInset
+            print("🥸 predictedEndLocation.y: \(value.predictedEndLocation.y)")
+            print("🥸 height: \(totalHeight)")
             withAnimation {
-                dragOffsetY = 0.0
+                if value.predictedEndLocation.y > totalHeight / 2.0 {
+                    isPresented = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        dragOffsetY = 0.0
+                    }
+//
+//                    dragOffsetY = totalHeight
+//                    fadeOutOverlay = true
+//                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                         fadeOutOverlay = false
+//                         isPresented = false
+//                         dragOffsetY = 0.0
+//                    }
+                } else {
+                    dragOffsetY = 0.0
+                }
             }
         }
         
