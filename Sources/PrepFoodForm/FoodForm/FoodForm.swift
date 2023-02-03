@@ -36,7 +36,7 @@ public struct FoodForm: View {
     @State var showingBarcodeScanner = false
     
     @State var showingAddLinkAlert = false
-    @State var showingBottomButtons = false
+    @State var showingSaveSheet = false
     @State var showingBottomButtonsSaved = false /// Used when presenting keyboard and alerts
     
     @State var showingExtractorView: Bool = false
@@ -164,6 +164,8 @@ public struct FoodForm: View {
             navigationView
             extractorViewLayer
                 .zIndex(2)
+            saveSheet
+                .zIndex(3)
         }
     }
     
@@ -201,7 +203,7 @@ public struct FoodForm: View {
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingDetailsForm) { detailsForm }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
-                .sheet(isPresented: $showingBottomButtons) { bottomButtonsSheet }
+//                .sheet(isPresented: $showingSaveSheet) { saveSheet }
                 .fullScreenCover(isPresented: $showingBarcodeScanner) { barcodeScanner }
             //                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
                 .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
@@ -233,8 +235,10 @@ public struct FoodForm: View {
         //        }
     }
     
-    var bottomButtonsSheet: some View {
-        SaveSheet(validationMessage: Binding<ValidationMessage?>(
+    var saveSheet: some View {
+        SaveSheet(
+            isPresented: $showingSaveSheet,
+            validationMessage: Binding<ValidationMessage?>(
             get: { validationMessage },
 //            get: { .missingFields(["Protein"]) },
             set: { _ in }
@@ -271,12 +275,7 @@ public struct FoodForm: View {
         ZStack {
             formLayer
             wizardLayer
-            //            if showingBottomButtons {
             toggleButtonLayer
-            //                .transition(.move(edge: .bottom))
-            //            } else {
-            //                checkmarkButtonLayer
-            //            }
         }
     }
     
@@ -449,10 +448,11 @@ public struct FoodForm: View {
     }
     
     func tappedSavePrivate() {
-        guard let data = foodFormOutput(shouldPublish: false) else {
-            return
-        }
-        didSave(data)
+        //TODO: Save Override
+//        guard let data = foodFormOutput(shouldPublish: false) else {
+//            return
+//        }
+//        didSave(data)
         dismiss()
     }
     
@@ -482,14 +482,13 @@ public struct FoodForm: View {
             }
             
             return Button {
-                Haptics.feedback(style: .soft)
-                withAnimation(.interactiveSpring()) {
-                    showingBottomButtons.toggle()
-                    if showingBottomButtons, !fields.hasMinimumRequiredFields {
-                        Haptics.warningFeedback()
-                    } else {
-                        Haptics.feedback(style: .soft)
-                    }
+                withAnimation {
+                    showingSaveSheet.toggle()
+                }
+                if showingSaveSheet, !fields.hasMinimumRequiredFields {
+                    Haptics.warningFeedback()
+                } else {
+                    Haptics.feedback(style: .soft)
                 }
             } label: {
                 Image(systemName: imageName)
@@ -567,6 +566,25 @@ public struct FoodForm: View {
         }
         
         return layer
+    }
+    
+    var saveSheetLayer: some View {
+//        ZStack {
+//            if showingSaveSheet {
+//                Color.black.opacity(colorScheme == .light ? 0.2 : 0.5)
+//                    .transition(.opacity)
+//                    .edgesIgnoringSafeArea(.all)
+//            }
+//            if showingSaveSheet {
+//                VStack {
+//                    Spacer()
+//                    saveSheet
+//                }
+//                .edgesIgnoringSafeArea(.all)
+//                .transition(.move(edge: .bottom))
+//            }
+//        }
+        saveSheet
     }
 
     var buttonsLayer_legacy: some View {

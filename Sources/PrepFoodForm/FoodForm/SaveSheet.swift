@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
 struct SaveSheet: View {
     
@@ -11,17 +12,63 @@ struct SaveSheet: View {
     @State var safeAreaInsets: EdgeInsets = .init()
     @State var height: CGFloat = 0
 
+    @Binding var isPresented: Bool
     @Binding var validationMessage: ValidationMessage?
     let didTapSavePublic: () -> ()
     let didTapSavePrivate: () -> ()
 
+    let hardcodedSafeAreaBottomInset: CGFloat = 34.0
+    
+    @State var dragOffsetY: CGFloat = 0.0
+
     var body: some View {
-        return contents
+        ZStack {
+            if isPresented {
+                Color.black.opacity(colorScheme == .light ? 0.2 : 0.5)
+                    .transition(.opacity)
+                    .edgesIgnoringSafeArea(.all)
+                shadowLayer
+                    .edgesIgnoringSafeArea(.all)
+            }
+            if isPresented {
+                VStack {
+                    Spacer()
+                    sheet
+                }
+                .edgesIgnoringSafeArea(.all)
+                .transition(.move(edge: .bottom))
+            }
+        }
+    }
+    
+    var shadowLayer: some View {
+        GeometryReader { proxy in
+            VStack(spacing: 0) {
+                Spacer()
+                ZStack {
+                    VStack {
+                        Rectangle()
+                            .fill(.green)
+                            .frame(height: 210)
+                            .shadow(radius: 70.0, y: 0)
+                            .position(x: proxy.size.width / 2.0, y: 210 + 70.0 + 35)
+                        Spacer()
+                    }
+                }
+                .frame(height: 210)
+                .clipped()
+                .offset(y: dragOffsetY)
+                Color.clear
+                    .frame(height: height + 38.0 - 10.0) /// not sure what the 38 is, 10 is corner radius
+            }
+        }
+    }
+    
+    var sheet: some View {
+        contents
             .readSafeAreaInsets { insets in
                 safeAreaInsets = insets
             }
-            .presentationDetents([.height(height)])
-            .presentationDragIndicator(.hidden)
             .onChange(of: size) { newValue in
                 self.height = calculatedHeight
             }
@@ -36,13 +83,113 @@ struct SaveSheet: View {
                     height = height - 1
                 }
             }
+            .safeAreaInset(edge: .bottom) {
+                Spacer().frame(height: hardcodedSafeAreaBottomInset)
+            }
+            .gesture(dragGesture)
     }
     
-    var calculatedHeight: CGFloat {
-        size.height + 60.0
+    var dragGesture: some Gesture {
+        func logC(val: Double, forBase base: Double) -> Double {
+            return log(val)/log(base)
+        }
+        
+        func changed(_ value: DragGesture.Value) {
+            let y = value.translation.height
+//            guard y < 0 else {
+            guard y < -22 else {
+                dragOffsetY = y
+                return
+            }
+            let log = logC(val: (-y) + 11.5, forBase: 1.05) - 50
+            dragOffsetY = -log
+        }
+        
+        func ended(_ value: DragGesture.Value) {
+            withAnimation {
+                dragOffsetY = 0.0
+            }
+        }
+        
+        return DragGesture()
+            .onChanged(changed)
+            .onEnded(ended)
     }
 
     var contents: some View {
+        ZStack {
+            FormBackground()
+                .cornerRadius(10.0, corners: [.topLeft, .topRight])
+                .edgesIgnoringSafeArea(.all)
+                .frame(height: height)
+                .offset(y: max(0, dragOffsetY))
+//            shadowLayer
+            form
+//                .edgesIgnoringSafeArea(.bottom)
+                .frame(height: height)
+                .offset(y: dragOffsetY)
+        }
+    }
+    
+    var form: some View {
+        var closeButton: some View {
+            Button {
+                Haptics.feedback(style: .soft)
+                withAnimation {
+                    isPresented = false
+                }
+            } label: {
+                CloseButtonLabel()
+            }
+        }
+
+        var topRow: some View {
+            HStack {
+                Text("Save")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .frame(maxHeight: .infinity, alignment: .center)
+                    .padding(.top, 5)
+                Spacer()
+                closeButton
+            }
+            .frame(height: 30)
+            .padding(.leading, 20)
+            .padding(.trailing, 14)
+            .padding(.top, 12)
+            .padding(.bottom, 18)
+        }
+        
+        var content: some View {
+//            GeometryReader { proxy in
+                VStack(spacing: 0) {
+                    topRow
+                    VStack {
+                        if let validationMessage {
+                            validationInfo(validationMessage)
+                        }
+                        publicButton
+                        privateButton
+                    }
+                    .readSize { size in
+                        self.size = size
+                    }
+                    .frame(maxWidth: .infinity)
+                    Spacer()
+                }
+                .background(
+                    FormBackground()
+                        .edgesIgnoringSafeArea(.all)
+                        .cornerRadius(10.0)
+                )
+//                .frame(height: proxy.size.height, alignment: .top)
+//            }
+        }
+        
+        return content
+    }
+    
+    var quickForm: some View {
         QuickForm(title: "Save") {
             VStack {
                 if let validationMessage {
@@ -56,7 +203,11 @@ struct SaveSheet: View {
             }
         }
     }
-    
+
+    var calculatedHeight: CGFloat {
+        size.height + 60.0
+    }
+
     var saveIsDisabled: Binding<Bool> {
         Binding<Bool>(
             get: { sources.numberOfSources == 0 || !fields.hasMinimumRequiredFields },
@@ -66,7 +217,9 @@ struct SaveSheet: View {
     
     var saveSecondaryIsDisabled: Binding<Bool> {
         Binding<Bool>(
-            get: { !fields.hasMinimumRequiredFields },
+            //TODO: Save Override
+            get: { false },
+//            get: { !fields.hasMinimumRequiredFields },
             set: { _ in }
         )
     }
@@ -199,5 +352,22 @@ struct SaveSheet: View {
         )
         .padding(.horizontal, 20)
         .padding(.bottom, 12)
+    }
+}
+
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape( RoundedCorner(radius: radius, corners: corners) )
+    }
+}
+
+struct RoundedCorner: Shape {
+
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
     }
 }
