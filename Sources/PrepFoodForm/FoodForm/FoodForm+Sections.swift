@@ -226,7 +226,6 @@ struct DetailsQuickForm: View {
         } label: {
             Text(!string.isEmpty ? string : (isRequired ? "Required" : "Optional"))
                 .foregroundColor(!string.isEmpty ? .primary : Color(.tertiaryLabel))
-//                .fontWeight(.semibold)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 15)
                 .padding(.vertical, 10)
