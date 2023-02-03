@@ -436,7 +436,6 @@ public struct FoodForm: View {
             saveSecondaryAction: saveSecondaryAction,
             deleteAction: nil
         )
-        //        .edgesIgnoringSafeArea(.bottom)
     }
     
     func tappedSavePublic() {
