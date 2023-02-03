@@ -48,9 +48,10 @@ struct SaveSheet: View {
     }
     
     func tappedOverlay() {
+//        Haptics.feedback(style: .soft)
         withAnimation {
             isPresented = false
-            dragOffsetY = 0`
+            dragOffsetY = 0
         }
     }
     
