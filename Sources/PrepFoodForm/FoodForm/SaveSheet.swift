@@ -28,6 +28,7 @@ struct SaveSheet: View {
                     .transition(.opacity)
                     .edgesIgnoringSafeArea(.all)
                 shadowLayer
+                    .transition(.move(edge: .bottom))
                     .edgesIgnoringSafeArea(.all)
             }
             if isPresented {
