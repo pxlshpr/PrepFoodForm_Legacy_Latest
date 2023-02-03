@@ -238,7 +238,11 @@ public struct FoodForm: View {
             get: { validationMessage },
 //            get: { .missingFields(["Protein"]) },
             set: { _ in }
-        ))
+        ), didTapSavePublic: {
+            tappedSavePublic()
+        }, didTapSavePrivate: {
+            tappedSavePrivate()
+        })
         .environmentObject(fields)
         .environmentObject(sources)
     }
@@ -414,19 +418,11 @@ public struct FoodForm: View {
             }
         
         let saveAction = FormConfirmableAction {
-            guard let data = foodFormOutput(shouldPublish: true) else {
-                return
-            }
-            didSave(data)
-            dismiss()
+            tappedSavePublic()
         }
         
         let saveSecondaryAction = FormConfirmableAction {
-            guard let data = foodFormOutput(shouldPublish: false) else {
-                return
-            }
-            didSave(data)
-            dismiss()
+            tappedSavePrivate()
         }
         
         return FormDualSaveLayer(
@@ -444,22 +440,39 @@ public struct FoodForm: View {
         //        .edgesIgnoringSafeArea(.bottom)
     }
     
+    func tappedSavePublic() {
+        guard let data = foodFormOutput(shouldPublish: true) else {
+            return
+        }
+        didSave(data)
+        dismiss()
+    }
+    
+    func tappedSavePrivate() {
+        guard let data = foodFormOutput(shouldPublish: false) else {
+            return
+        }
+        didSave(data)
+        dismiss()
+    }
+    
     var toggleButtonLayer: some View {
-        var toggleButton: some View {
+        var fontSize: CGFloat {
+            25
+//            22
+        }
+        var size: CGFloat {
+            48
+//            38
+        }
+        
+        var saveButton: some View {
             var imageName: String {
                 "checkmark"
             }
             
-            var fontSize: CGFloat {
-                25
-            }
-            
-            var size: CGFloat {
-                48
-            }
-            
             var shouldShowAccentColor: Bool {
-                !showingBottomButtons && fields.hasMinimumRequiredFields
+                fields.hasMinimumRequiredFields
             }
             
             var foregroundColor: Color {
@@ -499,12 +512,53 @@ public struct FoodForm: View {
             }
         }
         
+        var dismissButton: some View {
+            var confirmationActions: some View {
+                Button("Close without saving", role: .destructive) {
+                    dismiss()
+                }
+            }
+            
+            var confirmationMessage: some View {
+                Text("You have unsaved data. Are you sure?")
+            }
+            
+            return Button {
+                if fields.isDirty {
+                    Haptics.warningFeedback()
+                    showingCancelConfirmation = true
+                } else {
+                    Haptics.feedback(style: .soft)
+                    dismiss()
+                }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: fontSize))
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                    .frame(width: size, height: size)
+                    .background(
+                        Circle()
+                            .foregroundStyle(.ultraThinMaterial)
+                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
+                    )
+
+            }
+            .confirmationDialog(
+                "",
+                isPresented: $showingCancelConfirmation,
+                actions: { confirmationActions },
+                message: { confirmationMessage }
+            )
+        }
+        
         var layer: some View {
             VStack {
                 Spacer()
                 HStack {
+                    dismissButton
                     Spacer()
-                    toggleButton
+                    saveButton
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 0)
@@ -573,7 +627,7 @@ public struct FoodForm: View {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            dismissButton
+//            dismissButton
         }
     }
     

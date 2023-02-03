@@ -1,16 +1,20 @@
 import SwiftUI
+import SwiftUISugar
 
 struct SaveSheet: View {
     
     @EnvironmentObject var fields: FoodForm.Fields
     @EnvironmentObject var sources: FoodForm.Sources
-    @Binding var validationMessage: ValidationMessage?
-
+    
     @Environment(\.colorScheme) var colorScheme
     @State var size: CGSize = .zero
     @State var safeAreaInsets: EdgeInsets = .init()
     @State var height: CGFloat = 0
-    
+
+    @Binding var validationMessage: ValidationMessage?
+    let didTapSavePublic: () -> ()
+    let didTapSavePrivate: () -> ()
+
     var body: some View {
         return contents
             .readSafeAreaInsets { insets in
@@ -35,10 +39,7 @@ struct SaveSheet: View {
     }
     
     var calculatedHeight: CGFloat {
-        
-        let height = size.height + 60.0
-        print("👨🏽‍🚀 height: \(height) = size.height: \(size.height) + safeAreaInsets.bottom: \(safeAreaInsets.bottom)")
-        return height
+        size.height + 60.0
     }
 
     var contents: some View {
@@ -109,7 +110,7 @@ struct SaveSheet: View {
         }
         
         return Button {
-            
+            didTapSavePublic()
         } label: {
             Text(saveTitle)
                 .bold()
@@ -139,7 +140,7 @@ struct SaveSheet: View {
         }
         
         return Button {
-            
+            didTapSavePrivate()
         } label: {
             Text(saveSecondaryTitle)
                 .frame(width: buttonWidth, height: buttonHeight)
