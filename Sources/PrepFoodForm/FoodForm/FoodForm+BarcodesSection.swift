@@ -142,11 +142,11 @@ extension FoodForm {
                         
                         if barcodeValues.isEmpty {
                             Group {
-                                foodFormButton("Scan", image: "barcode.viewfinder", isSecondary: true) {
+                                foodFormButton("Scan", image: "barcode.viewfinder", isSecondary: true, colorScheme: colorScheme) {
                                     Haptics.feedback(style: .soft)
                                     showingBarcodeScanner = true
                                 }
-                                foodFormButton("Enter", image: "keyboard", isSecondary: true) {
+                                foodFormButton("Enter", image: "keyboard", isSecondary: true, colorScheme: colorScheme) {
                                     showAddBarcodeAlert()
                                 }
                             }
@@ -176,7 +176,7 @@ extension FoodForm {
                                 }
                                                                 
                             } label: {
-                                foodFormButton("Add", image: "plus", isSecondary: true)
+                                foodFormButton("Add", image: "plus", isSecondary: true, colorScheme: colorScheme)
                                     .frame(width: buttonWidth)
                             }
                             .contentShape(Rectangle())

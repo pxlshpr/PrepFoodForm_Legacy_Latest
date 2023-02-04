@@ -80,15 +80,15 @@ extension FoodForm.SourcesSummaryCell {
     
     var addSourceButtons: some View {
         HStack {
-            foodFormButton("Camera", image: "camera") {
+            foodFormButton("Camera", image: "camera", colorScheme: colorScheme) {
                 Haptics.feedback(style: .soft)
                 didTapCamera()
             }
-            foodFormButton("Photo", image: "photo.on.rectangle") {
+            foodFormButton("Photo", image: "photo.on.rectangle", colorScheme: colorScheme) {
                 Haptics.feedback(style: .soft)
                 showingPhotosPicker = true
             }
-            foodFormButton("Link", image: "link") {
+            foodFormButton("Link", image: "link", colorScheme: colorScheme) {
                 showAddLinkAlert()
             }
         }
@@ -187,15 +187,15 @@ extension FoodForm.SourcesSummaryCell {
                     
                     if sources.isEmpty {
                         Group {
-                            foodFormButton("Camera", image: "camera") {
+                            foodFormButton("Camera", image: "camera", colorScheme: colorScheme) {
                                 Haptics.feedback(style: .soft)
                                 didTapCamera()
                             }
-                            foodFormButton("Photo", image: "photo.on.rectangle") {
+                            foodFormButton("Photo", image: "photo.on.rectangle", colorScheme: colorScheme) {
                                 Haptics.feedback(style: .soft)
                                 showingPhotosPicker = true
                             }
-                            foodFormButton("Link", image: "link") {
+                            foodFormButton("Link", image: "link", colorScheme: colorScheme) {
                                 showAddLinkAlert()
                             }
                         }
@@ -237,7 +237,7 @@ extension FoodForm.SourcesSummaryCell {
                             }
                             
                         } label: {
-                            foodFormButton("Add", image: "plus", isSecondary: true)
+                            foodFormButton("Add", image: "plus", isSecondary: true, colorScheme: colorScheme)
                                 .frame(width: buttonWidth)
                         }
                         .contentShape(Rectangle())
@@ -453,14 +453,20 @@ func foodFormButton(
     _ string: String,
     image: String,
     isSecondary: Bool = false,
+    colorScheme: ColorScheme = .light,
     action: (() -> ())? = nil
 ) -> some View {
     
     @ViewBuilder
     var background: some View {
         if isSecondary {
+//            RoundedRectangle(cornerRadius: 20, style: .continuous)
+//                .foregroundColor(Color(.tertiarySystemFill))
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .foregroundColor(Color(.tertiarySystemFill))
+//            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .fill(Color.accentColor.opacity(
+                    colorScheme == .dark ? 0.1 : 0.15
+                ))
         } else {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .foregroundStyle(Color.accentColor.gradient)
