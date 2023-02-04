@@ -410,8 +410,8 @@ public struct FoodForm: View {
         /// [ ] Check if form is dirty (if editing), or if new, if there's been substantial data entered
         let cancelAction = FormConfirmableAction(
             shouldConfirm: fields.isDirty,
-            message: nil,
-            buttonTitle: nil) {
+            confirmationMessage: nil,
+            confirmationButtonTitle: nil) {
                 Haptics.feedback(style: .soft)
                 dismiss()
             }

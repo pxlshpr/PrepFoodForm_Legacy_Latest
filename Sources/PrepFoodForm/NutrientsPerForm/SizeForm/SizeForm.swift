@@ -109,7 +109,7 @@ extension SizeForm {
         Binding<FormConfirmableAction?>(
             get: {
                 .init(
-                    buttonTitle: "Add",
+                    confirmationButtonTitle: "Add",
                     isDisabled: viewModel.shouldDisableDone,
                     handler: {
                         
@@ -125,9 +125,9 @@ extension SizeForm {
             get: {
                 .init(
                     shouldConfirm: true,
-                    message: nil,
-                    buttonImage: "trash.fill",
+                    confirmationMessage: nil,
                     isDisabled: false,
+                    buttonImage: "trash.fill",
                     handler: {
                         
                     }
