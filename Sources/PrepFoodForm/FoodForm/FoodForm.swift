@@ -636,6 +636,7 @@ public struct FoodForm: View {
     var dismissButton: some View {
         var dismissConfirmationActions: some View {
             Button("Close without saving", role: .destructive) {
+                Haptics.feedback(style: .soft)
                 dismiss()
             }
         }
