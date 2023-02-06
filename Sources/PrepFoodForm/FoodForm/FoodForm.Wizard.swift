@@ -14,6 +14,7 @@ extension FoodForm {
     
     struct Wizard: View {
         @Environment(\.colorScheme) var colorScheme
+        @Binding var isPresented: Bool
         var tapHandler: ((WizardButton) -> Void)
     }
 }
@@ -44,8 +45,8 @@ extension FoodForm.Wizard {
             .edgesIgnoringSafeArea(.all)
         }
         .zIndex(10)
-        .transition(.move(edge: .bottom))
         .edgesIgnoringSafeArea(.all)
+        .offset(y: isPresented ? 0 : UIScreen.main.bounds.height)
     }
     
     var cancelButton: some View {
@@ -273,23 +274,5 @@ extension FoodForm.Wizard {
             }
             .buttonStyle(.borderless)
         }
-    }
-}
-
-struct WizardPreview: View {
-    var body: some View {
-        ZStack {
-            Color(.secondarySystemGroupedBackground)
-                .edgesIgnoringSafeArea(.all)
-            FoodForm.Wizard { _ in
-                
-            }
-        }
-    }
-}
-
-struct Wizard_Previews: PreviewProvider {
-    static var previews: some View {
-        WizardPreview()
     }
 }

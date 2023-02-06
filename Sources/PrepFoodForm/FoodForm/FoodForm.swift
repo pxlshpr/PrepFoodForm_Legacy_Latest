@@ -69,6 +69,10 @@ public struct FoodForm: View {
     
     @State var showingSaveButton: Bool
     
+    @State var showingDismissConfirmationDialog = false
+    let keyboardDidShow = NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)
+    let keyboardDidHide = NotificationCenter.default.publisher(for: UITextField.textDidEndEditingNotification)
+
     public init(
         mockScanResult: ScanResult,
         mockScanImage: UIImage,
@@ -158,40 +162,34 @@ public struct FoodForm: View {
         _shouldShowWizard = State(initialValue: true)
         _showingSaveButton = State(initialValue: false)
     }
-    
-    @State var showingDismissConfirmationDialog = false
-    
+
     public var body: some View {
-        //        let _ = Self._printChanges()
-        return content
+        content
+            .interactiveDismissDisabled(true, attemptToDismiss: $showingCancelConfirmation)
+            .edgesIgnoringSafeArea(.bottom)
     }
     
     var content: some View {
         ZStack {
             navigationView
+            wizardLayer
             extractorViewLayer
                 .zIndex(2)
             saveSheet
                 .zIndex(3)
         }
     }
-    
-    let keyboardDidShow = NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)
-    let keyboardDidHide = NotificationCenter.default.publisher(for: UITextField.textDidEndEditingNotification)
-    func keyboardDidShow(_ notification: Notification) {
-//        showingBottomButtonsSaved = showingBottomButtons
-//        withAnimation {
-//            showingBottomButtons = false
-//        }
-    }
-    func keyboardDidHide(_ notification: Notification) {
-//        withAnimation {
-//            showingBottomButtons = showingBottomButtonsSaved
-//        }
-    }
-    
+
     var navigationView: some View {
-        NavigationView {
+        var formContent: some View {
+            ZStack {
+                formLayer
+                saveButtonLayer
+                    .zIndex(3)
+            }
+        }
+        
+        return NavigationStack {
             formContent
             //                .edgesIgnoringSafeArea(.bottom)
                 .navigationTitle("New Food")
@@ -236,6 +234,18 @@ public struct FoodForm: View {
         }
     }
     
+    func keyboardDidShow(_ notification: Notification) {
+//        showingBottomButtonsSaved = showingBottomButtons
+//        withAnimation {
+//            showingBottomButtons = false
+//        }
+    }
+    func keyboardDidHide(_ notification: Notification) {
+//        withAnimation {
+//            showingBottomButtons = showingBottomButtonsSaved
+//        }
+    }
+    
     func showingWizardChanged(_ showingWizard: Bool) {
         setShowingSaveButton()
     }
@@ -249,9 +259,8 @@ public struct FoodForm: View {
     }
     
     func setShowingSaveButton() {
-        withAnimation {
-            showingSaveButton = !(showingWizard || showingAddLinkAlert || showingAddBarcodeAlert)
-        }
+        /// Animating this doesn't work with the custom interactiveDismissal, so we're using a `.animation` modifier on the save button itself
+        self.showingSaveButton = !(showingWizard || showingAddLinkAlert || showingAddBarcodeAlert)
     }
         
     var saveSheet: some View {
@@ -288,16 +297,6 @@ public struct FoodForm: View {
         guard let item = items.first else { return }
         showExtractor(with: item)
         sources.selectedPhotos = []
-    }
-    
-    var formContent: some View {
-        ZStack {
-            formLayer
-                .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
-                .edgesIgnoringSafeArea(.bottom)
-            wizardLayer
-            saveButtonLayer
-        }
     }
     
     func dismissHandler() {
@@ -362,9 +361,10 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var wizardLayer: some View {
-        if showingWizard {
-            Wizard(tapHandler: tappedWizardButton)
-        }
+        Wizard(
+            isPresented: $showingWizard,
+            tapHandler: tappedWizardButton
+        )
     }
     
     var dismissButtonRow: some View {
@@ -530,18 +530,22 @@ public struct FoodForm: View {
             }
         }
         
+        var padding: CGFloat {
+            20
+        }
+        
         var layer: some View {
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
-                    if showingSaveButton {
-                        saveButton
-                            .transition(.move(edge: .bottom))
-                    }
+                    saveButton
+//                        .offset(x: showingSaveButton ? 0 : size + padding)
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, padding)
                 .padding(.bottom, 0)
+                .offset(x: showingSaveButton ? 0 : padding + size)
+                .animation(.interactiveSpring(), value: showingSaveButton)
             }
         }
         
@@ -776,5 +780,125 @@ extension FoodForm.Fields {
         && allSizes.isEmpty
         && allMicronutrientFields.isEmpty
         && prefilledFood == nil
+    }
+}
+
+extension View {
+    public func interactiveDismissDisabled2(_ isDisabled: Bool = true, onAttemptToDismiss: (() -> Void)? = nil) -> some View {
+        InteractiveDismissableView(view: self, isDisabled: isDisabled, onAttemptToDismiss: onAttemptToDismiss)
+    }
+    
+    public func interactiveDismissDisabled2(_ isDisabled: Bool = true, attemptToDismiss: Binding<Bool>) -> some View {
+        InteractiveDismissableView(view: self, isDisabled: isDisabled) {
+            attemptToDismiss.wrappedValue.toggle()
+        }
+    }
+    
+}
+
+private struct InteractiveDismissableView<T: View>: UIViewControllerRepresentable {
+    let view: T
+    let isDisabled: Bool
+    let onAttemptToDismiss: (() -> Void)?
+    
+    func makeUIViewController(context: Context) -> UIHostingController<T> {
+        UIHostingController(rootView: view)
+    }
+    
+    func updateUIViewController(_ uiViewController: UIHostingController<T>, context: Context) {
+        context.coordinator.dismissableView = self
+        uiViewController.rootView = view
+        uiViewController.parent?.presentationController?.delegate = context.coordinator
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIAdaptivePresentationControllerDelegate {
+        var dismissableView: InteractiveDismissableView
+        
+        init(_ dismissableView: InteractiveDismissableView) {
+            self.dismissableView = dismissableView
+        }
+        
+        func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+            !dismissableView.isDisabled
+        }
+        
+        func presentationControllerDidAttemptToDismiss(_ presentationController: UIPresentationController) {
+            dismissableView.onAttemptToDismiss?()
+        }
+    }
+}
+
+struct DismissGuardian<Content: View>: UIViewControllerRepresentable {
+    @Binding var preventDismissal: Bool
+    @Binding var attempted: Bool
+    var contentView: Content
+    
+    init(preventDismissal: Binding<Bool>, attempted: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) {
+        self.contentView = content()
+        self._preventDismissal = preventDismissal
+        self._attempted = attempted
+    }
+        
+    func makeUIViewController(context: UIViewControllerRepresentableContext<DismissGuardian>) -> UIViewController {
+        return DismissGuardianUIHostingController(rootView: contentView, preventDismissal: preventDismissal)
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<DismissGuardian>) {
+        (uiViewController as! DismissGuardianUIHostingController).rootView = contentView
+        (uiViewController as! DismissGuardianUIHostingController<Content>).preventDismissal = preventDismissal
+        (uiViewController as! DismissGuardianUIHostingController<Content>).dismissGuardianDelegate = context.coordinator
+    }
+    
+    func makeCoordinator() -> DismissGuardian<Content>.Coordinator {
+        return Coordinator(attempted: $attempted)
+    }
+    
+    class Coordinator: NSObject, DismissGuardianDelegate {
+        @Binding var attempted: Bool
+        
+        init(attempted: Binding<Bool>) {
+            self._attempted = attempted
+        }
+        
+        func attemptedUpdate(flag: Bool) {
+            self.attempted = flag
+        }
+    }
+}
+
+protocol DismissGuardianDelegate {
+    func attemptedUpdate(flag: Bool)
+}
+
+class DismissGuardianUIHostingController<Content> : UIHostingController<Content>, UIAdaptivePresentationControllerDelegate where Content : View {
+    var preventDismissal: Bool
+    var dismissGuardianDelegate: DismissGuardianDelegate?
+
+    init(rootView: Content, preventDismissal: Bool) {
+        self.preventDismissal = preventDismissal
+        super.init(rootView: rootView)
+    }
+    
+    @objc required dynamic init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
+        viewControllerToPresent.presentationController?.delegate = self
+        
+        self.dismissGuardianDelegate?.attemptedUpdate(flag: false)
+        super.present(viewControllerToPresent, animated: flag, completion: completion)
+    }
+    
+    func presentationControllerDidAttemptToDismiss(_ presentationController: UIPresentationController) {
+        self.dismissGuardianDelegate?.attemptedUpdate(flag: true)
+    }
+    
+    func presentationControllerShouldDismiss(_ presentationController: UIPresentationController) -> Bool {
+        return !self.preventDismissal
     }
 }
