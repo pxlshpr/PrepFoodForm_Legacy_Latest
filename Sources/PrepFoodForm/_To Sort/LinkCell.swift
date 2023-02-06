@@ -3,6 +3,8 @@ import SwiftSugar
 
 struct LinkCell: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     @ObservedObject var linkInfo: LinkInfo
     let customTitle: String?
     let includeSymbol: Bool
@@ -54,9 +56,8 @@ struct LinkCell: View {
         .frame(height: 80)
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .foregroundStyle(Color(.systemFill).gradient)
+                .foregroundStyle(Color(.secondarySystemFill).gradient)
         )
-
     }
     
     var haveTitle: Bool {

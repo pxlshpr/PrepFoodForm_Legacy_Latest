@@ -421,6 +421,7 @@ extension FoodForm.SourcesSummaryCell {
         Group {
             TextField("Enter a URL", text: $link)
                 .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
                 .keyboardType(.URL)
                 .submitLabel(.done)
             Button("Add", action: {
