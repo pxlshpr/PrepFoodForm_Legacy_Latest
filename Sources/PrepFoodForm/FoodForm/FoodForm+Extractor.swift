@@ -18,6 +18,7 @@ extension FoodForm {
             processExtractorOutput(output)
         }
         removeExtractorView()
+        extractor.cancelAllTasks()
     }
     
     func showExtractor(with item: PhotosPickerItem) {
