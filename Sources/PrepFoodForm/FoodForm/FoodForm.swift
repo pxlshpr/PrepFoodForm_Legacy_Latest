@@ -67,6 +67,8 @@ public struct FoodForm: View {
     @State var mockScanResult: ScanResult?
     @State var mockScanImage: UIImage?
     
+    @State var showingSaveButton: Bool
+    
     public init(
         mockScanResult: ScanResult,
         mockScanImage: UIImage,
@@ -94,6 +96,7 @@ public struct FoodForm: View {
         _showingLabelScanner = State(initialValue: false)
         _animateLabelScannerUp = State(initialValue: false)
         _shouldShowWizard = State(initialValue: true)
+        _showingSaveButton = State(initialValue: false)
     }
     
     public init(
@@ -122,6 +125,7 @@ public struct FoodForm: View {
         _showingLabelScanner = State(initialValue: startWithLabelScanner)
         _animateLabelScannerUp = State(initialValue: startWithLabelScanner)
         _shouldShowWizard = State(initialValue: !startWithLabelScanner)
+        _showingSaveButton = State(initialValue: startWithLabelScanner)
     }
     
     public init(
@@ -152,6 +156,7 @@ public struct FoodForm: View {
         _showingLabelScanner = State(initialValue: false)
         _animateLabelScannerUp = State(initialValue: false)
         _shouldShowWizard = State(initialValue: true)
+        _showingSaveButton = State(initialValue: false)
     }
     
     public var body: some View {
@@ -194,8 +199,8 @@ public struct FoodForm: View {
                 .onChange(of: sources.selectedPhotos, perform: selectedPhotosChanged)
             //                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .onChange(of: showingWizard, perform: showingWizardChanged)
-            //                .onChange(of: showingAddLinkAlert, perform: showingAddLinkAlertChanged)
-            //                .onChange(of: showingAddBarcodeAlert, perform: showingAddBarcodeAlertChanged)
+                .onChange(of: showingAddLinkAlert, perform: showingAddLinkAlertChanged)
+                .onChange(of: showingAddBarcodeAlert, perform: showingAddBarcodeAlertChanged)
                 .onReceive(keyboardDidShow, perform: keyboardDidShow)
                 .onReceive(keyboardDidHide, perform: keyboardDidHide)
                 .onReceive(didScanFoodLabel, perform: didScanFoodLabel)
@@ -230,11 +235,23 @@ public struct FoodForm: View {
     }
     
     func showingWizardChanged(_ showingWizard: Bool) {
-        //        withAnimation {
-        //            showingBottomButtons = !showingWizard
-        //        }
+        setShowingSaveButton()
     }
     
+    func showingAddLinkAlertChanged(_ newValue: Bool) {
+        setShowingSaveButton()
+    }
+    
+    func showingAddBarcodeAlertChanged(_ newValue: Bool) {
+        setShowingSaveButton()
+    }
+    
+    func setShowingSaveButton() {
+        withAnimation {
+            showingSaveButton = !(showingWizard || showingAddLinkAlert || showingAddBarcodeAlert)
+        }
+    }
+        
     var saveSheet: some View {
         SaveSheet(
             isPresented: $showingSaveSheet,
@@ -275,7 +292,7 @@ public struct FoodForm: View {
         ZStack {
             formLayer
             wizardLayer
-            toggleButtonLayer
+            saveButtonLayer
         }
     }
     
@@ -454,7 +471,7 @@ public struct FoodForm: View {
         dismiss()
     }
     
-    var toggleButtonLayer: some View {
+    var saveButtonLayer: some View {
         var fontSize: CGFloat {
             25
 //            22
@@ -509,58 +526,19 @@ public struct FoodForm: View {
             }
         }
         
-        var dismissButton: some View {
-            var confirmationActions: some View {
-                Button("Close without saving", role: .destructive) {
-                    dismiss()
-                }
-            }
-            
-            var confirmationMessage: some View {
-                Text("You have unsaved data. Are you sure?")
-            }
-            
-            return Button {
-                if fields.isDirty {
-                    Haptics.warningFeedback()
-                    showingCancelConfirmation = true
-                } else {
-                    Haptics.feedback(style: .soft)
-                    dismiss()
-                }
-            } label: {
-                Image(systemName: "chevron.down")
-                    .font(.system(size: fontSize))
-                    .fontWeight(.medium)
-                    .foregroundColor(.secondary)
-                    .frame(width: size, height: size)
-                    .background(
-                        Circle()
-                            .foregroundStyle(.ultraThinMaterial)
-                        .shadow(color: Color(.black).opacity(0.2), radius: 3, x: 0, y: 3)
-                    )
-
-            }
-            .confirmationDialog(
-                "",
-                isPresented: $showingCancelConfirmation,
-                actions: { confirmationActions },
-                message: { confirmationMessage }
-            )
-        }
-        
         var layer: some View {
             VStack {
                 Spacer()
                 HStack {
-                    dismissButton
                     Spacer()
-                    saveButton
+                    if showingSaveButton {
+                        saveButton
+                            .transition(.move(edge: .bottom))
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 0)
             }
-            .opacity(showingWizard ? 0 : 1)
         }
         
         return layer
@@ -643,7 +621,7 @@ public struct FoodForm: View {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-//            dismissButton
+            dismissButton
         }
     }
     
@@ -663,6 +641,7 @@ public struct FoodForm: View {
                 Haptics.warningFeedback()
                 showingCancelConfirmation = true
             } else {
+                Haptics.feedback(style: .soft)
                 dismiss()
             }
         } label: {
