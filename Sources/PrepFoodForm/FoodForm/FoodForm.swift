@@ -159,9 +159,12 @@ public struct FoodForm: View {
         _showingSaveButton = State(initialValue: false)
     }
     
+    @State var showingDismissConfirmationDialog = false
+    
     public var body: some View {
         //        let _ = Self._printChanges()
         return content
+            .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
     }
     
     var content: some View {
@@ -626,13 +629,13 @@ public struct FoodForm: View {
     }
     
     var dismissButton: some View {
-        var confirmationActions: some View {
+        var dismissConfirmationActions: some View {
             Button("Close without saving", role: .destructive) {
                 dismiss()
             }
         }
         
-        var confirmationMessage: some View {
+        var dismissConfirmationMessage: some View {
             Text("You have unsaved data. Are you sure?")
         }
         
@@ -650,8 +653,8 @@ public struct FoodForm: View {
         .confirmationDialog(
             "",
             isPresented: $showingCancelConfirmation,
-            actions: { confirmationActions },
-            message: { confirmationMessage }
+            actions: { dismissConfirmationActions },
+            message: { dismissConfirmationMessage }
         )
     }
     
