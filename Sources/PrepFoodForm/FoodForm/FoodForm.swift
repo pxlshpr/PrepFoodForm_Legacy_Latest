@@ -164,8 +164,6 @@ public struct FoodForm: View {
     public var body: some View {
         //        let _ = Self._printChanges()
         return content
-            .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
-            .edgesIgnoringSafeArea(.bottom)
     }
     
     var content: some View {
@@ -295,6 +293,8 @@ public struct FoodForm: View {
     var formContent: some View {
         ZStack {
             formLayer
+                .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
+                .edgesIgnoringSafeArea(.bottom)
             wizardLayer
             saveButtonLayer
         }
