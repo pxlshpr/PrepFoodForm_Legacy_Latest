@@ -207,11 +207,11 @@ public struct FoodForm: View {
             
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingDetailsForm) { detailsForm }
-                .sheet(isPresented: $showingPrefill) { mfpSearch }
+//                .sheet(isPresented: $showingPrefill) { mfpSearch }
 //                .sheet(isPresented: $showingSaveSheet) { saveSheet }
                 .fullScreenCover(isPresented: $showingBarcodeScanner) { barcodeScanner }
             //                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
-                .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
+//                .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
                 .alert(addBarcodeTitle,
                        isPresented: $showingAddBarcodeAlert,
                        actions: { addBarcodeActions },

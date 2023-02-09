@@ -3,7 +3,7 @@ import EmojiPicker
 import SwiftHaptics
 //import FoodLabelCamera
 import FoodLabelScanner
-import MFPSearch
+//import MFPSearch
 import Camera
 
 extension FoodForm {
@@ -19,11 +19,11 @@ extension FoodForm {
         }
     }
     
-    var prefillInfo: some View {
-        MFPInfoSheet()
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.hidden)
-    }
+//    var prefillInfo: some View {
+//        MFPInfoSheet()
+//            .presentationDetents([.medium, .large])
+//            .presentationDragIndicator(.hidden)
+//    }
     
     var barcodeScanner: some View {
         BarcodeScanner { barcodes, image in
@@ -53,11 +53,11 @@ extension FoodForm {
 //        }
 //    }
 
-    var mfpSearch: some View {
-        MFPSearch { food in
-            showingPrefill = false
-            prefill(food)
-        }
-    }    
+//    var mfpSearch: some View {
+//        MFPSearch { food in
+//            showingPrefill = false
+//            prefill(food)
+//        }
+//    }    
 
 }
