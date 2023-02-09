@@ -19,7 +19,7 @@ extension FoodForm {
 
 extension FoodForm.NutrientsList {
     class ViewModel: ObservableObject {
-        @Published var nutrientBeingEdited: Nutrient? = nil
+        @Published var nutrientBeingEdited: AnyNutrient? = nil
     }
 }
 
@@ -68,7 +68,7 @@ extension FoodForm.NutrientsList {
         }
     }
     
-    func handleNewValue(_ value: FoodLabelValue?, for nutrient: Nutrient) {
+    func handleNewValue(_ value: FoodLabelValue?, for nutrient: AnyNutrient) {
         func handleNewEnergyValue(_ value: FoodLabelValue) {
             fields.energy.value.energyValue.string = value.amount.cleanAmount
             if let unit = value.unit, unit.isEnergy {

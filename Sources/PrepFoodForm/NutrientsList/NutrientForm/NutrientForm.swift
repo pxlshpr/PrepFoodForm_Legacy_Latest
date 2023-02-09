@@ -17,7 +17,7 @@ struct NutrientForm: View {
     @StateObject var viewModel: NutrientFormViewModel
     
     init(
-        nutrient: Nutrient,
+        nutrient: AnyNutrient,
         initialValue: FoodLabelValue? = nil,
         handleNewValue: @escaping (FoodLabelValue?) -> ()
     ) {

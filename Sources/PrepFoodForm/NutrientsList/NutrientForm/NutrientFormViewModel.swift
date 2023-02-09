@@ -4,7 +4,7 @@ import FoodLabelScanner
 
 class NutrientFormViewModel: ObservableObject {
     
-    let nutrient: Nutrient
+    let nutrient: AnyNutrient
     
     let handleNewValue: (FoodLabelValue?) -> ()
     let initialValue: FoodLabelValue?
@@ -14,7 +14,7 @@ class NutrientFormViewModel: ObservableObject {
     @Published var internalTextfieldDouble: Double? = nil
     
     init(
-        nutrient: Nutrient,
+        nutrient: AnyNutrient,
         initialValue: FoodLabelValue?,
         handleNewValue: @escaping (FoodLabelValue?) -> Void
     ) {

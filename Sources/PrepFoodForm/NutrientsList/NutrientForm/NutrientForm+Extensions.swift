@@ -32,11 +32,11 @@ extension NutrientType {
 
 
 extension FoodForm.Fields {
-    func value(for nutrient: Nutrient) -> FoodLabelValue? {
+    func value(for nutrient: AnyNutrient) -> FoodLabelValue? {
         field(for: nutrient)?.foodLabelValue
     }
     
-    func field(for nutrient: Nutrient) -> Field? {
+    func field(for nutrient: AnyNutrient) -> Field? {
         switch nutrient {
         case .energy:
             return energy
