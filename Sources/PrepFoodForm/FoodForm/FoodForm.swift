@@ -165,8 +165,8 @@ public struct FoodForm: View {
 
     public var body: some View {
         content
-            .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
-            .edgesIgnoringSafeArea(.bottom)
+//            .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
+//            .edgesIgnoringSafeArea(.bottom)
     }
     
     var content: some View {
