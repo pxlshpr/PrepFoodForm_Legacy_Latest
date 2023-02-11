@@ -16,15 +16,13 @@ extension FoodForm {
     
     func showExtractor(with item: PhotosPickerItem) {
         extractor.setup(didDismiss: extractorDidDismiss)
-        
+        showingExtractorView = true
+
         Task(priority: .low) {
             guard let image = try await loadImage(pickerItem: item) else { return }
 
             await MainActor.run {
                 self.extractor.image = image
-//                withAnimation {
-                    showingExtractorView = true
-//                }
             }
         }
     }
