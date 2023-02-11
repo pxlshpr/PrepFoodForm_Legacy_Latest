@@ -5,32 +5,26 @@ import FoodLabelScanner
 
 
 extension FoodForm {
-    func addExtractorView() {
-        showingExtractorView = true
-    }
     
-    func removeExtractorView() {
-        showingExtractorView = false
-    }
-
     func extractorDidDismiss(_ output: ExtractorOutput?) {
         if let output {
             processExtractorOutput(output)
         }
-        removeExtractorView()
+        showingExtractorView = false
         extractor.cancelAllTasks()
     }
     
     func showExtractor(with item: PhotosPickerItem) {
         extractor.setup(didDismiss: extractorDidDismiss)
-        withAnimation {
-            addExtractorView()
-        }
         
-        Task(priority: .userInitiated) {
+        Task(priority: .low) {
             guard let image = try await loadImage(pickerItem: item) else { return }
+
             await MainActor.run {
                 self.extractor.image = image
+//                withAnimation {
+                    showingExtractorView = true
+//                }
             }
         }
     }
@@ -38,7 +32,7 @@ extension FoodForm {
     func showExtractorViewWithCamera() {
         extractor.setup(forCamera: true, didDismiss: extractorDidDismiss)
         withAnimation {
-            addExtractorView()
+            showingExtractorView = true
         }
     }
 
