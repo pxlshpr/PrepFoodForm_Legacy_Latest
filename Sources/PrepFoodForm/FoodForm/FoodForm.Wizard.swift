@@ -60,8 +60,11 @@ extension FoodForm.Wizard {
                 .background(
                     RoundedRectangle(cornerRadius: 15, style: .continuous)
                         .foregroundStyle(.ultraThinMaterial)
+//                        .foregroundStyle(colorScheme == .dark ? .ultraThinMaterial : .ultraThinMaterial)
+//                        .foregroundColor(formCellBackgroundColor(colorScheme: colorScheme))
+//                        .foregroundColor(formCellBackgroundColor(colorScheme: colorScheme))
                         .cornerRadius(15)
-                        .shadow(color: colorScheme == .dark ? .black : .gray.opacity(0.6),
+                        .shadow(color: colorScheme == .dark ? .black : .gray.opacity(0.75),
                                 radius: 30, x: 0, y: 0)
                 )
                 .padding(.horizontal, 38)
@@ -138,11 +141,12 @@ extension FoodForm.Wizard {
                 .padding(.top, 10)
 
                 FormStyledSection(header: HStack {
-                    Text("Or Manually Enter It")
+                    Text("Or Start From Scratch")
                 }) {
                     Button {
                         tapHandler(.startWithEmptyFood)
                     } label: {
+//                        Label("Empty Food", systemImage: "pencil")
                         Label("Empty Food", systemImage: "square.and.pencil")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
