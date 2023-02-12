@@ -73,6 +73,8 @@ public struct FoodForm: View {
     let keyboardDidShow = NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)
     let keyboardDidHide = NotificationCenter.default.publisher(for: UITextField.textDidEndEditingNotification)
 
+    @State var refreshBool = false
+    
     public init(
         mockScanResult: ScanResult,
         mockScanImage: UIImage,
@@ -328,13 +330,14 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var formLayer: some View {
-        FormStyledScrollView(showsIndicators: false) {
+        FormStyledScrollView(showsIndicators: false, isLazy: false) {
             detailsSection
             servingSection
             foodLabelSection
             sourcesSection
             barcodesSection
         }
+        .id(refreshBool)
         .overlay(overlay)
         .blur(radius: showingWizardOverlay ? 5 : 0)
         .disabled(formDisabled)
