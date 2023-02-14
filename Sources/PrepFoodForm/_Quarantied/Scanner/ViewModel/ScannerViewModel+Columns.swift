@@ -21,7 +21,7 @@
 //            imageSize: imageSize
 //        )
 //
-//        print("🏎 zooming to boundingBox: \(boundingBox)")
+//        cprint("🏎 zooming to boundingBox: \(boundingBox)")
 //        await MainActor.run { [weak self] in
 //            guard let _ = self else { return }
 //            NotificationCenter.default.post(
@@ -75,11 +75,11 @@
 //        return { [weak self] in
 //            guard let self else { return }
 //            withAnimation(.interactiveSpring()) {
-//                print("🥑 Before toggling \(self.columns.selectedColumnIndex)")
+//                cprint("🥑 Before toggling \(self.columns.selectedColumnIndex)")
 //                Haptics.feedback(style: .soft)
 //                self.columns.toggleSelectedColumnIndex()
 //                self.selectedImageTexts = self.columns.selectedImageTexts
-//                print("🥑 AFTER toggling \(self.columns.selectedColumnIndex)")
+//                cprint("🥑 AFTER toggling \(self.columns.selectedColumnIndex)")
 //            }
 //            self.showColumnTextBoxes()
 //        }
@@ -103,7 +103,7 @@
 //            },
 //            set: { [weak self] newValue in
 //                guard let self else { return }
-//                print("Setting column to \(newValue)")
+//                cprint("Setting column to \(newValue)")
 ////                withAnimation {
 //                    self.columns.selectedColumnIndex = newValue
 //                    self.selectedImageTexts = self.columns.selectedImageTexts

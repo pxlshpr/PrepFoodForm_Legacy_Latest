@@ -227,10 +227,10 @@
 //            height: h / size.height
 //        )
 //
-//        print("🧮 scaledWidth: \(scaledWidth)")
-//        print("🧮 screen: \(screen)")
-//        print("🧮 imageSize: \(size)")
-//        print("🧮 rect: \(rect)")
+//        cprint("🧮 scaledWidth: \(scaledWidth)")
+//        cprint("🧮 screen: \(screen)")
+//        cprint("🧮 imageSize: \(size)")
+//        cprint("🧮 rect: \(rect)")
 //        return rect
 //    }
 //}

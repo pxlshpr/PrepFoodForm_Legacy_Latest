@@ -70,8 +70,8 @@ struct FoodFormFieldsAndSources: Codable {
 //
 //        Task {
 //            let (data, response) = try await URLSession.shared.data(for: request)
-//            print("🌐 Here's the response:")
-//            print("🌐 \(response)")
+//            cprint("🌐 Here's the response:")
+//            cprint("🌐 \(response)")
 //        }
     }
     
@@ -92,7 +92,7 @@ struct FoodFormFieldsAndSources: Codable {
 
             let foodUrl = directoryUrl.appending(component: "FoodFormRawData.json")
             try data.write(to: foodUrl)
-            print("📝 Wrote food to: \(directoryUrl)")
+            cprint("📝 Wrote food to: \(directoryUrl)")
         }
     }
 }

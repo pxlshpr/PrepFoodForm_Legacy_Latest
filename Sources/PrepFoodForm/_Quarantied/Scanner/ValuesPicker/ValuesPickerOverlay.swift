@@ -268,10 +268,10 @@
 ////        guard let imageSize = viewModel.image?.size else { return }
 ////        let delay: CGFloat
 ////        if imageSize.isTaller(than: HardcodedBounds.size) {
-////            print("⚱️ image is taller delay 0.3")
+////            cprint("⚱️ image is taller delay 0.3")
 ////            delay = 0.3
 ////        } else {
-////            print("⚱️ image is wider delay 0")
+////            cprint("⚱️ image is wider delay 0")
 ////            delay = 0.0
 ////        }
 ////

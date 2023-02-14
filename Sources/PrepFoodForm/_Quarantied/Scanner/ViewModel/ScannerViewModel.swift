@@ -209,7 +209,7 @@
 //        
 //        lastContentOffset = contentOffset
 //        lastContentSize = contentSize
-//        print("LabelScannerViewModel: 🚠 scrollViewDidEndZooming — offset: \(contentOffset) size: \(contentSize)")
+//        cprint("LabelScannerViewModel: 🚠 scrollViewDidEndZooming — offset: \(contentOffset) size: \(contentSize)")
 //        
 //        handleZoomEndINeeded()
 //    }
@@ -226,25 +226,25 @@
 //    
 //    func handleZoomEndINeeded() {
 //        guard waitingForZoomToEndToShowCroppedImages else {
-//            print("🫥 handleZoomEndINeeded – not waiting, so returning")
+//            cprint("🫥 handleZoomEndINeeded – not waiting, so returning")
 //            return
 //        }
-//        print("🫥 handleZoomEndINeeded – waiting, so setting it to false and continuing")
+//        cprint("🫥 handleZoomEndINeeded – waiting, so setting it to false and continuing")
 //        waitingForZoomToEndToShowCroppedImages = false
 //        zoomEndHandlerTask = Task.detached { [weak self] in
 //            guard let self else { return }
 //            guard !Task.isCancelled else { return }
 //            switch await self.croppingStatus {
 //            case .complete:
-//                print("✂️ didEndZooming with CroppingStatus.complete — Now show cropped images")
+//                cprint("✂️ didEndZooming with CroppingStatus.complete — Now show cropped images")
 //                await self.showCroppedImages()
 //            case .started:
-//                print("✂️ didEndZooming with CroppingStatus.started — Wait till cropping is done")
+//                cprint("✂️ didEndZooming with CroppingStatus.started — Wait till cropping is done")
 //                await MainActor.run { [weak self] in
 //                    self?.waitingToShowCroppedImages = true
 //                }
 //            case .idle:
-//                print("✂️ didEndZooming with CroppingStatus.idle — shouldn't ever get here")
+//                cprint("✂️ didEndZooming with CroppingStatus.idle — shouldn't ever get here")
 //            }
 ////                try await self?.cropImages()
 //        }
@@ -296,35 +296,35 @@
 //            await MainActor.run { [weak self] in
 //                self?.croppingStatus = .started
 //            }
-//            print("✂️ Starting cropping")
+//            cprint("✂️ Starting cropping")
 //            
 //            var croppedImages: [RecognizedText : UIImage] = [:]
 //            for text in await self.allTexts {
 //                guard !Task.isCancelled else { return }
 //                guard let croppedImage = await image.cropped(boundingBox: text.boundingBox) else {
-//                    print("Couldn't get image for box: \(text)")
+//                    cprint("Couldn't get image for box: \(text)")
 //                    continue
 //                }
-//                print("✂️ Cropped: \(text.string)")
+//                cprint("✂️ Cropped: \(text.string)")
 //                croppedImages[text] = croppedImage
 //            }
 //
 //            guard !Task.isCancelled else { return }
 //            await MainActor.run { [weak self, croppedImages] in
-//                print("✂️ Cropping completed, setting dict and status")
+//                cprint("✂️ Cropping completed, setting dict and status")
 //                self?.croppedImages = croppedImages
 //                self?.croppingStatus = .complete
 //            }
 //            
 //            if await self.waitingToShowCroppedImages {
-//                print("✂️ Was waitingToShowCroppedImages, so showing now")
+//                cprint("✂️ Was waitingToShowCroppedImages, so showing now")
 //                await self.showCroppedImages()
 //            }
 //        }
 //    }
 //    
 //    func showCroppedImages() {
-//        print("✂️ Showing cropped images")
+//        cprint("✂️ Showing cropped images")
 //        showingCroppedImagesTask = Task.detached { [weak self] in
 //            
 //            guard let self else { return }
@@ -333,11 +333,11 @@
 //            for (text, cropped) in await self.croppedImages {
 //                guard !Task.isCancelled else { return }
 //                guard await self.textsToCrop.contains(where: { $0.id == text.id }) else {
-//                    print("✂️ Not including: \(text.string) since it's not in textsToCrop")
+//                    cprint("✂️ Not including: \(text.string) since it's not in textsToCrop")
 //                    continue
 //                }
 //                
-//                print("✂️ Getting rect for: \(text.string)")
+//                cprint("✂️ Getting rect for: \(text.string)")
 //                let correctedRect = await self.rectForText(text)
 //                
 //                await MainActor.run { [weak self] in
@@ -469,11 +469,11 @@
 ////
 ////            for text in await self.textsToCrop {
 ////                guard let cropped = await image.cropped(boundingBox: text.boundingBox) else {
-////                    print("Couldn't get image for box: \(text)")
+////                    cprint("Couldn't get image for box: \(text)")
 ////                    continue
 ////                }
 ////
-////                print("📐 Getting rect for: \(text.string)")
+////                cprint("📐 Getting rect for: \(text.string)")
 ////                let correctedRect = await self.rectForText(text)
 ////
 ////                await MainActor.run { [weak self] in
@@ -629,7 +629,7 @@
 //        /// Get the bounding box in terms of the (scaled) image dimensions
 //        let rect = text.boundingBox.rectForSize(contentSize)
 //
-//        print("    📐 Getting rectForSize for: \(text.string) \(rect)")
+//        cprint("    📐 Getting rectForSize for: \(text.string) \(rect)")
 //
 //        /// Now offset it by the scrollview's current offset to get it's current position
 //        return CGRect(
@@ -643,10 +643,10 @@
 //    func rectForText(_ text: RecognizedText) -> CGRect {
 //        
 //        if let lastContentSize, let lastContentOffset {
-//            print("    📐 Have contentSize and contentOffset, so calculating")
+//            cprint("    📐 Have contentSize and contentOffset, so calculating")
 //            return getRectForText(text, contentSize: lastContentSize, contentOffset: lastContentOffset)
 //        }
-//        print("    📐 DON'T Have contentSize and contentOffset, doing it manually")
+//        cprint("    📐 DON'T Have contentSize and contentOffset, doing it manually")
 //
 //        //TODO: Try and always have lastContentSize and lastContentOffset and calculate using those
 //        let boundingBox = text.boundingBox
@@ -667,11 +667,11 @@
 //                height: rectForSize.size.height
 //            )
 //            
-//            print("🌱 box.boundingBox: \(boundingBox)")
-//            print("🌱 scaledSize: \(scaledSize)")
-//            print("🌱 rectForSize: \(rectForSize)")
-//            print("🌱 correctedRect: \(correctedRect)")
-//            print("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
+//            cprint("🌱 box.boundingBox: \(boundingBox)")
+//            cprint("🌱 scaledSize: \(scaledSize)")
+//            cprint("🌱 rectForSize: \(rectForSize)")
+//            cprint("🌱 correctedRect: \(correctedRect)")
+//            cprint("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
 //            
 //            
 //        } else {
@@ -688,7 +688,7 @@
 //                x = rectForSize.origin.x
 //                y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
 //                
-//                print("🌱 scaledSize: \(scaledSize)")
+//                cprint("🌱 scaledSize: \(scaledSize)")
 //            } else {
 //                let scaledWidth = (image.size.width * screen.height) / image.size.height
 //                let scaledSize = CGSize(width: scaledWidth, height: screen.height)
@@ -704,8 +704,8 @@
 //                height: rectForSize.size.height
 //            )
 //            
-//            print("🌱 rectForSize: \(rectForSize)")
-//            print("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
+//            cprint("🌱 rectForSize: \(rectForSize)")
+//            cprint("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
 //        }
 //        return correctedRect
 //    }
@@ -721,7 +721,7 @@
 //            imageSize: imageSize
 //        )
 //
-//        print("🏎 zooming to boundingBox: \(boundingBox)")
+//        cprint("🏎 zooming to boundingBox: \(boundingBox)")
 //        await MainActor.run { [weak self] in
 //            guard let _ = self else { return }
 //            NotificationCenter.default.post(
@@ -839,7 +839,7 @@
 ////                let resized = resizeImage(image: image, targetSize: CGSize(width: 2048, height: 2048))
 //                guard let imageData = image.heic else {
 ////                guard let imageData = image.pngData() else {
-//                    print("💾🚧 Couldn't get imageData")
+//                    cprint("💾🚧 Couldn't get imageData")
 //                    return
 //                }
 //                
@@ -859,10 +859,10 @@
 //                
 //                guard !Task.isCancelled else { return }
 //                try data.write(to: url)
-//                print("💾 Wrote test data to: \(directoryUrl)")
+//                cprint("💾 Wrote test data to: \(directoryUrl)")
 //                
 //            } catch {
-//                print("💾🚧 Error in writeTestData: \(error)")
+//                cprint("💾🚧 Error in writeTestData: \(error)")
 //            }
 //        }
 //    }
@@ -886,10 +886,10 @@
 ////
 ////                guard !Task.isCancelled else { return }
 ////                try data.write(to: url)
-////                print("💾 Wrote scanResult.json")
+////                cprint("💾 Wrote scanResult.json")
 ////
 ////            } catch {
-////                print("💾🚧 Error in writeScanResultToDiskIfNeeded: \(error)")
+////                cprint("💾🚧 Error in writeScanResultToDiskIfNeeded: \(error)")
 ////            }
 ////        }
 ////    }

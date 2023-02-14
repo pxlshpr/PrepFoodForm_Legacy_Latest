@@ -91,7 +91,7 @@
 ////            withAnimation {
 //////                shimmeringImage = false
 ////                showingBoxes = true
-////                print("🟢 DONE")
+////                cprint("🟢 DONE")
 //////                    isLoadingImageViewer = false
 ////            }
 ////        }
@@ -132,7 +132,7 @@
 ////        let resultBoxes = scanResult.textBoxes
 ////        for box in resultBoxes {
 ////            guard let cropped = await image.cropped(boundingBox: box.boundingBox) else {
-////                print("Couldn't get image for box: \(box)")
+////                cprint("Couldn't get image for box: \(box)")
 ////                continue
 ////            }
 ////
@@ -151,11 +151,11 @@
 ////                    height: rectForSize.size.height
 ////                )
 ////
-////                print("🌱 box.boundingBox: \(box.boundingBox)")
-////                print("🌱 scaledSize: \(scaledSize)")
-////                print("🌱 rectForSize: \(rectForSize)")
-////                print("🌱 correctedRect: \(correctedRect)")
-////                print("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
+////                cprint("🌱 box.boundingBox: \(box.boundingBox)")
+////                cprint("🌱 scaledSize: \(scaledSize)")
+////                cprint("🌱 rectForSize: \(rectForSize)")
+////                cprint("🌱 correctedRect: \(correctedRect)")
+////                cprint("🌱 image.boundingBoxForScreenFill: \(image.boundingBoxForScreenFill)")
 ////
 ////
 ////            } else {
@@ -172,7 +172,7 @@
 ////                    x = rectForSize.origin.x
 ////                    y = rectForSize.origin.y + ((screen.height - scaledHeight) / 2.0)
 ////
-////                    print("🌱 scaledSize: \(scaledSize)")
+////                    cprint("🌱 scaledSize: \(scaledSize)")
 ////                } else {
 ////                    let scaledWidth = (image.size.width * screen.height) / image.size.height
 ////                    let scaledSize = CGSize(width: scaledWidth, height: screen.height)
@@ -188,8 +188,8 @@
 ////                    height: rectForSize.size.height
 ////                )
 ////
-////                print("🌱 rectForSize: \(rectForSize)")
-////                print("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
+////                cprint("🌱 rectForSize: \(rectForSize)")
+////                cprint("🌱 correctedRect: \(correctedRect), screenHeight: \(screen.height)")
 ////
 ////            }
 ////

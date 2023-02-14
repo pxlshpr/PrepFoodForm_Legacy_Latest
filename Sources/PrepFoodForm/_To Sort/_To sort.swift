@@ -865,7 +865,7 @@ extension ImageViewModel {
             if var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
                 url.appendPathComponent("scanResult.json")
                 try data.write(to: url)
-                print("📝 Wrote scanResult to: \(url)")
+                cprint("📝 Wrote scanResult to: \(url)")
             }
         } catch {
             print(error)
@@ -882,7 +882,7 @@ extension MFPProcessedFood {
             if var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
                 url.appendPathComponent("mfpProcessedFood.json")
                 try data.write(to: url)
-                print("📝 Wrote mfpProcessedFood to: \(url)")
+                cprint("📝 Wrote mfpProcessedFood to: \(url)")
             }
         } catch {
             print(error)

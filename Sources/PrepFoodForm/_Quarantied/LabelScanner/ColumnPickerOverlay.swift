@@ -155,7 +155,7 @@
 //    }
 //
 //    func dragChanged(_ value: DragGesture.Value) {
-////        print("👉🏽 drag.translation: \(value.translation)")
+////        cprint("👉🏽 drag.translation: \(value.translation)")
 //        var translation = value.translation.width
 //        if selectedColumn == 1 {
 //            translation = max(0, translation)
@@ -179,7 +179,7 @@
 //        var cancelAnimation: Animation {
 //            .interactiveSpring()
 //        }
-////        print("👉🏽 drag.translation: \(value.translation)")
+////        cprint("👉🏽 drag.translation: \(value.translation)")
 //        let predictedTranslationX = value.predictedEndTranslation.width
 //        let predictedButtonX = (buttonWidth / 2.0) + (selectedColumn == 2 ? buttonWidth : 0) + predictedTranslationX
 //        let predictedButtonIsOnRight = predictedButtonX > buttonWidth

@@ -36,7 +36,7 @@ class SizeFormViewModel_Legacy: ObservableObject {
         withAnimation(animation) {
 //        withAnimation(.easeIn(duration: 4)) {
             self.formState = newFormState
-            print("Updated form state from \(self.formState) to \(newFormState)")
+            cprint("Updated form state from \(self.formState) to \(newFormState)")
 
             switch formState {
             case .okToSave:

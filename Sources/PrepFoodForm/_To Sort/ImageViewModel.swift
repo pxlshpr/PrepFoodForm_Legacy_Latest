@@ -159,14 +159,14 @@ class ImageViewModel: ObservableObject, Identifiable {
             self?.uploadStatus = .uploading
             //TODO: Bring this back
 //            guard let imageData else {
-//                print("🌐 Couldn't get imageData")
+//                cprint("🌐 Couldn't get imageData")
 //                return
 //            }
             
 //            let request = NetworkController.server.postRequest(forImageData: imageData, imageId: id)
 //            let (data, response) = try await URLSession.shared.data(for: request)
-//            print("🌐 Here's the response:")
-//            print("🌐 \(response)")
+//            cprint("🌐 Here's the response:")
+//            cprint("🌐 \(response)")
         }
     }
 

@@ -52,27 +52,27 @@
 //        }
 //        /// ⌨️ Keyboard-height stuff
 ////        .onReceive(keyboardDidHide) { _ in
-////            print("⌨️ keyboardDidHide, setting capturedKeyboardHeight to true")
-////            print("⌨️ ----")
+////            cprint("⌨️ keyboardDidHide, setting capturedKeyboardHeight to true")
+////            cprint("⌨️ ----")
 ////            if !capturedKeyboardHeight {
 ////                capturedKeyboardHeight = true
 ////            }
 ////        }
 ////        .onReceive(keyboardDidShow) { notification in
 //////            guard !capturedKeyboardHeight else { return }
-////            print("⌨️ Setting proxyTextFieldIsFocused to false IN NOTIFICATION")
+////            cprint("⌨️ Setting proxyTextFieldIsFocused to false IN NOTIFICATION")
 //////            self.proxyTextFieldIsFocused = false
 ////            guard let frameEnd = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
 ////            else {
-////                print("⌨️ Couldn't get bounds")
+////                cprint("⌨️ Couldn't get bounds")
 ////                return
 ////            }
-////            print("⌨️ keyboard frame: \(frameEnd)")
+////            cprint("⌨️ keyboard frame: \(frameEnd)")
 ////            keyboardHeight = frameEnd.height
-////            print("⌨️ ----")
+////            cprint("⌨️ ----")
 ////        }
 ////        .onAppear {
-////            print("⌨️ Setting proxyTextFieldIsFocused to true")
+////            cprint("⌨️ Setting proxyTextFieldIsFocused to true")
 ////            proxyTextFieldIsFocused = true
 ////        }
 //    }
@@ -218,7 +218,7 @@
 //    }
 //    
 //    func scannerNutrientsChanged(_ newValue: [ScannerNutrient]) {
-//        print("🥸 scanner nutrients changed from: \(viewModel.scannerNutrients.count) to \(newValue.count)")
+//        cprint("🥸 scanner nutrients changed from: \(viewModel.scannerNutrients.count) to \(newValue.count)")
 //    }
 //    
 //    func handleScannerAction(_ scannerAction: ScannerAction) {
