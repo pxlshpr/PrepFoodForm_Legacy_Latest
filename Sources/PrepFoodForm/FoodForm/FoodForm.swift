@@ -39,7 +39,7 @@ public struct FoodForm: View {
     @State var showingSaveSheet = false
     @State var showingBottomButtonsSaved = false /// Used when presenting keyboard and alerts
     
-    @State var showingExtractorView: Bool = false
+    @State var showingExtractorView: Bool
     
     @State var showingLabelScanner: Bool
     @State var animateLabelScannerUp: Bool
@@ -76,14 +76,9 @@ public struct FoodForm: View {
     @State var refreshBool = false
     
     public init(
-        mockScanResult: ScanResult,
-        mockScanImage: UIImage,
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
         extractor: Extractor,
-        //MARK: ☣️
-        //        scanner: LabelScannerViewModel,
-        //        interactiveScanner: ScannerViewModel,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
         Fields.shared = fields
@@ -91,80 +86,21 @@ public struct FoodForm: View {
         self.fields = fields
         self.sources = sources
         self.extractor = extractor
-        //MARK: ☣️
-        //        self.scanner = scanner
-        //        self.interactiveScanner = interactiveScanner
-        self.didSave = didSave
-        _initialScanResult = State(initialValue: nil)
-        _initialScanImage = State(initialValue: nil)
-        _mockScanResult = State(initialValue: mockScanResult)
-        _mockScanImage = State(initialValue: mockScanImage)
-        _showingLabelScanner = State(initialValue: false)
-        _animateLabelScannerUp = State(initialValue: false)
-        _shouldShowWizard = State(initialValue: true)
-        _showingSaveButton = State(initialValue: false)
-    }
-    
-    public init(
-        fields: FoodForm.Fields,
-        sources: FoodForm.Sources,
-        extractor: Extractor,
-        //MARK: ☣️
-        //        scanner: LabelScannerViewModel,
-        //        interactiveScanner: ScannerViewModel,
-        startWithLabelScanner: Bool = false,
-        didSave: @escaping (FoodFormOutput) -> ()
-    ) {
-        Fields.shared = fields
-        Sources.shared = sources
-        self.fields = fields
-        self.sources = sources
-        self.extractor = extractor
-        //MARK: ☣️
-        //        self.scanner = scanner
-        //        self.interactiveScanner = interactiveScanner
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
         _mockScanResult = State(initialValue: nil)
         _mockScanImage = State(initialValue: nil)
-        _showingLabelScanner = State(initialValue: startWithLabelScanner)
-        _animateLabelScannerUp = State(initialValue: startWithLabelScanner)
-        _shouldShowWizard = State(initialValue: !startWithLabelScanner)
-        _showingSaveButton = State(initialValue: startWithLabelScanner)
-    }
-    
-    public init(
-        fields: FoodForm.Fields,
-        sources: FoodForm.Sources,
-        extractor: Extractor,
-        scanResult: ScanResult,
-        //MARK: ☣️
-        //        scanner: LabelScannerViewModel,
-        //        interactiveScanner: ScannerViewModel,
-        image: UIImage,
-        didSave: @escaping (FoodFormOutput) -> ()
-    ) {
-        Fields.shared = fields
-        Sources.shared = sources
-        self.fields = fields
-        self.sources = sources
-        self.extractor = extractor
-        //MARK: ☣️
-        //        self.scanner = scanner
-        //        self.interactiveScanner = interactiveScanner
-        self.didSave = didSave
-        _shouldShowWizard = State(initialValue: false)
-        _initialScanResult = State(initialValue: scanResult)
-        _initialScanImage = State(initialValue: image)
-        _mockScanResult = State(initialValue: nil)
-        _mockScanImage = State(initialValue: nil)
-        _showingLabelScanner = State(initialValue: false)
-        _animateLabelScannerUp = State(initialValue: false)
-        _shouldShowWizard = State(initialValue: true)
-        _showingSaveButton = State(initialValue: false)
-    }
+        _showingLabelScanner = State(initialValue: sources.startWithCamera)
+        _animateLabelScannerUp = State(initialValue: sources.startWithCamera)
+        _shouldShowWizard = State(initialValue: !sources.startWithCamera)
+        _showingSaveButton = State(initialValue: sources.startWithCamera)
+        _showingExtractorView = State(initialValue: false)
+        
+//        extractor.setup(forCamera: true, didDismiss: extractorDidDismiss)
 
+    }
+    
     public var body: some View {
         content
 //            .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
@@ -285,6 +221,10 @@ public struct FoodForm: View {
     var extractorViewLayer: some View {
         if showingExtractorView {
             ExtractorView(extractor: extractor)
+                .onDisappear {
+                    NotificationCenter.default.post(name: .homeButtonsShouldRefresh, object: nil)
+                    print("We here")
+                }
         }
     }
     

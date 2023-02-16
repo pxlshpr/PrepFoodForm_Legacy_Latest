@@ -8,6 +8,11 @@ import MFPScraper
 extension FoodForm {
 
     func appeared() {
+        
+        if sources.startWithCamera {
+            showExtractorViewWithCamera()
+        }
+        
         sources.didScanAllPickedImages = didScanAllPickedImages
         //MARK: ☣️
 //        sources.autoFillHandler = autoFillColumn
