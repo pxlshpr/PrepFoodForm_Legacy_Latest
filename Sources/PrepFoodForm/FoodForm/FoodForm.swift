@@ -223,7 +223,6 @@ public struct FoodForm: View {
             ExtractorView(extractor: extractor)
                 .onDisappear {
                     NotificationCenter.default.post(name: .homeButtonsShouldRefresh, object: nil)
-                    print("We here")
                 }
         }
     }
