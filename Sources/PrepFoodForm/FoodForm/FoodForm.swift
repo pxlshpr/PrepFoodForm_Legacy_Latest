@@ -51,8 +51,8 @@ public struct FoodForm: View {
     
     /// Wizard
     @State var shouldShowWizard: Bool
+    @State var showingWizardOverlay: Bool
     @State var showingWizard = true
-    @State var showingWizardOverlay = true
     @State var formDisabled = false
     
     /// Barcode
@@ -105,12 +105,14 @@ public struct FoodForm: View {
             _animateLabelScannerUp = State(initialValue: false)
             _shouldShowWizard = State(initialValue: false)
             _showingSaveButton = State(initialValue: false)
+            _showingWizardOverlay = State(initialValue: false)
         } else {
             self.existingFood = nil
             _showingLabelScanner = State(initialValue: sources.startWithCamera)
             _animateLabelScannerUp = State(initialValue: sources.startWithCamera)
             _shouldShowWizard = State(initialValue: !sources.startWithCamera)
             _showingSaveButton = State(initialValue: sources.startWithCamera)
+            _showingWizardOverlay = State(initialValue: true)
         }
     }
     
