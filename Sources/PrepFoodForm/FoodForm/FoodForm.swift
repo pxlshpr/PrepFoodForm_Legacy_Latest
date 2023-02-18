@@ -76,7 +76,9 @@ public struct FoodForm: View {
     @State var refreshBool = false
     
     let existingFood: Food?
-    
+    @State var didPrefillFoodFields = false
+    @State var didPrefillFoodSources = false
+
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
@@ -126,6 +128,13 @@ public struct FoodForm: View {
                 .zIndex(3)
         }
     }
+        
+    @ViewBuilder
+    var loadingLayer: some View {
+        if existingFood != nil, !didPrefillFoodFields {
+            Color.blue
+        }
+    }
 
     var navigationView: some View {
         var formContent: some View {
@@ -133,13 +142,15 @@ public struct FoodForm: View {
                 formLayer
                 saveButtonLayer
                     .zIndex(3)
+                loadingLayer
+                    .zIndex(4)
             }
         }
         
         return NavigationStack {
             formContent
             //                .edgesIgnoringSafeArea(.bottom)
-                .navigationTitle("New Food")
+                .navigationTitle("\(existingFood == nil ? "New" : "Edit") Food")
                 .toolbar { navigationLeadingContent }
                 .toolbar { navigationTrailingContent }
                 .onAppear(perform: appeared)

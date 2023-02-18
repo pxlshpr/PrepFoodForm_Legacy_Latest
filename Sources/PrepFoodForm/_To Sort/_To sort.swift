@@ -91,6 +91,10 @@ extension Array where Element == Field {
 }
 
 extension Field {
+    var isVolumePrefixedSize: Bool {
+        size?.isVolumePrefixed == true
+    }
+
     func isSizeNamed(_ name: String) -> Bool {
         size?.name == name
     }

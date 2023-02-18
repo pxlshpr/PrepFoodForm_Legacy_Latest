@@ -105,7 +105,6 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.didLoad = didLoad
 
         self.id = scanResult.id
-        
         self.texts = scanResult.texts
         self.textsWithFoodLabelValues = scanResult.textsWithFoodLabelValues
         self.textsWithoutFoodLabelValues = scanResult.textsWithoutFoodLabelValues
@@ -115,7 +114,31 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.prepareThumbnails()
         self.startUploadTask()
     }
-    
+
+    /// Create this without a preset `ScanResult`, but still skip the scanning process entirely
+    init(image: UIImage,
+         id: UUID,
+         didLoad: ((UIImage) -> ())? = nil,
+         delegate: ImageViewModelDelegate? = nil
+    ) {
+        self.image = image
+        self.status = .scanned
+        self.photosPickerItem = nil
+        self.scanResult = nil
+        self.delegate = delegate
+        self.didLoad = didLoad
+
+        self.id = id
+        self.texts = []
+        self.textsWithFoodLabelValues = []
+        self.textsWithoutFoodLabelValues = []
+        self.textsWithDensities = []
+        self.recognizedBarcodes = []
+        
+        self.prepareThumbnails()
+        self.startUploadTask()
+    }
+
     var dataPointsCount: Int {
         scanResult?.dataPointsCount ?? recognizedBarcodes.count
     }

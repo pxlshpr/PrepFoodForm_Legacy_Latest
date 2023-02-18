@@ -4,6 +4,7 @@ import FoodLabelScanner
 import PhotosUI
 import VisionSugar
 import MFPScraper
+import PrepDataTypes
 
 extension FoodForm {
 
@@ -42,7 +43,11 @@ extension FoodForm {
             self.initialScanResult = nil
         }
         
-        fields.updateFormState()
+        if let existingFood {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+//                prefillExistingFood(existingFood)
+            }
+        }
     }
     
     func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {
@@ -186,4 +191,133 @@ extension FoodForm {
         }
         formDisabled = false
     }
+}
+
+extension FoodForm {
+    func prefillExistingFood(_ food: Food) {
+        
+        guard !didPrefillFoodFields else {
+            return
+        }
+        
+        Task {
+            
+            fields.fillWithExistingFood(food)
+            fields.updateFormState()
+            didPrefillFoodFields = true
+            
+            Task(priority: .background) {
+                await prefillImages(foodId: food.id)
+            }
+        }
+    }
+    
+    func prefillImages(foodId: UUID) async {
+
+        /// Grab json from server
+        let urlString = "https://pxlshpr.app/prep/Uploads/jsons/\(directoryPath(for: foodId.uuidString))/\(foodId.uuidString).json"
+        let url = URL(string: urlString)!
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let fieldsAndSources = try JSONDecoder().decode(FoodFormFieldsAndSources.self, from: data)
+            
+            for foodImage in fieldsAndSources.images {
+                let imageURL = imageURL(imageId: foodImage.id)
+                let (data, _) = try await URLSession.shared.data(from: imageURL)
+                guard let image = UIImage(data: data) else {
+                    print("⬇️ Couldn't create image from data")
+                    continue
+                }
+                print("⬇️ Got back an image of size: \(image.size)")
+                
+                if let scanResult = foodImage.scanResult {
+                    sources.imageViewModels.append(.init(
+                        image: image,
+                        scanResult: scanResult
+                    ))
+                } else {
+                    sources.imageViewModels.append(.init(
+                        image: image,
+                        id: foodImage.id
+                    ))
+                }
+            }
+            
+            //TODO: Do this first, and only do the local copy if we don't get the json data successfully
+            
+            /// Now set the Fills and crop the images
+            fields.amount = .init(fieldValue: fieldsAndSources.amount)
+            if let serving = fieldsAndSources.serving {
+                fields.serving = .init(fieldValue: serving)
+            }
+            fields.energy = .init(fieldValue: fieldsAndSources.energy)
+            fields.carb = .init(fieldValue: fieldsAndSources.carb)
+            fields.fat = .init(fieldValue: fieldsAndSources.fat)
+            fields.protein = .init(fieldValue: fieldsAndSources.protein)
+            if let density = fieldsAndSources.density {
+                fields.density = .init(fieldValue: density)
+            }
+            
+            let sizeFields = fieldsAndSources.sizes.map { Field(fieldValue: $0) }
+            fields.standardSizes = sizeFields.filter { !$0.isVolumePrefixedSize }
+            fields.volumePrefixedSizes = sizeFields.filter { $0.isVolumePrefixedSize }
+            
+            fields.barcodes = fieldsAndSources.barcodes.map { Field(fieldValue: $0) }
+            
+            let microFields = fieldsAndSources.micronutrients.map { Field(fieldValue: $0) }
+            fields.microsFats = microFields.filter({ $0.nutrientType?.group == .fats })
+            fields.microsFibers = microFields.filter({ $0.nutrientType?.group == .fibers })
+            fields.microsSugars = microFields.filter({ $0.nutrientType?.group == .sugars })
+            fields.microsMinerals = microFields.filter({ $0.nutrientType?.group == .minerals })
+            fields.microsVitamins = microFields.filter({ $0.nutrientType?.group == .vitamins })
+            fields.microsMisc = microFields.filter({ $0.nutrientType?.group == .misc })
+            
+
+            fields.amount.resetAndCropImage()
+            fields.energy.resetAndCropImage()
+            fields.carb.resetAndCropImage()
+            fields.fat.resetAndCropImage()
+            fields.protein.resetAndCropImage()
+            fields.serving.resetAndCropImage()
+            fields.density.resetAndCropImage()
+            fields.standardSizes.forEach { $0.resetAndCropImage() }
+            fields.volumePrefixedSizes.forEach { $0.resetAndCropImage() }
+            fields.barcodes.forEach { $0.resetAndCropImage() }
+            fields.microsFats.forEach { $0.resetAndCropImage() }
+            fields.microsFibers.forEach { $0.resetAndCropImage() }
+            fields.microsSugars.forEach { $0.resetAndCropImage() }
+            fields.microsMinerals.forEach { $0.resetAndCropImage() }
+            fields.microsVitamins.forEach { $0.resetAndCropImage() }
+            fields.microsMisc.forEach { $0.resetAndCropImage() }
+            
+            if let link = fieldsAndSources.link {
+                sources.linkInfo = .init(link)
+            }
+            
+            //TODO: Handle should publish
+            
+            didPrefillFoodSources = true
+            
+        } catch {
+            print("⬇️ Error retrieving food json: \(error)")
+        }
+    }
+}
+
+func jsonURL(foodId: UUID) -> URL {
+    let string = "https://pxlshpr.app/prep/Uploads/json/\(directoryPath(for: foodId.uuidString))/\(foodId.uuidString).json"
+    return URL(string: string)!
+}
+
+func imageURL(imageId: UUID) -> URL {
+    let string = "https://pxlshpr.app/prep/Uploads/images/\(directoryPath(for: imageId.uuidString))/\(imageId.uuidString).jpg"
+    return URL(string: string)!
+}
+
+func directoryPath(for id: String) -> String {
+    let suffix = id.suffix(6)
+    guard suffix.count == 6 else { return "" }
+    let folder1 = suffix.prefix(3)
+    let folder2 = suffix.suffix(3)
+    return "\(folder1)/\(folder2)"
 }
