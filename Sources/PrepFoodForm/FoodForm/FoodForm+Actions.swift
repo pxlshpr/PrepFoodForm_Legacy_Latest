@@ -45,7 +45,7 @@ extension FoodForm {
         
         if let existingFood {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-//                prefillExistingFood(existingFood)
+                prefillExistingFood(existingFood)
             }
         }
     }
@@ -296,7 +296,9 @@ extension FoodForm {
             
             //TODO: Handle should publish
             
-            didPrefillFoodSources = true
+            withAnimation {
+                didPrefillFoodSources = true
+            }
             
         } catch {
             print("⬇️ Error retrieving food json: \(error)")

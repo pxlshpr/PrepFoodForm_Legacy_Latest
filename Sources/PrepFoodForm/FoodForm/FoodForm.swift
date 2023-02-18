@@ -129,13 +129,6 @@ public struct FoodForm: View {
         }
     }
         
-    @ViewBuilder
-    var loadingLayer: some View {
-        if existingFood != nil, !didPrefillFoodFields {
-            Color.blue
-        }
-    }
-
     var navigationView: some View {
         var formContent: some View {
             ZStack {
@@ -301,6 +294,35 @@ public struct FoodForm: View {
         .blur(radius: showingWizardOverlay ? 5 : 0)
         .disabled(formDisabled)
         .safeAreaInset(edge: .bottom) { safeAreaInset }
+    }
+    
+    @ViewBuilder
+    var loadingLayer: some View {
+        if existingFood != nil, !didPrefillFoodSources {
+            FormStyledScrollView(showsIndicators: false, isLazy: false) {
+                FormStyledSection {
+                    Color.clear.frame(height: 100)
+                }
+                .shimmering()
+                FormStyledSection {
+                    Color.clear.frame(height: 50)
+                }
+                .shimmering()
+                FormStyledSection {
+                    Color.clear.frame(height: 30)
+                }
+                .shimmering()
+                FormStyledSection {
+                    Color.clear.frame(height: 40)
+                }
+                .shimmering()
+                FormStyledSection {
+                    Color.clear.frame(height: 40)
+                }
+                .shimmering()
+            }
+            .transition(.opacity)
+        }
     }
     
     var backgroundColor: Color {
