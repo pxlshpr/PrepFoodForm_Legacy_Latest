@@ -75,14 +75,18 @@ public struct FoodForm: View {
 
     @State var refreshBool = false
     
+    let existingFood: Food?
+    
     public init(
         fields: FoodForm.Fields,
         sources: FoodForm.Sources,
         extractor: Extractor,
+        existingFood: Food? = nil,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
         Fields.shared = fields
         Sources.shared = sources
+        
         self.fields = fields
         self.sources = sources
         self.extractor = extractor
@@ -91,20 +95,25 @@ public struct FoodForm: View {
         _initialScanImage = State(initialValue: nil)
         _mockScanResult = State(initialValue: nil)
         _mockScanImage = State(initialValue: nil)
-        _showingLabelScanner = State(initialValue: sources.startWithCamera)
-        _animateLabelScannerUp = State(initialValue: sources.startWithCamera)
-        _shouldShowWizard = State(initialValue: !sources.startWithCamera)
-        _showingSaveButton = State(initialValue: sources.startWithCamera)
         _showingExtractorView = State(initialValue: false)
         
-//        extractor.setup(forCamera: true, didDismiss: extractorDidDismiss)
-
+        if let existingFood {
+            self.existingFood = existingFood
+            _showingLabelScanner = State(initialValue: false)
+            _animateLabelScannerUp = State(initialValue: false)
+            _shouldShowWizard = State(initialValue: false)
+            _showingSaveButton = State(initialValue: false)
+        } else {
+            self.existingFood = nil
+            _showingLabelScanner = State(initialValue: sources.startWithCamera)
+            _animateLabelScannerUp = State(initialValue: sources.startWithCamera)
+            _shouldShowWizard = State(initialValue: !sources.startWithCamera)
+            _showingSaveButton = State(initialValue: sources.startWithCamera)
+        }
     }
     
     public var body: some View {
         content
-//            .interactiveDismissDisabled(fields.isDirty, attemptToDismiss: $showingCancelConfirmation)
-//            .edgesIgnoringSafeArea(.bottom)
     }
     
     var content: some View {

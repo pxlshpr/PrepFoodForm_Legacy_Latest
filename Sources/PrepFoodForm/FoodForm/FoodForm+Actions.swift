@@ -41,6 +41,8 @@ extension FoodForm {
             self.initialScanImage = nil
             self.initialScanResult = nil
         }
+        
+        fields.updateFormState()
     }
     
     func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {
