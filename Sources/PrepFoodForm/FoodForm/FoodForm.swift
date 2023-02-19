@@ -307,23 +307,23 @@ public struct FoodForm: View {
                 FormStyledSection {
                     Color.clear.frame(height: 100)
                 }
-                .shimmering()
+                .shimmering(animation: Animation.linear(duration: 0.75).repeatForever(autoreverses: false))
                 FormStyledSection {
                     Color.clear.frame(height: 50)
                 }
-                .shimmering()
+                .shimmering(animation: Animation.linear(duration: 0.75).repeatForever(autoreverses: false))
                 FormStyledSection {
                     Color.clear.frame(height: 30)
                 }
-                .shimmering()
+                .shimmering(animation: Animation.linear(duration: 0.75).repeatForever(autoreverses: false))
                 FormStyledSection {
                     Color.clear.frame(height: 40)
                 }
-                .shimmering()
+                .shimmering(animation: Animation.linear(duration: 0.75).repeatForever(autoreverses: false))
                 FormStyledSection {
                     Color.clear.frame(height: 40)
                 }
-                .shimmering()
+                .shimmering(animation: Animation.linear(duration: 0.75).repeatForever(autoreverses: false))
             }
             .transition(.opacity)
         }

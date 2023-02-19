@@ -200,14 +200,16 @@ extension FoodForm {
             return
         }
         
-        Task {
+        Task.detached(priority: .background) {
             
-            fields.fillWithExistingFood(food)
-            fields.updateFormState()
-            didPrefillFoodFields = true
+            await MainActor.run {
+                fields.fillWithExistingFood(food)
+                fields.updateFormState()
+                didPrefillFoodFields = true
+            }
             
-            Task(priority: .background) {
-                await prefillImages(foodId: food.id)
+            Task.detached(priority: .background) {
+                await self.prefillImages(foodId: food.id)
             }
         }
     }
@@ -221,6 +223,7 @@ extension FoodForm {
             let (data, _) = try await URLSession.shared.data(from: url)
             let fieldsAndSources = try JSONDecoder().decode(FoodFormFieldsAndSources.self, from: data)
             
+            var imageViewModels: [ImageViewModel] = []
             for foodImage in fieldsAndSources.images {
                 let imageURL = imageURL(imageId: foodImage.id)
                 let (data, _) = try await URLSession.shared.data(from: imageURL)
@@ -231,18 +234,21 @@ extension FoodForm {
                 print("⬇️ Got back an image of size: \(image.size)")
                 
                 if let scanResult = foodImage.scanResult {
-                    sources.imageViewModels.append(.init(
+                    imageViewModels.append(.init(
                         image: image,
                         scanResult: scanResult
                     ))
                 } else {
-                    sources.imageViewModels.append(.init(
+                    imageViewModels.append(.init(
                         image: image,
                         id: foodImage.id
                     ))
                 }
             }
             
+            await MainActor.run {
+
+                sources.imageViewModels = imageViewModels
             //TODO: Do this first, and only do the local copy if we don't get the json data successfully
             
             /// Now set the Fills and crop the images
@@ -296,8 +302,11 @@ extension FoodForm {
             
             //TODO: Handle should publish
             
-            withAnimation {
-                didPrefillFoodSources = true
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation {
+                        didPrefillFoodSources = true
+                    }
+//                }
             }
             
         } catch {
