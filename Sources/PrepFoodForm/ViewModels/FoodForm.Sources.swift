@@ -8,7 +8,7 @@ import VisionSugar
 extension FoodForm {
     public class Sources: ObservableObject {
         
-        static var shared = Sources()
+        public static var shared = Sources()
         
         @Published var canBePublished: Bool = false
 

@@ -10,7 +10,7 @@ extension FoodForm {
     
     public class Fields: ObservableObject {
         
-        static var shared = Fields()
+        public static var shared = Fields()
         
         @Published var name: String = ""
         @Published var emoji: String = ""

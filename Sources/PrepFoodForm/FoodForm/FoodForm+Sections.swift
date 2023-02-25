@@ -185,7 +185,7 @@ struct DetailsQuickForm: View {
     }
     
     var form: some View {
-        QuickForm(title: "Details") {
+        QuickForm(title: "Details", confirmButtonForDismiss: true) {
             FormStyledSection {
                 Grid(alignment: .leading) {
                     GridRow {

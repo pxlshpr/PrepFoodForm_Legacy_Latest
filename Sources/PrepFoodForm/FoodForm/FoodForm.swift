@@ -16,10 +16,14 @@ public struct FoodForm: View {
     @State var showingCancelConfirmation = false
     
     /// ViewModels
-    @ObservedObject var fields: Fields
-    @ObservedObject var sources: Sources
-    @ObservedObject var extractor: Extractor
-    
+//    @ObservedObject var fields: Fields
+//    @ObservedObject var sources: Sources
+//    @ObservedObject var extractor: Extractor
+
+    @StateObject var fields: Fields = Fields.shared
+    @StateObject var sources: Sources = Sources.shared
+    @StateObject var extractor: Extractor = Extractor()
+
     //MARK: ☣️
     //    @ObservedObject var scanner: LabelScannerViewModel
     //    @ObservedObject var interactiveScanner: ScannerViewModel
@@ -80,18 +84,18 @@ public struct FoodForm: View {
     @State var didPrefillFoodSources = false
 
     public init(
-        fields: FoodForm.Fields,
-        sources: FoodForm.Sources,
-        extractor: Extractor,
+//        fields: FoodForm.Fields,
+//        sources: FoodForm.Sources,
+//        extractor: Extractor,
         existingFood: Food? = nil,
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
-        Fields.shared = fields
-        Sources.shared = sources
+//        Fields.shared = fields
+//        Sources.shared = sources
+//        self.fields = fields
+//        self.sources = sources
+//        self.extractor = extractor
         
-        self.fields = fields
-        self.sources = sources
-        self.extractor = extractor
         self.didSave = didSave
         _initialScanResult = State(initialValue: nil)
         _initialScanImage = State(initialValue: nil)
@@ -109,10 +113,12 @@ public struct FoodForm: View {
             _showingWizard = State(initialValue: false)
         } else {
             self.existingFood = nil
-            _showingLabelScanner = State(initialValue: sources.startWithCamera)
-            _animateLabelScannerUp = State(initialValue: sources.startWithCamera)
-            _showingSaveButton = State(initialValue: sources.startWithCamera)
-            _shouldShowWizard = State(initialValue: !sources.startWithCamera)
+//            let startWithCamera = sources.startWithCamera
+            let startWithCamera = false
+            _showingLabelScanner = State(initialValue: startWithCamera)
+            _animateLabelScannerUp = State(initialValue: startWithCamera)
+            _showingSaveButton = State(initialValue: startWithCamera)
+            _shouldShowWizard = State(initialValue: !startWithCamera)
             _showingWizardOverlay = State(initialValue: true)
             _showingWizard = State(initialValue: true)
         }
