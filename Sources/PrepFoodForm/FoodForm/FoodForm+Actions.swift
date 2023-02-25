@@ -158,12 +158,17 @@ extension FoodForm {
 //        }
     }
 
+    func dismissWithHaptics() {
+        Haptics.feedback(style: .soft)
+        isPresented = false
+        dismiss()
+    }
+
     //MARK: - Wizard Actions
     func tappedWizardButton(_ button: WizardButton) {
         Haptics.feedback(style: .soft)
         switch button {
         case .dismiss:
-            Haptics.feedback(style: .soft)
             dismiss()
         case .background, .startWithEmptyFood:
             break

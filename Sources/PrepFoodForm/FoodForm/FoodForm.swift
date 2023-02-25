@@ -83,13 +83,17 @@ public struct FoodForm: View {
     @State var didPrefillFoodFields = false
     @State var didPrefillFoodSources = false
 
+    @Binding var isPresented: Bool
+    
     public init(
 //        fields: FoodForm.Fields,
 //        sources: FoodForm.Sources,
 //        extractor: Extractor,
         existingFood: Food? = nil,
+        isPresented: Binding<Bool> = .constant(true),
         didSave: @escaping (FoodFormOutput) -> ()
     ) {
+        _isPresented = isPresented
 //        Fields.shared = fields
 //        Sources.shared = sources
 //        self.fields = fields
@@ -647,8 +651,7 @@ public struct FoodForm: View {
                 Haptics.warningFeedback()
                 showingCancelConfirmation = true
             } else {
-                Haptics.feedback(style: .soft)
-                dismiss()
+                dismissWithHaptics()
             }
         } label: {
             CloseButtonLabel(forNavigationBar: true)
